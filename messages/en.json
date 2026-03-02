@@ -3,14 +3,17 @@
     "explore": "Explore",
     "create": "Create Card",
     "logo": "GoTogether",
-    "myEvents": "My Events"
+    "myEvents": "My Events",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
   "hero": {
     "title": "Find Travelers to Join You",
     "subtitle": "Connect with travelers, share costs, and create unforgettable experiences together",
     "searchPlaceholder": "Search by city, attraction...",
     "useLocation": "Use my location",
-    "searchBtn": "Search"
+    "searchBtn": "Search",
+    "cardsFound": "{count} cards found"
   },
   "filters": {
     "all": "All",
@@ -113,5 +116,21 @@
   "lang": {
     "he": "עברית",
     "en": "English"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back 👋",
+    "joinCommunity": "Join the community 🌍",
+    "loginTab": "Sign In",
+    "registerTab": "Register",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "000-000-0000",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "signInBtn": "Sign In",
+    "createAccountBtn": "Create Account"
   }
 }

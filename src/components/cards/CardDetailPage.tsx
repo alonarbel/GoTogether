@@ -231,7 +231,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
                 className="bg-gray-900 rounded-2xl p-5 space-y-4 border border-white/5">
                 <h2 className="font-semibold text-white">{t('participants')}</h2>
-                <ParticipantBar current={currentCount} min={card.minParticipants} max={card.maxParticipants} showLabels size="lg" />
+                <ParticipantBar current={currentCount} min={card.minParticipants} max={card.maxParticipants} />
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-gray-800 rounded-xl p-3">
                     <div className="text-xl font-bold text-white">{currentCount}</div>

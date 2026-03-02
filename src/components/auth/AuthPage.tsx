@@ -1,32 +1,28 @@
 'use client'
 import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Compass, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Compass, Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const COUNTRY_CODES = [
   { code: '+972', flag: '🇮🇱', name: 'IL' },
-  { code: '+1', flag: '🇺🇸', name: 'US' },
-  { code: '+44', flag: '🇬🇧', name: 'UK' },
-  { code: '+49', flag: '🇩🇪', name: 'DE' },
-  { code: '+33', flag: '🇫🇷', name: 'FR' },
-  { code: '+39', flag: '🇮🇹', name: 'IT' },
-  { code: '+34', flag: '🇪🇸', name: 'ES' },
-  { code: '+31', flag: '🇳🇱', name: 'NL' },
-  { code: '+61', flag: '🇦🇺', name: 'AU' },
-  { code: '+81', flag: '🇯🇵', name: 'JP' },
-  { code: '+82', flag: '🇰🇷', name: 'KR' },
-  { code: '+91', flag: '🇮🇳', name: 'IN' },
-  { code: '+55', flag: '🇧🇷', name: 'BR' },
-  { code: '+52', flag: '🇲🇽', name: 'MX' },
-  { code: '+7', flag: '🇷🇺', name: 'RU' },
-  { code: '+86', flag: '🇨🇳', name: 'CN' },
-  { code: '+90', flag: '🇹🇷', name: 'TR' },
-  { code: '+62', flag: '🇮🇩', name: 'ID' },
-  { code: '+27', flag: '🇿🇦', name: 'ZA' },
-  { code: '+20', flag: '🇪🇬', name: 'EG' },
+  { code: '+1',   flag: '🇺🇸', name: 'US' },
+  { code: '+44',  flag: '🇬🇧', name: 'UK' },
+  { code: '+49',  flag: '🇩🇪', name: 'DE' },
+  { code: '+33',  flag: '🇫🇷', name: 'FR' },
+  { code: '+39',  flag: '🇮🇹', name: 'IT' },
+  { code: '+34',  flag: '🇪🇸', name: 'ES' },
+  { code: '+31',  flag: '🇳🇱', name: 'NL' },
+  { code: '+61',  flag: '🇦🇺', name: 'AU' },
+  { code: '+81',  flag: '🇯🇵', name: 'JP' },
+  { code: '+91',  flag: '🇮🇳', name: 'IN' },
+  { code: '+55',  flag: '🇧🇷', name: 'BR' },
+  { code: '+86',  flag: '🇨🇳', name: 'CN' },
+  { code: '+90',  flag: '🇹🇷', name: 'TR' },
+  { code: '+20',  flag: '🇪🇬', name: 'EG' },
 ]
 
 export function AuthPage() {
@@ -42,6 +38,7 @@ export function AuthPage() {
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
+  const t = useTranslations('auth')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,9 +50,7 @@ export function AuthPage() {
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: { full_name: fullName, phone: fullPhone },
-        },
+        options: { data: { full_name: fullName, phone: fullPhone } },
       })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
     } else {
@@ -68,145 +63,206 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-20">
+    <div className="min-h-screen flex items-center justify-center px-4 pt-16 pb-8">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-teal-950/20 to-gray-950" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-teal-500/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-teal-950/20 to-gray-950 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className="relative w-full max-w-md"
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/25 mx-auto mb-3">
-            <Compass className="w-6 h-6 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">GoTogether</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            {mode === 'login' ? 'ברוך השב 👋' : 'הצטרף לקהילה 🌍'}
-          </p>
-        </div>
-
-        {/* Tab switcher */}
-        <div className="flex bg-gray-900 rounded-xl p-1 mb-6 border border-white/5">
-          {(['login', 'register'] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => { setMode(m); setError('') }}
-              className={cn(
-                'flex-1 py-2 rounded-lg text-sm font-medium transition-all',
-                mode === m ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'
-              )}
-            >
-              {m === 'login' ? 'התחברות' : 'הרשמה'}
-            </button>
-          ))}
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-gray-900 rounded-2xl p-6 border border-white/5 space-y-4">
-          <AnimatePresence mode="wait">
-            {mode === 'register' && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="space-y-4 overflow-hidden"
-              >
-                <div className="space-y-1.5">
-                  <label className="text-sm text-gray-400">שם מלא</label>
-                  <input
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="ישראל ישראלי"
-                    required
-                    className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm text-gray-400">מספר טלפון</label>
-                  <div className="flex gap-2">
-                    <select
-                      value={phoneCode}
-                      onChange={(e) => setPhoneCode(e.target.value)}
-                      className="px-3 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all text-sm"
-                    >
-                      {COUNTRY_CODES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.flag} {c.code}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="050-000-0000"
-                      required
-                      className="flex-1 px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="space-y-1.5">
-            <label className="text-sm text-gray-400">אימייל</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm text-gray-400">סיסמא</label>
-            <div className="relative">
-              <input
-                type={showPass ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="לפחות 6 תווים"
-                required
-                minLength={6}
-                className="w-full px-4 py-3 pe-12 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass(!showPass)}
-                className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-              >
-                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold 
-                       hover:from-teal-400 hover:to-cyan-400 transition-all shadow-lg shadow-teal-500/25 
-                       disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-2xl shadow-teal-500/30 mx-auto mb-4"
           >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {mode === 'login' ? 'התחברות' : 'צור חשבון'}
-          </button>
-        </form>
+            <Compass className="w-7 h-7 text-white" />
+          </motion.div>
+          <h1 className="text-2xl font-bold text-white">GoTogether</h1>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={mode}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="text-gray-400 text-sm mt-1"
+            >
+              {mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        {/* Card */}
+        <div className="bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-white/8 shadow-2xl shadow-black/40 overflow-hidden">
+          {/* Tab switcher */}
+          <div className="flex bg-gray-950/50 p-1.5 gap-1">
+            {(['login', 'register'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => { setMode(m); setError('') }}
+                className={cn(
+                  'flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                  mode === m
+                    ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/20'
+                    : 'text-gray-500 hover:text-gray-300'
+                )}
+              >
+                {m === 'login' ? t('loginTab') : t('registerTab')}
+              </button>
+            ))}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <AnimatePresence mode="wait">
+              {mode === 'register' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-4 overflow-hidden"
+                >
+                  {/* Full name */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('fullNameLabel')}</label>
+                    <div className="relative">
+                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                      <input
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder={t('fullNamePlaceholder')}
+                        required
+                        className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                                   placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
+                                   transition-all duration-200"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('phoneLabel')}</label>
+                    <div className="flex gap-2">
+                      <div className="relative">
+                        <select
+                          value={phoneCode}
+                          onChange={(e) => setPhoneCode(e.target.value)}
+                          className="appearance-none ps-3 pe-7 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white
+                                     text-sm focus:outline-none focus:border-teal-500/50 transition-all cursor-pointer"
+                          dir="ltr"
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code} className="bg-gray-900">
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none" />
+                      </div>
+                      <div className="relative flex-1">
+                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                        <input
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder={t('phonePlaceholder')}
+                          required
+                          dir="ltr"
+                          className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                                     placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
+                                     transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('emailLabel')}</label>
+              <div className="relative">
+                <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('emailPlaceholder')}
+                  required
+                  dir="ltr"
+                  className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
+                             transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('passwordLabel')}</label>
+              <div className="relative">
+                <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t('passwordPlaceholder')}
+                  required
+                  minLength={6}
+                  dir="ltr"
+                  className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
+                             transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5"
+                >
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                    {error}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
+                         text-white font-semibold text-sm hover:from-teal-400 hover:to-cyan-400
+                         transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50
+                         disabled:cursor-not-allowed flex items-center justify-center gap-2
+                         active:scale-[0.98]"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {mode === 'login' ? t('signInBtn') : t('createAccountBtn')}
+            </button>
+          </form>
+        </div>
       </motion.div>
     </div>
   )

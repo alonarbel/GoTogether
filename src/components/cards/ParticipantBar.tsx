@@ -1,56 +1,43 @@
 'use client'
 import { motion } from 'framer-motion'
-import { getParticipantStatus } from '@/lib/utils'
-import { useTranslations } from 'next-intl'
+import { cn } from '@/lib/utils'
 
 interface ParticipantBarProps {
   current: number
   min: number
   max: number
-  showLabels?: boolean
-  size?: 'sm' | 'lg'
+  className?: string
 }
 
-export function ParticipantBar({ current, min, max, showLabels = false, size = 'sm' }: ParticipantBarProps) {
-  const t = useTranslations('card')
-  const { percentage, isFull, hasMinimum } = getParticipantStatus(current, min, max)
+export function ParticipantBar({ current, min, max, className }: ParticipantBarProps) {
+  const percentage = Math.min((current / max) * 100, 100)
   const minPercentage = (min / max) * 100
-
-  const barColor = isFull
-    ? 'from-red-500 to-rose-500'
-    : hasMinimum
-    ? 'from-teal-500 to-cyan-400'
-    : 'from-amber-500 to-orange-400'
+  const isFull = current >= max
+  const hasMinimum = current >= min
 
   return (
-    <div className="space-y-1.5">
-      {showLabels && (
-        <div className="flex justify-between text-xs text-gray-400">
-          <span>{t('participants')}: <span className="text-white font-medium">{current}</span></span>
-          <span>{t('min')}: <span className="text-amber-400 font-medium">{min}</span> · {t('max')}: <span className="text-teal-400 font-medium">{max}</span></span>
-        </div>
-      )}
-      <div className={`relative bg-gray-800 rounded-full overflow-hidden ${size === 'lg' ? 'h-3' : 'h-2'}`}>
-        {/* Min marker */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-amber-500/60 z-10"
-          style={{ left: `${minPercentage}%` }}
-        />
-        {/* Fill bar */}
+    <div className={cn('space-y-1', className)}>
+      <div className="relative h-1.5 bg-gray-800 rounded-full overflow-visible">
+        {/* Fill */}
         <motion.div
           initial={{ width: 0 }}
-          animate={{ width: `${Math.min(percentage, 100)}%` }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-          className={`h-full rounded-full bg-gradient-to-r ${barColor} shadow-lg`}
-          style={{ boxShadow: hasMinimum ? '0 0 8px rgba(20,184,166,0.4)' : '0 0 8px rgba(245,158,11,0.4)' }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
+          className={cn(
+            'absolute inset-y-0 start-0 rounded-full',
+            isFull
+              ? 'bg-red-500'
+              : hasMinimum
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+              : 'bg-gradient-to-r from-teal-600 to-cyan-500'
+          )}
+        />
+        {/* Min marker */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-full bg-amber-400/60"
+          style={{ insetInlineStart: `${minPercentage}%` }}
         />
       </div>
-      {!showLabels && (
-        <div className="flex justify-between text-xs text-gray-600">
-          <span className="text-amber-500/80">{min} min</span>
-          <span className="text-teal-500/80">{max} max</span>
-        </div>
-      )}
     </div>
   )
 }

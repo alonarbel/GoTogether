@@ -5,7 +5,7 @@ import { TravelCard, CardType } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Compass, Loader2 } from 'lucide-react'
+import { Search, MapPin, Compass, Loader2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
@@ -52,39 +52,54 @@ export function ExplorePage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <div className="relative overflow-hidden pt-24 pb-16 px-6">
-        <div className="absolute inset-0 bg-gradient-to-b from-teal-950/30 via-gray-950 to-gray-950" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-teal-500/10 rounded-full blur-3xl" />
+      <div className="relative overflow-hidden pt-24 pb-14 px-4 sm:px-6">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-teal-950/25 via-gray-950/80 to-gray-950 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 right-1/4 w-[200px] h-[200px] bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
 
-        <div className="relative max-w-4xl mx-auto text-center space-y-6">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm mb-6">
-              <Compass className="w-4 h-4" />
+        <div className="relative max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+          >
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-6">
+              <Compass className="w-3.5 h-3.5" />
               <span>GoTogether</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight">{t('title')}</h1>
-            <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">{t('subtitle')}</p>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight tracking-tight">
+              {t('title')}
+            </h1>
+            <p className="mt-4 text-base sm:text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
+              {t('subtitle')}
+            </p>
           </motion.div>
 
+          {/* Search */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex gap-2 max-w-xl mx-auto"
+            transition={{ delay: 0.18, duration: 0.45 }}
+            className="mt-8 flex gap-2.5 max-w-lg mx-auto"
           >
             <div className="flex-1 relative">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('searchPlaceholder')}
-                className="w-full ps-10 pe-4 py-3 bg-gray-900 border border-white/10 rounded-xl text-white 
-                           placeholder:text-gray-500 focus:outline-none focus:border-teal-500/50 transition-all"
+                className="w-full ps-10 pe-4 py-3 bg-gray-900/90 border border-white/8 rounded-xl text-white text-sm
+                           placeholder:text-gray-600 focus:outline-none focus:border-teal-500/40 focus:bg-gray-900
+                           transition-all duration-200 shadow-lg shadow-black/20"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-3 bg-gray-900 border border-white/10 rounded-xl 
-                               text-gray-400 hover:text-teal-400 hover:border-teal-500/30 transition-all text-sm whitespace-nowrap">
+            <button className="flex items-center gap-2 px-4 py-3 bg-gray-900/90 border border-white/8 rounded-xl
+                               text-gray-400 hover:text-teal-400 hover:border-teal-500/25 transition-all text-sm
+                               whitespace-nowrap shadow-lg shadow-black/20">
               <MapPin className="w-4 h-4" />
               <span className="hidden sm:block">{t('useLocation')}</span>
             </button>
@@ -92,19 +107,26 @@ export function ExplorePage() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 pb-16 space-y-6">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+      {/* Filters + content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 space-y-5">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
           <FilterBar active={filter} onChange={setFilter} />
         </motion.div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+          <div className="flex items-center justify-center py-32">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+              <p className="text-sm text-gray-600">Loading...</p>
+            </div>
           </div>
         ) : (
           <>
-            <div className="text-sm text-gray-500">{filtered.length} cards found</div>
+            {/* Count */}
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-600">{t('cardsFound', { count: filtered.length })}</p>
+            </div>
+
             <AnimatePresence mode="wait">
               {filtered.length > 0 ? (
                 <motion.div
@@ -112,6 +134,7 @@ export function ExplorePage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
                 >
                   {filtered.map((card, i) => (
@@ -120,18 +143,20 @@ export function ExplorePage() {
                 </motion.div>
               ) : (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center py-24 space-y-4"
+                  className="text-center py-28 space-y-4"
                 >
-                  <div className="text-5xl">🌍</div>
+                  <div className="text-6xl mb-2">🌍</div>
                   <h3 className="text-xl font-semibold text-white">{tEmpty('title')}</h3>
-                  <p className="text-gray-400">{tEmpty('subtitle')}</p>
+                  <p className="text-gray-500 text-sm">{tEmpty('subtitle')}</p>
                   <Link
                     href={`/${locale}/create`}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 
-                               text-white font-medium hover:from-teal-400 hover:to-cyan-400 transition-all mt-4"
+                    className="inline-flex items-center gap-2 px-6 py-3 mt-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
+                               text-white text-sm font-semibold hover:from-teal-400 hover:to-cyan-400 transition-all
+                               shadow-lg shadow-teal-500/20"
                   >
+                    <Plus className="w-4 h-4" />
                     {tEmpty('cta')}
                   </Link>
                 </motion.div>

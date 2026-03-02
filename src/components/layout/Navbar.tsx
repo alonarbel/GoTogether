@@ -120,7 +120,7 @@ export function Navbar({ locale }: NavbarProps) {
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
-                      התנתקות
+                      {t('signOut')}
                     </button>
                   </motion.div>
                 )}
@@ -135,7 +135,7 @@ export function Navbar({ locale }: NavbarProps) {
                        shadow-lg shadow-teal-500/25"
           >
             <LogIn className="w-4 h-4" />
-            <span>כניסה</span>
+            <span>{t('signIn')}</span>
           </Link>
         )}
       </div>

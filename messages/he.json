@@ -3,14 +3,17 @@
     "explore": "גלה",
     "create": "צור כרטיסייה",
     "logo": "GoTogether",
-    "myEvents": "האירועים שלי"
+    "myEvents": "האירועים שלי",
+    "signIn": "כניסה",
+    "signOut": "התנתקות"
   },
   "hero": {
     "title": "מצא מטיילים שיצטרפו אליך",
     "subtitle": "הצטרף לקבוצות של מטיילים, שתף עלויות ותיצור חוויות בלתי נשכחות",
     "searchPlaceholder": "חפש לפי עיר, אטרקציה...",
     "useLocation": "השתמש במיקום שלי",
-    "searchBtn": "חפש"
+    "searchBtn": "חפש",
+    "cardsFound": "{count} כרטיסיות נמצאו"
   },
   "filters": {
     "all": "הכל",
@@ -113,5 +116,21 @@
   "lang": {
     "he": "עברית",
     "en": "English"
+  },
+  "auth": {
+    "welcomeBack": "ברוך השב 👋",
+    "joinCommunity": "הצטרף לקהילה 🌍",
+    "loginTab": "התחברות",
+    "registerTab": "הרשמה",
+    "fullNameLabel": "שם מלא",
+    "fullNamePlaceholder": "ישראל ישראלי",
+    "phoneLabel": "מספר טלפון",
+    "phonePlaceholder": "050-000-0000",
+    "emailLabel": "אימייל",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "סיסמא",
+    "passwordPlaceholder": "לפחות 6 תווים",
+    "signInBtn": "התחברות",
+    "createAccountBtn": "צור חשבון"
   }
 }
