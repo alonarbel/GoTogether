@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "explore": "גלה",
+    "create": "צור כרטיסייה",
+    "logo": "GoTogether"
+  },
+  "hero": {
+    "title": "מצא מטיילים שיצטרפו אליך",
+    "subtitle": "הצטרף לקבוצות של מטיילים, שתף עלויות ותיצור חוויות בלתי נשכחות",
+    "searchPlaceholder": "חפש לפי עיר, אטרקציה...",
+    "useLocation": "השתמש במיקום שלי",
+    "searchBtn": "חפש"
+  },
+  "filters": {
+    "all": "הכל",
+    "trip": "טיולים",
+    "attraction": "אטרקציות",
+    "workshop": "סדנאות",
+    "sport": "ספורט",
+    "food": "אוכל",
+    "other": "אחר"
+  },
+  "card": {
+    "participants": "משתתפים",
+    "min": "מינימום",
+    "max": "מקסימום",
+    "spotsLeft": "מקומות פנויים",
+    "spotsLeftCount": "{count} מקומות פנויים",
+    "needMore": "נדרשים עוד {count}",
+    "full": "מלא",
+    "joinBtn": "הצטרף",
+    "joined": "הצטרפת!",
+    "share": "שתף",
+    "viewDetails": "לפרטים",
+    "createdBy": "נוצר על ידי",
+    "expiresAt": "בתוקף עד",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "contact": "יצירת קשר",
+    "participantsList": "רשימת משתתפים",
+    "location": "מיקום",
+    "description": "תיאור",
+    "tags": "תגיות",
+    "groupChat": "צ'אט קבוצתי"
+  },
+  "create": {
+    "title": "צור כרטיסייה חדשה",
+    "subtitle": "מצא אנשים שיצטרפו להרפתקה שלך",
+    "step1": "פרטים בסיסיים",
+    "step2": "מיקום",
+    "step3": "משתתפים",
+    "step4": "יצירת קשר",
+    "step5": "תמונות",
+    "next": "הבא",
+    "back": "חזור",
+    "submit": "פרסם",
+    "titleLabel": "כותרת",
+    "titlePlaceholder": "למשל: טיול זריחה למצדה",
+    "descLabel": "תיאור",
+    "descPlaceholder": "ספר על הפעילות, מה כלול, מה לצפות...",
+    "typeLabel": "סוג פעילות",
+    "addressLabel": "כתובת",
+    "addressPlaceholder": "הזן כתובת או שם מקום",
+    "cityLabel": "עיר",
+    "countryLabel": "מדינה",
+    "minLabel": "מינימום משתתפים",
+    "maxLabel": "מקסימום משתתפים",
+    "dateLabel": "תאריך",
+    "whatsappLabel": "קישור לקבוצת WhatsApp",
+    "telegramLabel": "קישור לקבוצת Telegram",
+    "contactLabel": "פרטי קשר (אימייל / טלפון)",
+    "uploadImages": "העלה תמונות",
+    "uploadHint": "גרור תמונות לכאן או לחץ לבחירה",
+    "success": "הכרטיסייה פורסמה בהצלחה!",
+    "yourName": "השם שלך"
+  },
+  "empty": {
+    "title": "לא נמצאו כרטיסיות",
+    "subtitle": "היה הראשון ליצור כרטיסייה באזור זה!",
+    "cta": "צור כרטיסייה"
+  },
+  "lang": {
+    "he": "עברית",
+    "en": "English"
+  },
+  "status": {
+    "needMore": "נדרשים עוד {count} להתחיל",
+    "almostFull": "כמעט מלא!",
+    "full": "מלא",
+    "open": "פתוח"
+  }
+}

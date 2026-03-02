@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "explore": "Explore",
+    "create": "Create Card",
+    "logo": "GoTogether"
+  },
+  "hero": {
+    "title": "Find Travelers to Join You",
+    "subtitle": "Connect with travelers, share costs, and create unforgettable experiences together",
+    "searchPlaceholder": "Search by city, attraction...",
+    "useLocation": "Use my location",
+    "searchBtn": "Search"
+  },
+  "filters": {
+    "all": "All",
+    "trip": "Trips",
+    "attraction": "Attractions",
+    "workshop": "Workshops",
+    "sport": "Sports",
+    "food": "Food",
+    "other": "Other"
+  },
+  "card": {
+    "participants": "Participants",
+    "min": "Minimum",
+    "max": "Maximum",
+    "spotsLeft": "Spots left",
+    "spotsLeftCount": "{count} spots left",
+    "needMore": "{count} more needed",
+    "full": "Full",
+    "joinBtn": "Join",
+    "joined": "Joined!",
+    "share": "Share",
+    "viewDetails": "View Details",
+    "createdBy": "Created by",
+    "expiresAt": "Valid until",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "contact": "Contact",
+    "participantsList": "Participants",
+    "location": "Location",
+    "description": "Description",
+    "tags": "Tags",
+    "groupChat": "Group Chat"
+  },
+  "create": {
+    "title": "Create a New Card",
+    "subtitle": "Find people to join your adventure",
+    "step1": "Basic Info",
+    "step2": "Location",
+    "step3": "Participants",
+    "step4": "Contact",
+    "step5": "Photos",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Publish",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Sunrise hike to Masada",
+    "descLabel": "Description",
+    "descPlaceholder": "Tell us about the activity, what's included, what to expect...",
+    "typeLabel": "Activity Type",
+    "addressLabel": "Address",
+    "addressPlaceholder": "Enter address or place name",
+    "cityLabel": "City",
+    "countryLabel": "Country",
+    "minLabel": "Minimum Participants",
+    "maxLabel": "Maximum Participants",
+    "dateLabel": "Date",
+    "whatsappLabel": "WhatsApp Group Link",
+    "telegramLabel": "Telegram Group Link",
+    "contactLabel": "Contact Info (email / phone)",
+    "uploadImages": "Upload Photos",
+    "uploadHint": "Drag & drop photos here or click to select",
+    "success": "Card published successfully!",
+    "yourName": "Your Name"
+  },
+  "empty": {
+    "title": "No cards found",
+    "subtitle": "Be the first to create a card in this area!",
+    "cta": "Create Card"
+  },
+  "lang": {
+    "he": "עברית",
+    "en": "English"
+  },
+  "status": {
+    "needMore": "{count} more needed to start",
+    "almostFull": "Almost full!",
+    "full": "Full",
+    "open": "Open"
+  }
+}
