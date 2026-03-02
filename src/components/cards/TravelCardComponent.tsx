@@ -3,7 +3,8 @@ import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { MapPin, Users, ArrowRight } from 'lucide-react'
+import { MapPin, Users, ArrowRight, AlertTriangle } from 'lucide-react'
+import { isLastDayForMinimum } from '@/lib/utils'
 import { getCardTypeColor, getCardTypeIcon, getParticipantStatus, cn } from '@/lib/utils'
 import { ParticipantBar } from './ParticipantBar'
 import Image from 'next/image'
@@ -19,6 +20,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
+  const lastDay = isLastDayForMinimum(card.minDeadline)
   const { isFull, hasMinimum, neededForMin, spotsLeft } = getParticipantStatus(
     card.currentParticipants,
     card.minParticipants,
@@ -86,6 +88,14 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
           <MapPin className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
           <span>{card.location.city}, {card.location.country}</span>
         </div>
+
+        {/* Date */}
+        {card.eventDate && (
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className="text-teal-500">📅</span>
+            <span>{new Date(card.eventDate).toLocaleDateString('he-IL')}{card.eventTime ? ` · ${card.eventTime}` : ''}</span>
+          </div>
+        )}
 
         {/* Participant bar */}
         <ParticipantBar

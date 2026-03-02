@@ -2,7 +2,8 @@
   "nav": {
     "explore": "Explore",
     "create": "Create Card",
-    "logo": "GoTogether"
+    "logo": "GoTogether",
+    "myEvents": "My Events"
   },
   "hero": {
     "title": "Find Travelers to Join You",
@@ -20,6 +21,13 @@
     "food": "Food",
     "other": "Other"
   },
+  "organizerRole": {
+    "traveler": "Traveler",
+    "guide": "Guide",
+    "coach": "Coach",
+    "driver": "Driver",
+    "organizer": "Organizer"
+  },
   "card": {
     "participants": "Participants",
     "min": "Minimum",
@@ -29,24 +37,32 @@
     "needMore": "{count} more needed",
     "full": "Full",
     "joinBtn": "Join",
+    "leaveBtn": "Leave",
     "joined": "Joined!",
     "share": "Share",
     "viewDetails": "View Details",
     "createdBy": "Created by",
     "expiresAt": "Valid until",
+    "eventDate": "Event Date",
+    "eventTime": "Event Time",
+    "minDeadline": "Minimum Deadline",
+    "lastDayWarning": "⚡ Last day to reach minimum participants!",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "contact": "Contact",
+    "phone": "Phone",
     "participantsList": "Participants",
     "location": "Location",
     "description": "Description",
     "tags": "Tags",
-    "groupChat": "Group Chat"
+    "groupChat": "Group Chat",
+    "editCard": "Edit Card",
+    "organizer": "Organizer"
   },
   "create": {
     "title": "Create a New Card",
     "subtitle": "Find people to join your adventure",
-    "step1": "Basic Info",
+    "step1": "Details",
     "step2": "Location",
     "step3": "Participants",
     "step4": "Contact",
@@ -59,20 +75,35 @@
     "descLabel": "Description",
     "descPlaceholder": "Tell us about the activity, what's included, what to expect...",
     "typeLabel": "Activity Type",
+    "organizerRoleLabel": "Your Role",
+    "iAmTraveler": "I'm a traveler looking for a group",
+    "iAmOrganizer": "I'm a guide/organizer offering a service",
     "addressLabel": "Address",
     "addressPlaceholder": "Enter address or place name",
     "cityLabel": "City",
     "countryLabel": "Country",
     "minLabel": "Minimum Participants",
     "maxLabel": "Maximum Participants",
-    "dateLabel": "Date",
+    "eventDateLabel": "Event Date",
+    "eventTimeLabel": "Event Time",
+    "minDeadlineLabel": "Minimum Deadline",
     "whatsappLabel": "WhatsApp Group Link",
     "telegramLabel": "Telegram Group Link",
-    "contactLabel": "Contact Info (email / phone)",
+    "contactLabel": "Contact Info (email)",
+    "phoneLabel": "Phone",
     "uploadImages": "Upload Photos",
     "uploadHint": "Drag & drop photos here or click to select",
     "success": "Card published successfully!",
-    "yourName": "Your Name"
+    "loginRequired": "Login required to create a card"
+  },
+  "myEvents": {
+    "title": "My Events",
+    "created": "Events I Created",
+    "joined": "Events I Joined",
+    "past": "Past",
+    "active": "Active",
+    "empty": "No events yet",
+    "emptySub": "Create a new card or join an existing event"
   },
   "empty": {
     "title": "No cards found",
@@ -82,11 +113,5 @@
   "lang": {
     "he": "עברית",
     "en": "English"
-  },
-  "status": {
-    "needMore": "{count} more needed to start",
-    "almostFull": "Almost full!",
-    "full": "Full",
-    "open": "Open"
   }
 }

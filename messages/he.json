@@ -2,7 +2,8 @@
   "nav": {
     "explore": "גלה",
     "create": "צור כרטיסייה",
-    "logo": "GoTogether"
+    "logo": "GoTogether",
+    "myEvents": "האירועים שלי"
   },
   "hero": {
     "title": "מצא מטיילים שיצטרפו אליך",
@@ -20,6 +21,13 @@
     "food": "אוכל",
     "other": "אחר"
   },
+  "organizerRole": {
+    "traveler": "מטייל",
+    "guide": "מדריך",
+    "coach": "מאמן",
+    "driver": "נהג",
+    "organizer": "מארגן"
+  },
   "card": {
     "participants": "משתתפים",
     "min": "מינימום",
@@ -29,27 +37,35 @@
     "needMore": "נדרשים עוד {count}",
     "full": "מלא",
     "joinBtn": "הצטרף",
+    "leaveBtn": "עזוב",
     "joined": "הצטרפת!",
     "share": "שתף",
     "viewDetails": "לפרטים",
     "createdBy": "נוצר על ידי",
     "expiresAt": "בתוקף עד",
+    "eventDate": "תאריך האירוע",
+    "eventTime": "שעת האירוע",
+    "minDeadline": "תאריך אחרון למינימום",
+    "lastDayWarning": "⚡ יום אחרון להשיג מינימום משתתפים!",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "contact": "יצירת קשר",
+    "phone": "טלפון",
     "participantsList": "רשימת משתתפים",
     "location": "מיקום",
     "description": "תיאור",
     "tags": "תגיות",
-    "groupChat": "צ'אט קבוצתי"
+    "groupChat": "צ'אט קבוצתי",
+    "editCard": "ערוך כרטיסייה",
+    "organizer": "מארגן"
   },
   "create": {
     "title": "צור כרטיסייה חדשה",
     "subtitle": "מצא אנשים שיצטרפו להרפתקה שלך",
-    "step1": "פרטים בסיסיים",
+    "step1": "פרטים",
     "step2": "מיקום",
     "step3": "משתתפים",
-    "step4": "יצירת קשר",
+    "step4": "קשר",
     "step5": "תמונות",
     "next": "הבא",
     "back": "חזור",
@@ -59,20 +75,35 @@
     "descLabel": "תיאור",
     "descPlaceholder": "ספר על הפעילות, מה כלול, מה לצפות...",
     "typeLabel": "סוג פעילות",
+    "organizerRoleLabel": "מה תפקידך?",
+    "iAmTraveler": "אני מטייל מחפש קבוצה",
+    "iAmOrganizer": "אני מדריך/מארגן מציע שירות",
     "addressLabel": "כתובת",
     "addressPlaceholder": "הזן כתובת או שם מקום",
     "cityLabel": "עיר",
     "countryLabel": "מדינה",
     "minLabel": "מינימום משתתפים",
     "maxLabel": "מקסימום משתתפים",
-    "dateLabel": "תאריך",
+    "eventDateLabel": "תאריך האירוע",
+    "eventTimeLabel": "שעת האירוע",
+    "minDeadlineLabel": "תאריך אחרון להשגת מינימום",
     "whatsappLabel": "קישור לקבוצת WhatsApp",
     "telegramLabel": "קישור לקבוצת Telegram",
-    "contactLabel": "פרטי קשר (אימייל / טלפון)",
+    "contactLabel": "פרטי קשר (אימייל)",
+    "phoneLabel": "טלפון",
     "uploadImages": "העלה תמונות",
     "uploadHint": "גרור תמונות לכאן או לחץ לבחירה",
     "success": "הכרטיסייה פורסמה בהצלחה!",
-    "yourName": "השם שלך"
+    "loginRequired": "נדרשת התחברות ליצירת כרטיסייה"
+  },
+  "myEvents": {
+    "title": "האירועים שלי",
+    "created": "אירועים שיצרתי",
+    "joined": "אירועים שהצטרפתי",
+    "past": "עבר",
+    "active": "פעיל",
+    "empty": "אין אירועים עדיין",
+    "emptySub": "צור כרטיסייה חדשה או הצטרף לאירוע קיים"
   },
   "empty": {
     "title": "לא נמצאו כרטיסיות",
@@ -82,11 +113,5 @@
   "lang": {
     "he": "עברית",
     "en": "English"
-  },
-  "status": {
-    "needMore": "נדרשים עוד {count} להתחיל",
-    "almostFull": "כמעט מלא!",
-    "full": "מלא",
-    "open": "פתוח"
   }
 }

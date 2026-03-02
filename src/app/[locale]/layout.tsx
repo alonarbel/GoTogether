@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing'
 import { Geist } from 'next/font/google'
 import '../globals.css'
 import { Navbar } from '@/components/layout/Navbar'
+import { AuthProvider } from '@/lib/auth-context'
 
 const geist = Geist({ subsets: ['latin'] })
 
@@ -30,8 +31,10 @@ export default async function LocaleLayout({
     <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className="dark">
       <body className={`${geist.className} bg-gray-950 text-white min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
-          <Navbar locale={locale} />
-          <main>{children}</main>
+          <AuthProvider>
+            <Navbar locale={locale} />
+            <main>{children}</main>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -36,6 +36,14 @@ export function getParticipantStatus(current: number, min: number, max: number) 
   const hasMinimum = current >= min
   const spotsLeft = max - current
   const neededForMin = Math.max(0, min - current)
-
   return { percentage, isFull, hasMinimum, spotsLeft, neededForMin }
+}
+
+export function isLastDayForMinimum(minDeadline?: string): boolean {
+  if (!minDeadline) return false
+  const deadline = new Date(minDeadline)
+  const today = new Date()
+  deadline.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+  return deadline.getTime() === today.getTime()
 }
