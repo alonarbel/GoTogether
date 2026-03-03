@@ -1,128 +1,167 @@
--- GoTogether Database Schema v2
--- Run this in your Supabase SQL editor
+-- GoTogether Schema
+-- Run this in Supabase SQL Editor: https://supabase.com/dashboard/project/luavngvjippsrqtjikkk/sql/new
 
--- Enable UUID extension
+-- ============================================================
+-- Extensions
+-- ============================================================
 create extension if not exists "uuid-ossp";
 
--- Card types enum
-create type card_type as enum ('trip', 'attraction', 'workshop', 'sport', 'food', 'other');
-create type organizer_role as enum ('traveler', 'guide', 'coach', 'driver', 'organizer');
-
--- Profiles (extends Supabase auth.users)
-create table if not exists profiles (
-  id            uuid primary key references auth.users(id) on delete cascade,
-  full_name     text not null,
-  phone         text not null,
-  avatar_url    text,
-  created_at    timestamptz not null default now()
+-- ============================================================
+-- Profiles (extends auth.users)
+-- ============================================================
+create table if not exists public.profiles (
+  id          uuid references auth.users(id) on delete cascade primary key,
+  full_name   text not null default '',
+  phone       text,
+  avatar_url  text,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
 );
 
--- Auto-create profile on user signup
-create or replace function handle_new_user()
-returns trigger language plpgsql security definer as $$
+-- ============================================================
+-- Travel Cards
+-- ============================================================
+create table if not exists public.travel_cards (
+  id               uuid default uuid_generate_v4() primary key,
+  user_id          uuid references public.profiles(id) on delete cascade not null,
+  title            text not null,
+  description      text not null default '',
+  type             text not null default 'trip'
+                     check (type in ('trip','attraction','workshop','sport','food','other')),
+  organizer_role   text not null default 'traveler'
+                     check (organizer_role in ('traveler','guide','coach','driver','organizer')),
+  address          text not null default '',
+  city             text not null default '',
+  country          text not null default '',
+  lat              double precision,
+  lng              double precision,
+  min_participants int not null default 2,
+  max_participants int not null default 20,
+  event_date       date,
+  event_time       text,
+  min_deadline     date,
+  whatsapp_link    text,
+  telegram_link    text,
+  contact_info     text not null default '',
+  phone            text,
+  tags             text[] default '{}',
+  expires_at       timestamptz,
+  created_at       timestamptz default now(),
+  updated_at       timestamptz default now()
+);
+
+-- ============================================================
+-- Card Images
+-- ============================================================
+create table if not exists public.card_images (
+  id        uuid default uuid_generate_v4() primary key,
+  card_id   uuid references public.travel_cards(id) on delete cascade not null,
+  url       text not null,
+  position  int not null default 0,
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- Participants
+-- ============================================================
+create table if not exists public.participants (
+  id         uuid default uuid_generate_v4() primary key,
+  card_id    uuid references public.travel_cards(id) on delete cascade not null,
+  user_id    uuid references public.profiles(id) on delete cascade not null,
+  joined_at  timestamptz default now(),
+  unique(card_id, user_id)
+);
+
+-- ============================================================
+-- RLS
+-- ============================================================
+alter table public.profiles      enable row level security;
+alter table public.travel_cards  enable row level security;
+alter table public.card_images   enable row level security;
+alter table public.participants  enable row level security;
+
+-- Drop existing policies to avoid conflicts
+drop policy if exists "profiles_select"       on public.profiles;
+drop policy if exists "profiles_insert"       on public.profiles;
+drop policy if exists "profiles_update"       on public.profiles;
+drop policy if exists "cards_select"          on public.travel_cards;
+drop policy if exists "cards_insert"          on public.travel_cards;
+drop policy if exists "cards_update"          on public.travel_cards;
+drop policy if exists "cards_delete"          on public.travel_cards;
+drop policy if exists "images_select"         on public.card_images;
+drop policy if exists "images_insert"         on public.card_images;
+drop policy if exists "images_delete"         on public.card_images;
+drop policy if exists "participants_select"   on public.participants;
+drop policy if exists "participants_insert"   on public.participants;
+drop policy if exists "participants_delete"   on public.participants;
+
+-- Profiles
+create policy "profiles_select" on public.profiles for select using (true);
+create policy "profiles_insert" on public.profiles for insert with check (auth.uid() = id);
+create policy "profiles_update" on public.profiles for update using (auth.uid() = id);
+
+-- Travel cards
+create policy "cards_select" on public.travel_cards for select using (true);
+create policy "cards_insert" on public.travel_cards for insert with check (auth.uid() = user_id);
+create policy "cards_update" on public.travel_cards for update using (auth.uid() = user_id);
+create policy "cards_delete" on public.travel_cards for delete using (auth.uid() = user_id);
+
+-- Card images
+create policy "images_select" on public.card_images for select using (true);
+create policy "images_insert" on public.card_images for insert with check (
+  auth.uid() = (select user_id from public.travel_cards where id = card_id)
+);
+create policy "images_delete" on public.card_images for delete using (
+  auth.uid() = (select user_id from public.travel_cards where id = card_id)
+);
+
+-- Participants
+create policy "participants_select" on public.participants for select using (true);
+create policy "participants_insert" on public.participants for insert with check (auth.uid() = user_id);
+create policy "participants_delete" on public.participants for delete using (auth.uid() = user_id);
+
+-- ============================================================
+-- Trigger: auto-create profile on signup
+-- ============================================================
+create or replace function public.handle_new_user()
+returns trigger as $$
 begin
-  insert into profiles (id, full_name, phone)
+  insert into public.profiles (id, full_name, phone, avatar_url)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
-    coalesce(new.raw_user_meta_data->>'phone', '')
-  );
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'avatar_url'
+  )
+  on conflict (id) do update
+    set full_name  = excluded.full_name,
+        phone      = excluded.phone,
+        avatar_url = excluded.avatar_url;
   return new;
 end;
-$$;
+$$ language plpgsql security definer;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute procedure handle_new_user();
+  for each row execute procedure public.handle_new_user();
 
--- Travel cards
-create table if not exists travel_cards (
-  id                uuid primary key default uuid_generate_v4(),
-  user_id           uuid references auth.users(id) on delete cascade not null,
-  title             text not null,
-  description       text not null,
-  type              card_type not null default 'trip',
-  organizer_role    organizer_role not null default 'traveler',
-  address           text not null,
-  city              text not null,
-  country           text not null,
-  lat               double precision,
-  lng               double precision,
-  min_participants  int not null default 2,
-  max_participants  int not null default 20,
-  event_date        date,
-  event_time        time,
-  min_deadline      date,
-  contact_info      text not null,
-  phone             text,
-  whatsapp_link     text,
-  telegram_link     text,
-  created_at        timestamptz not null default now(),
-  expires_at        timestamptz,
-  tags              text[] default '{}'
-);
+-- ============================================================
+-- Storage bucket for card images
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('card-images', 'card-images', true)
+on conflict do nothing;
 
--- Card images
-create table if not exists card_images (
-  id       uuid primary key default uuid_generate_v4(),
-  card_id  uuid references travel_cards(id) on delete cascade,
-  url      text not null,
-  position int not null default 0
-);
+drop policy if exists "card_images_public_read"  on storage.objects;
+drop policy if exists "card_images_auth_upload"  on storage.objects;
+drop policy if exists "card_images_owner_delete" on storage.objects;
 
--- Participants
-create table if not exists participants (
-  id        uuid primary key default uuid_generate_v4(),
-  card_id   uuid references travel_cards(id) on delete cascade,
-  user_id   uuid references auth.users(id) on delete cascade,
-  joined_at timestamptz not null default now(),
-  unique(card_id, user_id)
-);
+create policy "card_images_public_read" on storage.objects
+  for select using (bucket_id = 'card-images');
 
--- Indexes
-create index if not exists idx_travel_cards_user_id on travel_cards(user_id);
-create index if not exists idx_travel_cards_city on travel_cards(city);
-create index if not exists idx_travel_cards_type on travel_cards(type);
-create index if not exists idx_travel_cards_created_at on travel_cards(created_at desc);
-create index if not exists idx_participants_card_id on participants(card_id);
-create index if not exists idx_participants_user_id on participants(user_id);
+create policy "card_images_auth_upload" on storage.objects
+  for insert with check (bucket_id = 'card-images' and auth.role() = 'authenticated');
 
--- RLS
-alter table profiles enable row level security;
-alter table travel_cards enable row level security;
-alter table card_images enable row level security;
-alter table participants enable row level security;
-
--- Profiles policies
-create policy "Users can read all profiles" on profiles for select using (true);
-create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
-
--- Cards policies
-create policy "Anyone can read cards" on travel_cards for select using (true);
-create policy "Auth users can create cards" on travel_cards for insert with check (auth.uid() = user_id);
-create policy "Owner can update card" on travel_cards for update using (auth.uid() = user_id);
-create policy "Owner can delete card" on travel_cards for delete using (auth.uid() = user_id);
-
--- Images policies
-create policy "Anyone can read images" on card_images for select using (true);
-create policy "Card owner can add images" on card_images for insert with check (
-  exists (select 1 from travel_cards where id = card_id and user_id = auth.uid())
-);
-
--- Participants policies
-create policy "Anyone can read participants" on participants for select using (true);
-create policy "Auth users can join" on participants for insert with check (auth.uid() = user_id);
-create policy "Users can leave" on participants for delete using (auth.uid() = user_id);
-
--- View: cards with full details
-create or replace view cards_full as
-  select
-    c.*,
-    p.full_name as creator_name,
-    p.phone as creator_phone,
-    count(part.id)::int as current_participants
-  from travel_cards c
-  join profiles p on p.id = c.user_id
-  left join participants part on part.card_id = c.id
-  group by c.id, p.full_name, p.phone;
+create policy "card_images_owner_delete" on storage.objects
+  for delete using (bucket_id = 'card-images' and auth.uid()::text = (storage.foldername(name))[1]);
