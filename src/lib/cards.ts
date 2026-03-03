@@ -113,6 +113,15 @@ export async function createCard(data: {
   if (error || !card) {
     throw new Error(error?.message || error?.code || 'Unknown Supabase error')
   }
+
+  // If organizer_role is 'traveler', auto-join as participant
+  if (data.organizerRole === 'traveler') {
+    await supabase.from('participants').insert({
+      card_id: card.id,
+      user_id: data.userId,
+    })
+  }
+
   return fetchCard(card.id)
 }
 
