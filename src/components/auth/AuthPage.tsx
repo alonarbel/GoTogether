@@ -242,8 +242,8 @@ export function AuthPage() {
               </div>
             </div>}
 
-            {/* Password — hidden when coming from recovery email */}
-            {!isRecovery && <div className="space-y-1.5">
+            {/* Password — hidden in reset/recovery modes */}
+            {!isRecovery && mode !== 'reset' && <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('passwordLabel')}</label>
               <div className="relative">
                 <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
