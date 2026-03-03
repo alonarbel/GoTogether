@@ -30,7 +30,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', userId)
       .single()
-    if (data) setProfile(data as UserProfile)
+
+    if (data) {
+      setProfile(data as UserProfile)
+    } else {
+      // Profile missing (e.g. after DB reset) — recreate it from auth metadata
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) {
+        const meta = authUser.user_metadata
+        await supabase.from('profiles').upsert({
+          id: userId,
+          full_name: meta?.full_name || authUser.email?.split('@')[0] || '',
+          phone: meta?.phone || null,
+          avatar_url: meta?.avatar_url || null,
+        })
+        const { data: newProfile } = await supabase
+          .from('profiles').select('*').eq('id', userId).single()
+        if (newProfile) setProfile(newProfile as UserProfile)
+      }
+    }
   }
 
   const refreshProfile = async () => {
