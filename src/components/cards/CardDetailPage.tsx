@@ -31,7 +31,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
   const [imgIndex, setImgIndex] = useState(0)
   const isOwner = user?.id === card.createdByUserId
 
-  const currentCount = card.currentParticipants + (joined ? 1 : 0)
+  // joined state reflects what's already in DB — don't double-count
+  const currentCount = card.currentParticipants
   const { isFull, hasMinimum, neededForMin } = getParticipantStatus(currentCount, card.minParticipants, card.maxParticipants)
   const lastDay = isLastDayForMinimum(card.minDeadline)
 
@@ -52,6 +53,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
       setJoined(true)
     }
     setJoinLoading(false)
+    // Refresh to get updated participant count from DB
+    router.refresh()
   }
 
   return (
