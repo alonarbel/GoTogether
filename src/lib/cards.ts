@@ -111,8 +111,7 @@ export async function createCard(data: {
     .single()
 
   if (error || !card) {
-    console.error('createCard error:', JSON.stringify(error))
-    return null
+    throw new Error(error?.message || error?.code || 'Unknown Supabase error')
   }
   return fetchCard(card.id)
 }
