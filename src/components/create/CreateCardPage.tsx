@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,6 +9,7 @@ import { CheckCircle2, Upload, ArrowLeft, ArrowRight, Check, Loader2, LogIn } fr
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { createCard } from '@/lib/cards'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 const TOTAL_STEPS = 5
@@ -41,6 +42,9 @@ export function CreateCardPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const [form, setForm] = useState<FormData>({
     title: '', description: '', type: 'trip', organizerRole: 'traveler',
@@ -87,8 +91,28 @@ export function CreateCardPage() {
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       })
       if (!result) throw new Error('Failed to create card')
+
+      // Upload images if any
+      if (imageFiles.length > 0) {
+        await Promise.all(imageFiles.map(async (file, i) => {
+          const ext = file.name.split('.').pop()
+          const path = `${user.id}/${result.id}/${i}.${ext}`
+          const { error: upErr } = await supabase.storage
+            .from('card-images')
+            .upload(path, file, { upsert: true })
+          if (!upErr) {
+            const { data } = supabase.storage.from('card-images').getPublicUrl(path)
+            await supabase.from('card_images').insert({
+              card_id: result.id,
+              url: data.publicUrl,
+              position: i,
+            })
+          }
+        }))
+      }
+
       setSubmitted(true)
-      setTimeout(() => router.push(`/${locale}`), 1500)
+      setTimeout(() => router.push(`/${locale}/cards/${result.id}`), 1500)
     } catch (e) {
       console.error('Create card error:', e)
       const msg = e instanceof Error ? e.message : 'שגיאה לא ידועה'
@@ -365,12 +389,58 @@ export function CreateCardPage() {
 
               {step === 5 && (
                 <div className="space-y-4">
-                  <div className="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-teal-500/30 transition-colors cursor-pointer group">
-                    <Upload className="w-10 h-10 text-gray-600 group-hover:text-teal-500 mx-auto mb-3 transition-colors" />
-                    <p className="text-gray-400 font-medium">{t('uploadImages')}</p>
-                    <p className="text-sm text-gray-600 mt-1">{t('uploadHint')}</p>
-                  </div>
-                  <p className="text-xs text-gray-600 text-center">תמונות יתווספו בקרוב. ניתן לפרסם ללא תמונה.</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={e => {
+                      const files = Array.from(e.target.files || []).slice(0, 5)
+                      setImageFiles(files)
+                      setImagePreviews(files.map(f => URL.createObjectURL(f)))
+                    }}
+                  />
+                  {imagePreviews.length === 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-teal-500/30 transition-colors group"
+                    >
+                      <Upload className="w-10 h-10 text-gray-600 group-hover:text-teal-500 mx-auto mb-3 transition-colors" />
+                      <p className="text-gray-400 font-medium">{t('uploadImages')}</p>
+                      <p className="text-sm text-gray-600 mt-1">{t('uploadHint')}</p>
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {imagePreviews.map((src, i) => (
+                          <div key={i} className="relative aspect-video rounded-xl overflow-hidden group">
+                            <img src={src} alt="" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setImageFiles(f => f.filter((_, j) => j !== i))
+                                setImagePreviews(p => p.filter((_, j) => j !== i))
+                              }}
+                              className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >✕</button>
+                          </div>
+                        ))}
+                        {imagePreviews.length < 5 && (
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="aspect-video rounded-xl border-2 border-dashed border-white/10 hover:border-teal-500/30 flex items-center justify-center transition-colors"
+                          >
+                            <Upload className="w-6 h-6 text-gray-600" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 text-center">{imagePreviews.length}/5 תמונות</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-600 text-center">ניתן לפרסם ללא תמונה</p>
                 </div>
               )}
             </motion.div>

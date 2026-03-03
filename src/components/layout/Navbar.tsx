@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
-import { Globe, Plus, Compass, CalendarDays, LogOut, LogIn, ChevronDown } from 'lucide-react'
+import { Globe, Plus, Compass, CalendarDays, LogOut, LogIn, ChevronDown, UserCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/lib/auth-context'
 import { useState } from 'react'
@@ -115,6 +115,14 @@ export function Navbar({ locale }: NavbarProps) {
                         <div className="text-xs text-gray-500 mt-0.5">{profile.phone}</div>
                       )}
                     </div>
+                    <Link
+                      href={`/${locale}/profile`}
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
+                    >
+                      <UserCircle className="w-4 h-4" />
+                      {t('profile')}
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"

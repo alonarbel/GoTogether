@@ -5,7 +5,8 @@
     "logo": "GoTogether",
     "myEvents": "My Events",
     "signIn": "Sign In",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "profile": "Profile"
   },
   "hero": {
     "title": "Find Travelers to Join You",
