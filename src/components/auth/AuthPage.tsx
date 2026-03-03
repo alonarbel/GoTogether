@@ -223,8 +223,8 @@ export function AuthPage() {
               )}
             </AnimatePresence>
 
-            {/* Email */}
-            <div className="space-y-1.5">
+            {/* Email — hidden when coming from recovery email */}
+            {!isRecovery && <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('emailLabel')}</label>
               <div className="relative">
                 <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
@@ -240,10 +240,10 @@ export function AuthPage() {
                              transition-all duration-200"
                 />
               </div>
-            </div>
+            </div>}
 
-            {/* Password */}
-            <div className="space-y-1.5">
+            {/* Password — hidden when coming from recovery email */}
+            {!isRecovery && <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('passwordLabel')}</label>
               <div className="relative">
                 <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
@@ -267,7 +267,7 @@ export function AuthPage() {
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-            </div>
+            </div>}
 
             {/* Error */}
             <AnimatePresence>
