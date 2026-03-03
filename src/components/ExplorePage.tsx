@@ -9,7 +9,6 @@ import { Search, MapPin, Compass, Loader2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
-import { mockCards } from '@/lib/mock-data'
 
 type FilterType = CardType | 'all'
 
@@ -27,9 +26,10 @@ export function ExplorePage() {
     const load = async () => {
       try {
         const data = await fetchCards()
-        setCards(data.length > 0 ? data : mockCards)
-      } catch {
-        setCards(mockCards)
+        setCards(data)
+      } catch (e) {
+        console.error('Failed to fetch cards:', e)
+        setCards([])
       } finally {
         setLoading(false)
       }

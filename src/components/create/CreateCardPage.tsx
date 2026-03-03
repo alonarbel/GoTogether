@@ -64,7 +64,7 @@ export function CreateCardPage() {
     if (!user) return
     setLoading(true)
     try {
-      await createCard({
+      const result = await createCard({
         userId: user.id,
         title: form.title,
         description: form.description,
@@ -84,8 +84,12 @@ export function CreateCardPage() {
         telegramLink: form.telegramLink || undefined,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       })
+      if (!result) throw new Error('Failed to create card')
       setSubmitted(true)
-      setTimeout(() => router.push(`/${locale}`), 2000)
+      setTimeout(() => router.push(`/${locale}`), 1500)
+    } catch (e) {
+      console.error('Create card error:', e)
+      alert('שגיאה ביצירת הכרטיסייה. בדוק את הconsole.')
     } finally {
       setLoading(false)
     }
