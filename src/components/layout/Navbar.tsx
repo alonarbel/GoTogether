@@ -90,8 +90,11 @@ export function Navbar({ locale }: NavbarProps) {
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-900 border border-white/10 
                            hover:border-teal-500/30 transition-all text-sm"
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white">
-                  {profile?.full_name?.[0]?.toUpperCase() || '?'}
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
+                  {profile?.avatar_url
+                    ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    : (profile?.full_name?.[0]?.toUpperCase() || '?')
+                  }
                 </div>
                 <span className="hidden sm:block text-gray-300 max-w-[100px] truncate">
                   {profile?.full_name?.split(' ')[0] || 'User'}
@@ -108,12 +111,17 @@ export function Navbar({ locale }: NavbarProps) {
                     className="absolute end-0 top-full mt-2 w-52 bg-gray-900 border border-white/10 rounded-xl 
                                shadow-xl shadow-black/40 overflow-hidden z-50"
                   >
-                    <div className="p-3 border-b border-white/5">
-                      <div className="text-sm font-medium text-white">{profile?.full_name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{user.email}</div>
-                      {profile?.phone && (
-                        <div className="text-xs text-gray-500 mt-0.5">{profile.phone}</div>
-                      )}
+                    <div className="p-3 border-b border-white/5 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white overflow-hidden shrink-0">
+                        {profile?.avatar_url
+                          ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                          : (profile?.full_name?.[0]?.toUpperCase() || '?')
+                        }
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-white truncate">{profile?.full_name || 'משתמש'}</div>
+                        <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                      </div>
                     </div>
                     <Link
                       href={`/${locale}/profile`}

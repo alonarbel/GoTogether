@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -36,6 +36,20 @@ export function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resetSent, setResetSent] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [isRecovery, setIsRecovery] = useState(false)
+  const [passwordUpdated, setPasswordUpdated] = useState(false)
+
+  // Detect Supabase PASSWORD_RECOVERY event from email link
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('reset')
+        setIsRecovery(true)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
@@ -47,8 +61,18 @@ export function AuthPage() {
     setError('')
 
     if (mode === 'reset') {
+      // If user came from recovery email, update the password
+      if (isRecovery) {
+        const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+        if (updateError) { setError(updateError.message); setLoading(false); return }
+        setPasswordUpdated(true)
+        setLoading(false)
+        setTimeout(() => router.push(`/${locale}`), 2000)
+        return
+      }
+      // Otherwise send reset email
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/${locale}/auth?mode=update-password`,
+        redirectTo: `${window.location.origin}/${locale}/auth`,
       })
       if (resetError) { setError(resetError.message); setLoading(false); return }
       setResetSent(true)
@@ -271,8 +295,41 @@ export function AuthPage() {
               </div>
             )}
 
-            {/* Reset mode UI */}
-            {mode === 'reset' && (
+            {/* Recovery: new password field */}
+            {mode === 'reset' && isRecovery && !passwordUpdated && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">סיסמה חדשה</label>
+                <div className="relative">
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="לפחות 6 תווים"
+                    required
+                    minLength={6}
+                    dir="ltr"
+                    className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                               placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800 transition-all"
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5">
+                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Password updated success */}
+            {passwordUpdated && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+                ✅ הסיסמה עודכנה! מעביר אותך...
+              </motion.div>
+            )}
+
+            {/* Reset mode UI — email sent */}
+            {mode === 'reset' && !isRecovery && (
               <AnimatePresence>
                 {resetSent ? (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -284,7 +341,7 @@ export function AuthPage() {
             )}
 
             {/* Submit */}
-            {!resetSent && (
+            {!resetSent && !passwordUpdated && (
               <button
                 type="submit"
                 disabled={loading}
