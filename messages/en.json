@@ -60,7 +60,10 @@
     "tags": "Tags",
     "groupChat": "Group Chat",
     "editCard": "Edit Card",
-    "organizer": "Organizer"
+    "organizer": "Organizer",
+    "back": "Back",
+    "leftCard": "You left the card",
+    "joinedCard": "You joined! 🎉"
   },
   "create": {
     "title": "Create a New Card",
@@ -131,6 +134,11 @@
     "passwordLabel": "Password",
     "passwordPlaceholder": "At least 6 characters",
     "signInBtn": "Sign In",
-    "createAccountBtn": "Create Account"
+    "createAccountBtn": "Create Account",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "resetSent": "Check your email for a reset link",
+    "backToLogin": "Back to Login",
+    "resetBtn": "Send Reset Link"
   }
 }

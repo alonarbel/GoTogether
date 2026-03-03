@@ -7,6 +7,7 @@ import { TravelCard, CardType, OrganizerRole } from '@/types'
 import { updateCard } from '@/lib/cards'
 import { getCardTypeIcon, cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth-context'
+import { useToast } from '@/components/ui/Toast'
 import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -31,6 +32,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const { toast } = useToast()
 
   // Parse phone if stored as "+972050..."
   const existingPhone = card.phone || ''
@@ -90,10 +92,12 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         telegram_link: form.telegram_link || undefined,
         tags: form.tags ? form.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
       })
-      if (ok) router.push(`/${locale}/cards/${card.id}`)
-      else throw new Error('Update failed')
+      if (ok) {
+        toast('השינויים נשמרו בהצלחה', 'success')
+        router.push(`/${locale}/cards/${card.id}`)
+      } else throw new Error('Update failed')
     } catch (e) {
-      alert('שגיאה בשמירה')
+      toast('שגיאה בשמירת השינויים', 'error')
     } finally {
       setLoading(false)
     }
@@ -103,8 +107,13 @@ export function EditCardPage({ card }: { card: TravelCard }) {
     if (!confirm('למחוק את הכרטיסייה לצמיתות?')) return
     setDeleting(true)
     const { error } = await supabase.from('travel_cards').delete().eq('id', card.id)
-    if (!error) router.push(`/${locale}`)
-    else { alert('שגיאה במחיקה'); setDeleting(false) }
+    if (!error) {
+      toast('הכרטיסייה נמחקה', 'info')
+      router.push(`/${locale}`)
+    } else {
+      toast('שגיאה במחיקה', 'error')
+      setDeleting(false)
+    }
   }
 
   return (

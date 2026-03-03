@@ -60,7 +60,10 @@
     "tags": "תגיות",
     "groupChat": "צ'אט קבוצתי",
     "editCard": "ערוך כרטיסייה",
-    "organizer": "מארגן"
+    "organizer": "מארגן",
+    "back": "חזור",
+    "leftCard": "עזבת את הכרטיסייה",
+    "joinedCard": "הצטרפת לכרטיסייה! 🎉"
   },
   "create": {
     "title": "צור כרטיסייה חדשה",
@@ -131,6 +134,11 @@
     "passwordLabel": "סיסמא",
     "passwordPlaceholder": "לפחות 6 תווים",
     "signInBtn": "התחברות",
-    "createAccountBtn": "צור חשבון"
+    "createAccountBtn": "צור חשבון",
+    "forgotPassword": "שכחת סיסמה?",
+    "resetPassword": "איפוס סיסמה",
+    "resetSent": "נשלח לך מייל לאיפוס סיסמה",
+    "backToLogin": "חזרה להתחברות",
+    "resetBtn": "שלח קישור לאיפוס"
   }
 }

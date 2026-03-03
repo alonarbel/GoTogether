@@ -5,7 +5,8 @@ import { TravelCard, CardType } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Compass, Loader2, Plus } from 'lucide-react'
+import { Search, MapPin, Compass, Plus } from 'lucide-react'
+import { CardSkeletonGrid } from './ui/CardSkeleton'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
@@ -114,12 +115,7 @@ export function ExplorePage() {
         </motion.div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
-              <p className="text-sm text-gray-600">Loading...</p>
-            </div>
-          </div>
+          <CardSkeletonGrid count={6} />
         ) : (
           <>
             {/* Count */}

@@ -26,7 +26,7 @@ const COUNTRY_CODES = [
 ]
 
 export function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -35,6 +35,7 @@ export function AuthPage() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [resetSent, setResetSent] = useState(false)
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
@@ -44,6 +45,16 @@ export function AuthPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    if (mode === 'reset') {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/${locale}/auth?mode=update-password`,
+      })
+      if (resetError) { setError(resetError.message); setLoading(false); return }
+      setResetSent(true)
+      setLoading(false)
+      return
+    }
 
     if (mode === 'register') {
       const fullPhone = `${phoneCode}${phoneNumber}`
@@ -94,30 +105,32 @@ export function AuthPage() {
               exit={{ opacity: 0, y: -4 }}
               className="text-gray-400 text-sm mt-1"
             >
-              {mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
+              {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
             </motion.p>
           </AnimatePresence>
         </div>
 
         {/* Card */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-white/8 shadow-2xl shadow-black/40 overflow-hidden">
-          {/* Tab switcher */}
-          <div className="flex bg-gray-950/50 p-1.5 gap-1">
-            {(['login', 'register'] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => { setMode(m); setError('') }}
-                className={cn(
-                  'flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                  mode === m
-                    ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/20'
-                    : 'text-gray-500 hover:text-gray-300'
-                )}
-              >
-                {m === 'login' ? t('loginTab') : t('registerTab')}
-              </button>
-            ))}
-          </div>
+          {/* Tab switcher — hidden in reset mode */}
+          {mode !== 'reset' && (
+            <div className="flex bg-gray-950/50 p-1.5 gap-1">
+              {(['login', 'register'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => { setMode(m); setError('') }}
+                  className={cn(
+                    'flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                    mode === m
+                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/20'
+                      : 'text-gray-500 hover:text-gray-300'
+                  )}
+                >
+                  {m === 'login' ? t('loginTab') : t('registerTab')}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -248,19 +261,51 @@ export function AuthPage() {
               )}
             </AnimatePresence>
 
+            {/* Forgot password (login mode only) */}
+            {mode === 'login' && (
+              <div className="text-center">
+                <button type="button" onClick={() => { setMode('reset'); setError('') }}
+                  className="text-xs text-gray-500 hover:text-teal-400 transition-colors">
+                  {t('forgotPassword')}
+                </button>
+              </div>
+            )}
+
+            {/* Reset mode UI */}
+            {mode === 'reset' && (
+              <AnimatePresence>
+                {resetSent ? (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+                    ✉️ {t('resetSent')}
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            )}
+
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                         text-white font-semibold text-sm hover:from-teal-400 hover:to-cyan-400
-                         transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50
-                         disabled:cursor-not-allowed flex items-center justify-center gap-2
-                         active:scale-[0.98]"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {mode === 'login' ? t('signInBtn') : t('createAccountBtn')}
-            </button>
+            {!resetSent && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
+                           text-white font-semibold text-sm hover:from-teal-400 hover:to-cyan-400
+                           transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50
+                           disabled:cursor-not-allowed flex items-center justify-center gap-2
+                           active:scale-[0.98]"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
+              </button>
+            )}
+
+            {/* Back to login from reset */}
+            {mode === 'reset' && (
+              <button type="button" onClick={() => { setMode('login'); setResetSent(false); setError('') }}
+                className="w-full text-center text-sm text-gray-500 hover:text-white transition-colors">
+                ← {t('backToLogin')}
+              </button>
+            )}
           </form>
         </div>
       </motion.div>

@@ -7,6 +7,7 @@ import { Geist } from 'next/font/google'
 import '../globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthProvider } from '@/lib/auth-context'
+import { ToastProvider } from '@/components/ui/Toast'
 
 const geist = Geist({ subsets: ['latin'] })
 
@@ -32,8 +33,10 @@ export default async function LocaleLayout({
       <body className={`${geist.className} bg-gray-950 text-white min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <Navbar locale={locale} />
-            <main>{children}</main>
+            <ToastProvider>
+              <Navbar locale={locale} />
+              <main>{children}</main>
+            </ToastProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

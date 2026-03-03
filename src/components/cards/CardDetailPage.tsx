@@ -12,6 +12,7 @@ import { getCardTypeColor, getCardTypeIcon, getParticipantStatus, cn, isLastDayF
 import { ParticipantBar } from './ParticipantBar'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import { useToast } from '@/components/ui/Toast'
 import { joinCard, leaveCard, hasJoined } from '@/lib/cards'
 
 interface CardDetailPageProps {
@@ -26,6 +27,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
   const params = useParams()
   const locale = params.locale as string
   const { user } = useAuth()
+  const { toast } = useToast()
   const [joined, setJoined] = useState(false)
   const [joinLoading, setJoinLoading] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
@@ -46,14 +48,15 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
     if (!user) { router.push(`/${locale}/auth`); return }
     setJoinLoading(true)
     if (joined) {
-      await leaveCard(card.id, user.id)
-      setJoined(false)
+      const ok = await leaveCard(card.id, user.id)
+      if (ok) { setJoined(false); toast(t('leftCard'), 'info') }
+      else toast('שגיאה בעזיבת הכרטיסייה', 'error')
     } else {
-      await joinCard(card.id, user.id)
-      setJoined(true)
+      const ok = await joinCard(card.id, user.id)
+      if (ok) { setJoined(true); toast(t('joinedCard'), 'success') }
+      else toast('שגיאה בהצטרפות לכרטיסייה', 'error')
     }
     setJoinLoading(false)
-    // Refresh to get updated participant count from DB
     router.refresh()
   }
 
@@ -67,7 +70,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
           className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm">Back</span>
+          <span className="text-sm">{t('back')}</span>
         </motion.button>
 
         {/* Last day warning */}
@@ -149,7 +152,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 {card.eventDate && (
                   <span className="flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-teal-400" />
-                    {new Date(card.eventDate).toLocaleDateString('he-IL')}
+                    {new Date(card.eventDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 )}
                 {card.eventTime && (
@@ -161,7 +164,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 {card.minDeadline && (
                   <span className={cn('flex items-center gap-1.5', lastDay ? 'text-red-400' : '')}>
                     <AlertTriangle className={cn('w-4 h-4', lastDay ? 'text-red-400' : 'text-amber-400')} />
-                    {t('minDeadline')}: {new Date(card.minDeadline).toLocaleDateString('he-IL')}
+                    {t('minDeadline')}: {new Date(card.minDeadline).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 )}
                 <span className="flex items-center gap-1.5">
@@ -238,7 +241,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-gray-800 rounded-xl p-3">
                     <div className="text-xl font-bold text-white">{currentCount}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">joined</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{t('participants')}</div>
                   </div>
                   <div className="bg-gray-800 rounded-xl p-3">
                     <div className="text-xl font-bold text-amber-400">{card.minParticipants}</div>

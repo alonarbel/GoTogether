@@ -7,6 +7,7 @@ import { CardType, OrganizerRole } from '@/types'
 import { getCardTypeIcon, cn } from '@/lib/utils'
 import { CheckCircle2, Upload, ArrowLeft, ArrowRight, Check, Loader2, LogIn } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { useToast } from '@/components/ui/Toast'
 import { createCard } from '@/lib/cards'
 import Link from 'next/link'
 
@@ -40,6 +41,7 @@ export function CreateCardPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const { toast } = useToast()
   const [form, setForm] = useState<FormData>({
     title: '', description: '', type: 'trip', organizerRole: 'traveler',
     address: '', city: '', country: '',
@@ -89,8 +91,8 @@ export function CreateCardPage() {
       setTimeout(() => router.push(`/${locale}`), 1500)
     } catch (e) {
       console.error('Create card error:', e)
-      const msg = e instanceof Error ? e.message : String(e)
-      alert(`שגיאה ביצירת הכרטיסייה: ${msg}\n\nבדוק את הConsole לפרטים.`)
+      const msg = e instanceof Error ? e.message : 'שגיאה לא ידועה'
+      toast(`שגיאה ביצירת הכרטיסייה: ${msg}`, 'error')
     } finally {
       setLoading(false)
     }
