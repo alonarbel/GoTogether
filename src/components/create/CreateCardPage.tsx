@@ -89,7 +89,8 @@ export function CreateCardPage() {
       setTimeout(() => router.push(`/${locale}`), 1500)
     } catch (e) {
       console.error('Create card error:', e)
-      alert('שגיאה ביצירת הכרטיסייה. בדוק את הconsole.')
+      const msg = e instanceof Error ? e.message : String(e)
+      alert(`שגיאה ביצירת הכרטיסייה: ${msg}\n\nבדוק את הConsole לפרטים.`)
     } finally {
       setLoading(false)
     }

@@ -110,7 +110,10 @@ export async function createCard(data: {
     .select()
     .single()
 
-  if (error || !card) return null
+  if (error || !card) {
+    console.error('createCard error:', JSON.stringify(error))
+    return null
+  }
   return fetchCard(card.id)
 }
 
