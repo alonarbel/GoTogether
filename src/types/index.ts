@@ -50,5 +50,7 @@ export interface UserProfile {
   full_name: string
   phone: string
   avatar_url?: string
+  title?: string
+  bio?: string
   created_at: string
 }

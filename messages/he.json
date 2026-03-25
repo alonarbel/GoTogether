@@ -6,7 +6,8 @@
     "myEvents": "האירועים שלי",
     "signIn": "כניסה",
     "signOut": "התנתקות",
-    "profile": "פרופיל"
+    "profile": "פרופיל",
+    "searchUsers": "חיפוש משתמשים..."
   },
   "hero": {
     "title": "מצא מטיילים שיצטרפו אליך",
@@ -23,7 +24,10 @@
     "workshop": "סדנאות",
     "sport": "ספורט",
     "food": "אוכל",
-    "other": "אחר"
+    "other": "אחר",
+    "almost_full": "כמעט מלא",
+    "dateFrom": "מתאריך",
+    "dateTo": "עד תאריך"
   },
   "organizerRole": {
     "traveler": "מטייל",
@@ -116,6 +120,24 @@
     "title": "לא נמצאו כרטיסיות",
     "subtitle": "היה הראשון ליצור כרטיסייה באזור זה!",
     "cta": "צור כרטיסייה"
+  },
+  "reviews": {
+    "title": "ביקורות",
+    "writeReview": "כתוב ביקורת",
+    "editReview": "ערוך את הביקורת שלך",
+    "cardRating": "דרג את החוויה",
+    "organizerRating": "דרג את המארגן",
+    "comment": "החוויה שלך",
+    "commentPlaceholder": "ספר איך היה...",
+    "submit": "שלח ביקורת",
+    "submitted": "הביקורת נשלחה!",
+    "noReviews": "אין ביקורות עדיין",
+    "avgRating": "דירוג ממוצע",
+    "reviewsCount": "{count} ביקורות",
+    "pastEvents": "אירועים שעברו",
+    "reviewsReceived": "ביקורות כמארגן",
+    "viewProfile": "צפה בפרופיל",
+    "addPhotos": "הוסף תמונות"
   },
   "lang": {
     "he": "עברית",

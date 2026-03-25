@@ -14,6 +14,8 @@ create table if not exists public.profiles (
   full_name   text not null default '',
   phone       text,
   avatar_url  text,
+  title       text,
+  bio         text,
   created_at  timestamptz default now(),
   updated_at  timestamptz default now()
 );
@@ -73,12 +75,28 @@ create table if not exists public.participants (
 );
 
 -- ============================================================
+-- Reviews
+-- ============================================================
+create table if not exists public.reviews (
+  id                uuid default uuid_generate_v4() primary key,
+  card_id           uuid references public.travel_cards(id) on delete cascade not null,
+  reviewer_id       uuid references public.profiles(id) on delete cascade not null,
+  card_rating       int check (card_rating between 1 and 5),
+  organizer_rating  int check (organizer_rating between 1 and 5),
+  comment           text,
+  photos            text[] default '{}',
+  created_at        timestamptz default now(),
+  unique(card_id, reviewer_id)
+);
+
+-- ============================================================
 -- RLS
 -- ============================================================
 alter table public.profiles      enable row level security;
 alter table public.travel_cards  enable row level security;
 alter table public.card_images   enable row level security;
 alter table public.participants  enable row level security;
+alter table public.reviews       enable row level security;
 
 -- Drop existing policies to avoid conflicts
 drop policy if exists "profiles_select"       on public.profiles;
@@ -94,6 +112,9 @@ drop policy if exists "images_delete"         on public.card_images;
 drop policy if exists "participants_select"   on public.participants;
 drop policy if exists "participants_insert"   on public.participants;
 drop policy if exists "participants_delete"   on public.participants;
+drop policy if exists "reviews_select"        on public.reviews;
+drop policy if exists "reviews_insert"        on public.reviews;
+drop policy if exists "reviews_update"        on public.reviews;
 
 -- Profiles
 create policy "profiles_select" on public.profiles for select using (true);
@@ -119,6 +140,14 @@ create policy "images_delete" on public.card_images for delete using (
 create policy "participants_select" on public.participants for select using (true);
 create policy "participants_insert" on public.participants for insert with check (auth.uid() = user_id);
 create policy "participants_delete" on public.participants for delete using (auth.uid() = user_id);
+
+-- Reviews
+create policy "reviews_select" on public.reviews for select using (true);
+create policy "reviews_insert" on public.reviews for insert with check (
+  auth.uid() = reviewer_id
+  and exists (select 1 from public.participants where card_id = reviews.card_id and user_id = auth.uid())
+);
+create policy "reviews_update" on public.reviews for update using (auth.uid() = reviewer_id);
 
 -- ============================================================
 -- Trigger: auto-create profile on signup
