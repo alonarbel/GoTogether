@@ -14,6 +14,8 @@ create table if not exists public.profiles (
   full_name   text not null default '',
   phone       text,
   avatar_url  text,
+  title       text,
+  bio         text,
   created_at  timestamptz default now(),
   updated_at  timestamptz default now()
 );
@@ -82,6 +84,7 @@ create table if not exists public.reviews (
   card_rating       int check (card_rating between 1 and 5),
   organizer_rating  int check (organizer_rating between 1 and 5),
   comment           text,
+  photos            text[] default '{}',
   created_at        timestamptz default now(),
   unique(card_id, reviewer_id)
 );
