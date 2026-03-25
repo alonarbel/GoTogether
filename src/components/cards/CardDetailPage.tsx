@@ -10,10 +10,12 @@ import {
 } from 'lucide-react'
 import { getCardTypeColor, getCardTypeIcon, getParticipantStatus, cn, isLastDayForMinimum } from '@/lib/utils'
 import { ParticipantBar } from './ParticipantBar'
+import { ReviewSection } from './ReviewSection'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { joinCard, leaveCard, hasJoined } from '@/lib/cards'
+import Link from 'next/link'
 
 interface CardDetailPageProps {
   card: TravelCard
@@ -32,6 +34,9 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
   const [joinLoading, setJoinLoading] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
   const isOwner = user?.id === card.createdByUserId
+  const today = new Date().toISOString().split('T')[0]
+  const isPast = !!card.eventDate && card.eventDate < today
+  const isParticipant = !!card.participants.find(p => p.user_id === user?.id)
 
   // joined state reflects what's already in DB — don't double-count
   const currentCount = card.currentParticipants
@@ -195,26 +200,29 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 {card.participants.map((p, i) => (
                   <motion.div key={p.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 + i * 0.04 }}
-                    className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-800/50"
                   >
-                    <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-teal-500 to-cyan-500 flex-shrink-0">
-                      {p.avatar ? (
-                        <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-sm font-bold text-white">
-                          {p.name[0]}
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm text-white font-medium truncate">{p.name}</div>
-                      {p.phone && (
-                        <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                          <Phone className="w-3 h-3" />
-                          {p.phone}
-                        </div>
-                      )}
-                    </div>
+                    <Link href={`/${locale}/profile/${p.user_id}`}
+                      className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-800/50 hover:bg-gray-800 transition-colors"
+                    >
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-teal-500 to-cyan-500 flex-shrink-0">
+                        {p.avatar ? (
+                          <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-sm font-bold text-white">
+                            {p.name[0]}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm text-white font-medium truncate">{p.name}</div>
+                        {p.phone && (
+                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                            <Phone className="w-3 h-3" />
+                            {p.phone}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
                 {joined && !card.participants.find(p => p.user_id === user?.id) && (
@@ -228,6 +236,16 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 )}
               </div>
             </motion.div>
+            {/* Reviews */}
+            {isPast && (
+              <ReviewSection
+                cardId={card.id}
+                cardOrganizerRole={card.organizer_role}
+                cardCreatedByUserId={card.createdByUserId}
+                isParticipant={isParticipant || joined}
+                isPast={isPast}
+              />
+            )}
           </div>
 
           {/* Sidebar */}
@@ -264,7 +282,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   </div>
                 )}
 
-                {!isOwner && (
+                {!isOwner && !isPast && (
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={handleJoin}
@@ -286,7 +304,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                 className="bg-gray-900 rounded-2xl p-5 space-y-3 border border-white/5">
                 <h2 className="font-semibold text-white">{t('organizer')}</h2>
-                <div className="flex items-center gap-3">
+                <Link href={`/${locale}/profile/${card.createdByUserId}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">
                     {card.createdBy[0]?.toUpperCase()}
                   </div>
@@ -296,7 +314,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                       <div className="text-xs text-purple-400">{tRoles(card.organizer_role)}</div>
                     )}
                   </div>
-                </div>
+                </Link>
                 {card.phone && (
                   <a href={`tel:${card.phone}`}
                     className="flex items-center gap-2 p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-teal-400 transition-colors text-sm">

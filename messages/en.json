@@ -6,7 +6,8 @@
     "myEvents": "My Events",
     "signIn": "Sign In",
     "signOut": "Sign Out",
-    "profile": "Profile"
+    "profile": "Profile",
+    "searchUsers": "Search users..."
   },
   "hero": {
     "title": "Find Travelers to Join You",
@@ -23,7 +24,10 @@
     "workshop": "Workshops",
     "sport": "Sports",
     "food": "Food",
-    "other": "Other"
+    "other": "Other",
+    "almost_full": "Almost Full",
+    "dateFrom": "From",
+    "dateTo": "To"
   },
   "organizerRole": {
     "traveler": "Traveler",
@@ -116,6 +120,24 @@
     "title": "No cards found",
     "subtitle": "Be the first to create a card in this area!",
     "cta": "Create Card"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "editReview": "Edit Your Review",
+    "cardRating": "Rate the Experience",
+    "organizerRating": "Rate the Organizer",
+    "comment": "Your Experience",
+    "commentPlaceholder": "Share what it was like...",
+    "submit": "Submit Review",
+    "submitted": "Review submitted!",
+    "noReviews": "No reviews yet",
+    "avgRating": "avg. rating",
+    "reviewsCount": "{count} reviews",
+    "pastEvents": "Past Events",
+    "reviewsReceived": "Reviews as Organizer",
+    "viewProfile": "View Profile",
+    "addPhotos": "Add Photos"
   },
   "lang": {
     "he": "עברית",

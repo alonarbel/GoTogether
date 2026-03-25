@@ -3,23 +3,25 @@ import { useState, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { TravelCard, CardType } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
-import { FilterBar } from './cards/FilterBar'
+import { FilterBar, FilterType } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Compass, Plus } from 'lucide-react'
+import { Search, MapPin, Compass, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { CardSkeletonGrid } from './ui/CardSkeleton'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
-
-type FilterType = CardType | 'all'
 
 export function ExplorePage() {
   const t = useTranslations('hero')
   const tEmpty = useTranslations('empty')
   const [filter, setFilter] = useState<FilterType>('all')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [cards, setCards] = useState<TravelCard[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const CARDS_PER_PAGE = 12
   const params = useParams()
   const locale = params.locale as string
 
@@ -39,16 +41,44 @@ export function ExplorePage() {
   }, [])
 
   const filtered = useMemo(() => {
-    return cards.filter((card) => {
-      const matchesFilter = filter === 'all' || card.type === filter
+    let result = cards.filter((card) => {
+      const matchesFilter =
+        filter === 'all' ? true :
+        filter === 'almost_full' ? (card.minParticipants - card.currentParticipants === 1) :
+        card.type === filter
+
       const matchesSearch =
         !search ||
         card.title.toLowerCase().includes(search.toLowerCase()) ||
         card.location.city.toLowerCase().includes(search.toLowerCase()) ||
         card.location.country.toLowerCase().includes(search.toLowerCase())
-      return matchesFilter && matchesSearch
+
+      const matchesDateFrom = !dateFrom || !card.eventDate || card.eventDate >= dateFrom
+      const matchesDateTo = !dateTo || !card.eventDate || card.eventDate <= dateTo
+
+      // Hide past events
+      const today = new Date().toISOString().split('T')[0]
+      const notPast = !card.eventDate || card.eventDate >= today
+
+      return matchesFilter && matchesSearch && matchesDateFrom && matchesDateTo && notPast
     })
-  }, [filter, search, cards])
+
+    // Sort by event date ascending
+    result = result.sort((a, b) => {
+      if (!a.eventDate && !b.eventDate) return 0
+      if (!a.eventDate) return 1
+      if (!b.eventDate) return -1
+      return a.eventDate.localeCompare(b.eventDate)
+    })
+
+    return result
+  }, [filter, search, dateFrom, dateTo, cards])
+
+  const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE)
+  const paginated = filtered.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE)
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setPage(1) }, [filter, search, dateFrom, dateTo])
 
   return (
     <div className="min-h-screen">
@@ -111,7 +141,15 @@ export function ExplorePage() {
       {/* Filters + content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 space-y-5">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-          <FilterBar active={filter} onChange={setFilter} />
+          <FilterBar
+            active={filter}
+            onChange={setFilter}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDateFromChange={setDateFrom}
+            onDateToChange={setDateTo}
+            locale={locale}
+          />
         </motion.div>
 
         {loading ? (
@@ -125,18 +163,56 @@ export function ExplorePage() {
 
             <AnimatePresence mode="wait">
               {filtered.length > 0 ? (
-                <motion.div
-                  key={filter + search}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                >
-                  {filtered.map((card, i) => (
-                    <TravelCardComponent key={card.id} card={card} index={i} />
-                  ))}
-                </motion.div>
+                <>
+                  <motion.div
+                    key={filter + search + page}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  >
+                    {paginated.map((card, i) => (
+                      <TravelCardComponent key={card.id} card={card} index={i} />
+                    ))}
+                  </motion.div>
+
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="p-2 rounded-lg border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30
+                                   disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                        <button
+                          key={n}
+                          onClick={() => setPage(n)}
+                          className={`w-8 h-8 rounded-lg text-sm font-medium transition-all
+                            ${n === page
+                              ? 'bg-teal-500 text-white'
+                              : 'border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30'
+                            }`}
+                        >
+                          {n}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="p-2 rounded-lg border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30
+                                   disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}

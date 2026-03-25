@@ -1,12 +1,15 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { supabase } from '@/lib/supabase'
-import { Camera, Save, Loader2, LogOut, Mail, Phone, User, ArrowLeft } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Camera, Save, Loader2, LogOut, Mail, Phone, User, ArrowLeft, Star, MapPin, Calendar, Briefcase, FileText } from 'lucide-react'
+import { cn, getCardTypeIcon } from '@/lib/utils'
+import { fetchMyCards } from '@/lib/cards'
+import { fetchOrganizerReviews, Review } from '@/lib/reviews'
+import { TravelCard } from '@/types'
 
 const COUNTRY_CODES = [
   { code: '+972', flag: '🇮🇱' }, { code: '+1', flag: '🇺🇸' }, { code: '+44', flag: '🇬🇧' },
@@ -30,12 +33,40 @@ export function ProfilePage() {
   const defaultNumber = matchedCode ? existingPhone.slice(defaultCode.length) : existingPhone
 
   const [name, setName] = useState(profile?.full_name || '')
+  const [title, setTitle] = useState(profile?.title || '')
+  const [bio, setBio] = useState(profile?.bio || '')
   const [phoneCode, setPhoneCode] = useState(defaultCode)
   const [phoneNumber, setPhoneNumber] = useState(defaultNumber)
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [activeEvents, setActiveEvents] = useState<TravelCard[]>([])
+  const [pastEvents, setPastEvents] = useState<TravelCard[]>([])
+  const [orgReviews, setOrgReviews] = useState<Review[]>([])
+  const [orgAvg, setOrgAvg] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    const today = new Date().toISOString().split('T')[0]
+    fetchMyCards(user.id).then(({ created, joined }) => {
+      const all = [...created, ...joined]
+      const seen = new Set<string>()
+      const dedup = (arr: TravelCard[]) => arr.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true })
+
+      const past = all.filter(c => c.eventDate && c.eventDate < today)
+      seen.clear()
+      setPastEvents(dedup(past))
+
+      seen.clear()
+      const active = all.filter(c => !c.eventDate || c.eventDate >= today)
+      setActiveEvents(dedup(active))
+    })
+    fetchOrganizerReviews(user.id).then(({ reviews, average }) => {
+      setOrgReviews(reviews)
+      setOrgAvg(average)
+    })
+  }, [user])
 
   if (!user || !profile) {
     router.push(`/${locale}/auth`)
@@ -73,6 +104,8 @@ export function ProfilePage() {
         full_name: name.trim(),
         phone: phoneNumber ? `${phoneCode}${phoneNumber}` : null,
         avatar_url: finalAvatarUrl || null,
+        title: title.trim() || null,
+        bio: bio.trim() || null,
       }).eq('id', user.id)
 
       if (error) throw error
@@ -147,6 +180,33 @@ export function ProfilePage() {
               />
             </div>
 
+            {/* Title */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5" /> כותרת
+              </label>
+              <input
+                value={title} onChange={e => setTitle(e.target.value)}
+                placeholder="למשל: מדריך גלישה, מאמן ריצה..."
+                className="w-full px-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                           placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all"
+              />
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" /> אודות
+              </label>
+              <textarea
+                value={bio} onChange={e => setBio(e.target.value)}
+                placeholder="ספר קצת על עצמך, הניסיון שלך, מה אתה אוהב..."
+                rows={3}
+                className="w-full px-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
+                           placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all resize-none"
+              />
+            </div>
+
             {/* Email (read-only) */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
@@ -194,6 +254,94 @@ export function ProfilePage() {
             <LogOut className="w-4 h-4" />
             התנתקות
           </button>
+
+          {/* Active events */}
+          {activeEvents.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-teal-400" /> אירועים פעילים
+              </h2>
+              <div className="space-y-2">
+                {activeEvents.map(card => (
+                  <button
+                    key={card.id}
+                    onClick={() => router.push(`/${locale}/cards/${card.id}`)}
+                    className="w-full text-start p-3 rounded-xl bg-gray-900/60 border border-teal-500/15 hover:border-teal-500/30 transition-all"
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      <span>{getCardTypeIcon(card.type)}</span>
+                      <span className="font-medium text-white truncate">{card.title}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{card.location.city}</span>
+                      {card.eventDate && <span>{new Date(card.eventDate).toLocaleDateString()}</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Past events */}
+          {pastEvents.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                <Calendar className="w-4 h-4" /> אירועים שעברו
+              </h2>
+              <div className="space-y-2">
+                {pastEvents.map(card => (
+                  <button
+                    key={card.id}
+                    onClick={() => router.push(`/${locale}/cards/${card.id}`)}
+                    className="w-full text-start p-3 rounded-xl bg-gray-900/60 border border-white/5 hover:border-teal-500/20 transition-all"
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      <span>{getCardTypeIcon(card.type)}</span>
+                      <span className="font-medium text-white truncate">{card.title}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{card.location.city}</span>
+                      {card.eventDate && <span>{new Date(card.eventDate).toLocaleDateString()}</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Organizer reviews */}
+          {orgReviews.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-400" />
+                ביקורות כמארגן
+                {orgAvg && <span className="text-amber-400 font-bold">⭐ {orgAvg}</span>}
+              </h2>
+              <div className="space-y-2">
+                {orgReviews.map(r => (
+                  <div key={r.id} className="p-3 rounded-xl bg-gray-900/60 border border-white/5 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">{r.card_title}</span>
+                      <div className="flex gap-1">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <Star key={i} className={cn('w-3.5 h-3.5', i < (r.organizer_rating || 0) ? 'text-amber-400 fill-amber-400' : 'text-gray-700')} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                        {r.reviewer_avatar
+                          ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
+                          : r.reviewer_name[0]}
+                      </div>
+                      <span className="text-xs text-gray-400">{r.reviewer_name}</span>
+                    </div>
+                    {r.comment && <p className="text-xs text-gray-300">{r.comment}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
         </motion.div>
       </div>
