@@ -9,13 +9,6 @@
   box-sizing: border-box;
 }
 
-/* Prevent I-beam cursor on non-interactive elements */
-* {
-  cursor: default;
-}
-input, textarea {
-  cursor: text;
-}
 
 body {
   background: var(--background);
