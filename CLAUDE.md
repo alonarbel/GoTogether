@@ -8,12 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm dev          # Start dev server (localhost:3000)
 pnpm build        # Production build
 pnpm lint         # ESLint
-pnpm exec playwright test          # Run all E2E tests
-pnpm exec playwright test e2e/auth.spec.ts   # Run a single test file
-pnpm exec playwright test --ui     # Interactive test runner
 ```
-
-E2E tests require `QA_TEST_EMAIL` and `QA_TEST_PASSWORD` in `.env.local` for auth-dependent scenarios. Tests skip gracefully when credentials are absent.
 
 ## Architecture
 
@@ -41,8 +36,6 @@ Five tables, all with RLS enabled: `profiles`, `travel_cards`, `card_images`, `p
 - Images are stored in `card_images` with a `position` column for ordering.
 - Participant count is derived from the length of the joined `participants` array (not a stored column).
 
-### E2E tests (`e2e/`)
-Tests use `loginWithTestUser()` from `e2e/helpers.ts` for auth flows. `playwright.config.ts` auto-starts `pnpm dev` if no server is running. Reports are written to `playwright-report/`.
 
 ## Git & GitHub
 
