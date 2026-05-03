@@ -105,7 +105,7 @@ export function Navbar({ locale }: NavbarProps) {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-4
+      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 sm:px-6 py-4
                  bg-gray-950/80 backdrop-blur-xl border-b border-white/5 gap-3"
     >
       {/* Logo */}
@@ -130,6 +130,7 @@ export function Navbar({ locale }: NavbarProps) {
             onChange={e => setSearchQuery(e.target.value)}
             onFocus={() => setSearchOpen(true)}
             onKeyDown={handleKeyDown}
+            autoComplete="off"
             placeholder={t('searchUsers')}
             className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-600 focus:outline-none min-w-0"
           />
@@ -146,7 +147,7 @@ export function Navbar({ locale }: NavbarProps) {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="absolute top-full mt-2 w-full bg-gray-900 border border-white/10 rounded-xl shadow-xl shadow-black/40 overflow-hidden z-50"
+              className="absolute top-full mt-2 w-full bg-gray-900 border border-white/10 rounded-xl shadow-xl shadow-black/40 overflow-hidden z-[200]"
             >
               {searchResults.map((r, i) => (
                 <button
