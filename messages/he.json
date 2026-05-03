@@ -147,6 +147,19 @@
     "viewProfile": "צפה בפרופיל",
     "addPhotos": "הוסף תמונות"
   },
+  "notifications": {
+    "title": "התראות",
+    "empty": "אין לך התראות חדשות.",
+    "markAllRead": "סמן הכל כנקרא",
+    "someone": "מישהו",
+    "participantJoined": "{name} הצטרף לאירוע שלך \"{card}\"",
+    "minReached": "האירוע \"{card}\" הגיע למינימום 🎉",
+    "deadlineSoon": "מתקרב התאריך האחרון לאירוע \"{card}\"",
+    "justNow": "ממש עכשיו",
+    "minutesAgo": "לפני {count} דקות",
+    "hoursAgo": "לפני {count} שעות",
+    "daysAgo": "לפני {count} ימים"
+  },
   "lang": {
     "he": "עברית",
     "en": "English"

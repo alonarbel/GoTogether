@@ -147,6 +147,19 @@
     "viewProfile": "View Profile",
     "addPhotos": "Add Photos"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You're all caught up.",
+    "markAllRead": "Mark all read",
+    "someone": "Someone",
+    "participantJoined": "{name} joined your event \"{card}\"",
+    "minReached": "Minimum reached for \"{card}\" 🎉",
+    "deadlineSoon": "Deadline soon for \"{card}\"",
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago"
+  },
   "lang": {
     "he": "עברית",
     "en": "English"

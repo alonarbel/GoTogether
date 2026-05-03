@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/lib/auth-context'
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { NotificationsBell } from './NotificationsBell'
 
 interface NavbarProps {
   locale: string
@@ -183,6 +184,9 @@ export function Navbar({ locale }: NavbarProps) {
 
         {user ? (
           <>
+            {/* Notifications */}
+            <NotificationsBell userId={user.id} locale={locale} />
+
             {/* My Events */}
             <Link
               href={`/${locale}/my-events`}
