@@ -3,7 +3,7 @@ import { TravelCard, Participant } from '@/types'
 
 // Fetch all cards with images and participant count
 export async function fetchCards(): Promise<TravelCard[]> {
-  // Mark cards past their min-participant deadline as cancelled
+  // Delete cards whose min-participant deadline has passed
   await supabase.rpc('cleanup_expired_cards')
 
   const { data: cards, error } = await supabase
@@ -14,14 +14,13 @@ export async function fetchCards(): Promise<TravelCard[]> {
       card_images(url, position),
       participants(id, user_id, joined_at, profiles(full_name, phone, avatar_url))
     `)
-    .eq('status', 'active')
     .order('created_at', { ascending: false })
 
   if (error || !cards) return []
   return cards.map(mapCard)
 }
 
-// Fetch single card (only active — cancelled cards are not publicly viewable)
+// Fetch single card
 export async function fetchCard(id: string): Promise<TravelCard | null> {
   const { data: card, error } = await supabase
     .from('travel_cards')
@@ -32,7 +31,6 @@ export async function fetchCard(id: string): Promise<TravelCard | null> {
       participants(id, user_id, joined_at, profiles(full_name, phone, avatar_url))
     `)
     .eq('id', id)
-    .eq('status', 'active')
     .single()
 
   if (error || !card) return null
@@ -209,7 +207,6 @@ function mapCard(raw: Record<string, unknown>): TravelCard {
     createdBy: profile?.full_name || 'Unknown',
     createdByUserId: raw.user_id as string,
     createdAt: raw.created_at as string,
-    status: (raw.status as 'active' | 'cancelled') ?? 'active',
     expiresAt: raw.expires_at as string | undefined,
     tags: raw.tags as string[] | undefined,
   }

@@ -37,7 +37,6 @@ export interface TravelCard {
   telegramLink?: string
   contactInfo: string
   phone?: string
-  status: 'active' | 'cancelled'
   createdBy: string
   createdByUserId: string
   createdAt: string
