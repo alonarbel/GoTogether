@@ -28,6 +28,7 @@ export function Navbar({ locale }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<ProfileResult[]>([])
   const [searchOpen, setSearchOpen] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -54,6 +55,7 @@ export function Navbar({ locale }: NavbarProps) {
         .ilike('full_name', `%${searchQuery}%`)
         .limit(6)
       setSearchResults(data || [])
+      setSelectedIndex(-1)
     }, 250)
     return () => clearTimeout(timer)
   }, [searchQuery])
@@ -65,6 +67,7 @@ export function Navbar({ locale }: NavbarProps) {
         setSearchOpen(false)
         setSearchQuery('')
         setSearchResults([])
+        setSelectedIndex(-1)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -76,6 +79,26 @@ export function Navbar({ locale }: NavbarProps) {
     setSearchOpen(false)
     setSearchQuery('')
     setSearchResults([])
+    setSelectedIndex(-1)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!searchResults.length) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSelectedIndex(i => Math.min(i + 1, searchResults.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSelectedIndex(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter') {
+      const target = searchResults[selectedIndex] ?? searchResults[0]
+      if (target) handleSelectProfile(target.id)
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false)
+      setSearchQuery('')
+      setSearchResults([])
+      setSelectedIndex(-1)
+    }
   }
 
   return (
@@ -106,6 +129,7 @@ export function Navbar({ locale }: NavbarProps) {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             onFocus={() => setSearchOpen(true)}
+            onKeyDown={handleKeyDown}
             placeholder={t('searchUsers')}
             className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-600 focus:outline-none min-w-0"
           />
@@ -124,11 +148,13 @@ export function Navbar({ locale }: NavbarProps) {
               exit={{ opacity: 0, y: -6 }}
               className="absolute top-full mt-2 w-full bg-gray-900 border border-white/10 rounded-xl shadow-xl shadow-black/40 overflow-hidden z-50"
             >
-              {searchResults.map(r => (
+              {searchResults.map((r, i) => (
                 <button
                   key={r.id}
                   onClick={() => handleSelectProfile(r.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-start"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-start ${
+                    i === selectedIndex ? 'bg-teal-500/15 text-teal-300' : 'hover:bg-white/5'
+                  }`}
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0">
                     {r.avatar_url
