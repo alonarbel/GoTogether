@@ -11,6 +11,7 @@ import {
 import { getCardTypeColor, getCardTypeIcon, getParticipantStatus, cn, isLastDayForMinimum } from '@/lib/utils'
 import { ParticipantBar } from './ParticipantBar'
 import { ReviewSection } from './ReviewSection'
+import { EventPhotoGallery } from './EventPhotoGallery'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
@@ -236,6 +237,11 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 )}
               </div>
             </motion.div>
+            {/* Photos from event (past only) */}
+            {isPast && (
+              <EventPhotoGallery cardId={card.id} isParticipant={isParticipant || joined} />
+            )}
+
             {/* Reviews */}
             {isPast && (
               <ReviewSection
