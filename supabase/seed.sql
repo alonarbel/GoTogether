@@ -10,7 +10,8 @@ values
   ('aaaaaaaa-0000-0000-0000-000000000002', 'david.levi@test.com',    '', now(), now(), now(), '{"full_name":"David Levi","phone":"+972522222222"}',    'authenticated', 'authenticated'),
   ('aaaaaaaa-0000-0000-0000-000000000003', 'maya.mizrahi@test.com',  '', now(), now(), now(), '{"full_name":"Maya Mizrahi","phone":"+972543333333"}',  'authenticated', 'authenticated'),
   ('aaaaaaaa-0000-0000-0000-000000000004', 'yossi.tour@test.com',    '', now(), now(), now(), '{"full_name":"Yossi Tours","phone":"+972504444444"}',   'authenticated', 'authenticated'),
-  ('aaaaaaaa-0000-0000-0000-000000000005', 'noa.adventures@test.com','', now(), now(), now(), '{"full_name":"Noa Adventures","phone":"+972525555555"}','authenticated', 'authenticated')
+  ('aaaaaaaa-0000-0000-0000-000000000005', 'noa.adventures@test.com','', now(), now(), now(), '{"full_name":"Noa Adventures","phone":"+972525555555"}','authenticated', 'authenticated'),
+  ('aaaaaaaa-0000-0000-0000-000000000006', 'gil.levy@test.com',      '', now(), now(), now(), '{"full_name":"Gil Levy","phone":"+972506666666"}',      'authenticated', 'authenticated')
 on conflict (id) do nothing;
 
 -- ============================================================
@@ -22,11 +23,12 @@ values
   ('aaaaaaaa-0000-0000-0000-000000000002', 'David Levi',     '+972522222222'),
   ('aaaaaaaa-0000-0000-0000-000000000003', 'Maya Mizrahi',   '+972543333333'),
   ('aaaaaaaa-0000-0000-0000-000000000004', 'Yossi Tours',    '+972504444444'),
-  ('aaaaaaaa-0000-0000-0000-000000000005', 'Noa Adventures', '+972525555555')
+  ('aaaaaaaa-0000-0000-0000-000000000005', 'Noa Adventures', '+972525555555'),
+  ('aaaaaaaa-0000-0000-0000-000000000006', 'Gil Levy',       '+972506666666')
 on conflict (id) do update set full_name = excluded.full_name;
 
 -- ============================================================
--- Travel Cards
+-- Travel Cards — active (upcoming)
 -- ============================================================
 insert into public.travel_cards (id, user_id, title, description, type, organizer_role, address, city, country, min_participants, max_participants, event_date, event_time, min_deadline, whatsapp_link, contact_info, phone)
 values
@@ -108,59 +110,8 @@ values
 on conflict (id) do nothing;
 
 -- ============================================================
--- Participants (some cards have existing participants)
--- ============================================================
-insert into public.participants (card_id, user_id)
-values
-  -- מצדה: Sarah (יוצרת) + David + Maya
-  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
-  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002'),
-  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000003'),
-  -- אופניים: David (יוצר) + Noa
-  ('cccccccc-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002'),
-  ('cccccccc-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000005'),
-  -- ירושלים: Yossi (מדריך) + 3 משתתפים
-  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000001'),
-  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000003'),
-  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000005'),
-  -- צלילה: Noa (מדריכה) + 1 משתתף
-  ('cccccccc-0000-0000-0000-000000000004', 'aaaaaaaa-0000-0000-0000-000000000002'),
-  -- שוק הכרמל: Maya (יוצרת) + 2
-  ('cccccccc-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000005'),
-  ('cccccccc-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000004'),
-  -- Past events — Gil Levy (006) is the organizer and joins as traveler
-  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000006'),
-  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000001'),
-  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000002'),
-  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000003'),
-  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000005'),
-  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000006'),
-  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000002'),
-  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000003'),
-  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000004'),
-  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000005'),
-  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000006'),
-  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000001'),
-  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000004'),
-  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000005')
-on conflict do nothing;
-
--- ============================================================
--- Gil Levy — fake user for past event organizer
--- ============================================================
-insert into auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_user_meta_data, role, aud)
-values
-  ('aaaaaaaa-0000-0000-0000-000000000006', 'gil.levy@test.com', '', now(), now(), now(), '{"full_name":"Gil Levy","phone":"+972506666666"}', 'authenticated', 'authenticated')
-on conflict (id) do nothing;
-
-insert into public.profiles (id, full_name, phone)
-values
-  ('aaaaaaaa-0000-0000-0000-000000000006', 'Gil Levy', '+972506666666')
-on conflict (id) do update set full_name = excluded.full_name;
-
--- ============================================================
--- Past events organized by Gil Levy (event_date in the past,
--- minimum reached — kept as historical records)
+-- Travel Cards — past events organized by Gil Levy
+-- (event_date in the past, minimum was reached)
 -- ============================================================
 insert into public.travel_cards (id, user_id, title, description, type, organizer_role, address, city, country, min_participants, max_participants, event_date, event_time, min_deadline, contact_info, phone, tags)
 values
@@ -207,6 +158,46 @@ values
     ARRAY['ריצה', 'ספורט', 'ירקון']
   )
 on conflict (id) do nothing;
+
+-- ============================================================
+-- Participants (active cards)
+-- ============================================================
+insert into public.participants (card_id, user_id)
+values
+  -- מצדה: Sarah (יוצרת) + David + Maya
+  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  ('cccccccc-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000003'),
+  -- אופניים: David (יוצר) + Noa
+  ('cccccccc-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  ('cccccccc-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000005'),
+  -- ירושלים: Yossi (מדריך) + 3 משתתפים
+  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000003'),
+  ('cccccccc-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000005'),
+  -- צלילה: Noa (מדריכה) + 1 משתתף
+  ('cccccccc-0000-0000-0000-000000000004', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  -- שוק הכרמל: Maya (יוצרת) + 2
+  ('cccccccc-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000005'),
+  ('cccccccc-0000-0000-0000-000000000005', 'aaaaaaaa-0000-0000-0000-000000000004'),
+  -- גליל: Gil (יוצר) + 4
+  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000006'),
+  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000003'),
+  ('cccccccc-0000-0000-0000-000000000006', 'aaaaaaaa-0000-0000-0000-000000000005'),
+  -- בישול אסיאתי: Gil (יוצר) + 4
+  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000006'),
+  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000002'),
+  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000003'),
+  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000004'),
+  ('cccccccc-0000-0000-0000-000000000007', 'aaaaaaaa-0000-0000-0000-000000000005'),
+  -- ריצת ירקון: Gil (יוצר) + 3
+  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000006'),
+  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000001'),
+  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000004'),
+  ('cccccccc-0000-0000-0000-000000000008', 'aaaaaaaa-0000-0000-0000-000000000005')
+on conflict do nothing;
 
 -- ============================================================
 -- Reviews for Gil Levy's past events
