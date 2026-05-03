@@ -3,6 +3,11 @@ import { TravelCard, Participant } from '@/types'
 
 // Fetch all cards with images and participant count
 export async function fetchCards(): Promise<TravelCard[]> {
+  const today = new Date().toISOString().split('T')[0]
+
+  // Delete cards whose min-participant deadline has passed
+  await supabase.rpc('cleanup_expired_cards')
+
   const { data: cards, error } = await supabase
     .from('travel_cards')
     .select(`
@@ -11,6 +16,7 @@ export async function fetchCards(): Promise<TravelCard[]> {
       card_images(url, position),
       participants(id, user_id, joined_at, profiles(full_name, phone, avatar_url))
     `)
+    .or(`min_deadline.is.null,min_deadline.gte.${today}`)
     .order('created_at', { ascending: false })
 
   if (error || !cards) return []
@@ -19,6 +25,8 @@ export async function fetchCards(): Promise<TravelCard[]> {
 
 // Fetch single card
 export async function fetchCard(id: string): Promise<TravelCard | null> {
+  const today = new Date().toISOString().split('T')[0]
+
   const { data: card, error } = await supabase
     .from('travel_cards')
     .select(`
@@ -28,6 +36,7 @@ export async function fetchCard(id: string): Promise<TravelCard | null> {
       participants(id, user_id, joined_at, profiles(full_name, phone, avatar_url))
     `)
     .eq('id', id)
+    .or(`min_deadline.is.null,min_deadline.gte.${today}`)
     .single()
 
   if (error || !card) return null
