@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoTogether — System Design</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #030712;
+      color: #f9fafb;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 40px 32px 80px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .header .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .header .logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #14b8a6, #06b6d4);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 32px rgba(20,184,166,.35);
+    }
+    .header h1 {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(90deg, #2dd4bf, #67e8f9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header p { color: #6b7280; font-size: .95rem; margin-top: 6px; }
+
+    /* ── Layer labels ── */
+    .layer-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: #4b5563;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* ── Columns layout ── */
+    .diagram {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      gap: 24px;
+      align-items: start;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── Generic card ── */
+    .box {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .box h3 {
+      font-size: .85rem; font-weight: 700; color: #e5e7eb;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap-8px;
+    }
+    .box h3 .icon { font-size: 1rem; margin-right: 8px; }
+    .tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: .73rem; font-weight: 600;
+      margin: 3px 3px 3px 0;
+    }
+    .tag-teal  { background: rgba(20,184,166,.15); color: #2dd4bf; border: 1px solid rgba(20,184,166,.25); }
+    .tag-blue  { background: rgba(59,130,246,.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,.25); }
+    .tag-purple{ background: rgba(139,92,246,.15);  color: #c4b5fd; border: 1px solid rgba(139,92,246,.25); }
+    .tag-amber { background: rgba(245,158,11,.15);  color: #fcd34d; border: 1px solid rgba(245,158,11,.25); }
+    .tag-red   { background: rgba(239,68,68,.15);   color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+    .tag-green { background: rgba(34,197,94,.15);   color: #86efac; border: 1px solid rgba(34,197,94,.25); }
+    .tag-gray  { background: rgba(107,114,128,.15); color: #9ca3af; border: 1px solid rgba(107,114,128,.2); }
+
+    /* ── Column: Client ── */
+    .col-client { display: flex; flex-direction: column; gap: 14px; }
+
+    .client-box {
+      background: rgba(20,184,166,.06);
+      border: 1px solid rgba(20,184,166,.18);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .client-box h3 { color: #2dd4bf; }
+
+    /* ── Column: Center (Data flow + DB) ── */
+    .col-center { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── Supabase block ── */
+    .supabase-outer {
+      background: rgba(59,130,246,.05);
+      border: 1.5px solid rgba(59,130,246,.2);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .supabase-outer > .title {
+      font-size: .8rem; font-weight: 700;
+      color: #93c5fd; letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .supabase-inner {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    }
+    .supabase-service {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .supabase-service .s-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    .supabase-service .s-name { font-size: .78rem; font-weight: 700; color: #e5e7eb; }
+    .supabase-service .s-desc { font-size: .68rem; color: #6b7280; margin-top: 3px; line-height: 1.4; }
+
+    /* ── DB Tables ── */
+    .db-outer {
+      background: rgba(139,92,246,.05);
+      border: 1.5px solid rgba(139,92,246,.2);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .db-outer > .title {
+      font-size: .8rem; font-weight: 700;
+      color: #c4b5fd; letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .db-tables { display: flex; flex-direction: column; gap: 8px; }
+    .db-table {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .db-table .t-name {
+      font-size: .82rem; font-weight: 700; color: #e5e7eb;
+      min-width: 130px;
+    }
+    .db-table .t-cols {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .db-table .t-pk {
+      font-size: .65rem; font-weight: 700;
+      padding: 2px 6px; border-radius: 4px;
+      background: rgba(245,158,11,.2); color: #fcd34d;
+      border: 1px solid rgba(245,158,11,.3);
+    }
+    .db-table .t-fk {
+      font-size: .65rem;
+      padding: 2px 6px; border-radius: 4px;
+      background: rgba(107,114,128,.15); color: #9ca3af;
+      border: 1px solid rgba(107,114,128,.2);
+    }
+    .db-table .t-col {
+      font-size: .65rem;
+      padding: 2px 6px; border-radius: 4px;
+      background: rgba(255,255,255,.04); color: #6b7280;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    /* ── Column: Right (Flows) ── */
+    .col-right { display: flex; flex-direction: column; gap: 14px; }
+
+    .flow-box {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .flow-box h3 { font-size: .82rem; font-weight: 700; color: #e5e7eb; margin-bottom: 10px; }
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 8px;
+      margin-bottom: 7px; font-size: .75rem; color: #9ca3af; line-height: 1.4;
+    }
+    .flow-step:last-child { margin-bottom: 0; }
+    .flow-num {
+      width: 18px; height: 18px; min-width: 18px;
+      border-radius: 50%;
+      background: rgba(20,184,166,.15); color: #2dd4bf;
+      font-size: .65rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .flow-arrow {
+      color: #374151; font-size: .65rem;
+      margin: 0 0 6px 8px; display: block;
+    }
+
+    /* ── Arrows between columns ── */
+    .arrows-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 4px;
+    }
+
+    /* ── Pages section (full width below) ── */
+    .pages-section {
+      max-width: 1100px;
+      margin: 28px auto 0;
+    }
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .page-card {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      transition: border-color .2s;
+    }
+    .page-card:hover { border-color: rgba(20,184,166,.3); }
+    .page-card .p-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .page-card .p-route { font-size: .68rem; color: #4b5563; font-family: monospace; margin-bottom: 4px; }
+    .page-card .p-name { font-size: .82rem; font-weight: 700; color: #e5e7eb; }
+    .page-card .p-desc { font-size: .72rem; color: #6b7280; margin-top: 4px; line-height: 1.4; }
+
+    /* ── Tech stack strip ── */
+    .tech-strip {
+      max-width: 1100px;
+      margin: 28px auto 0;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    }
+    .tech-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: #111827;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 8px;
+      padding: 7px 13px;
+      font-size: .78rem; color: #9ca3af;
+    }
+    .tech-badge .tb-icon { font-size: 1rem; }
+    .tech-badge strong { color: #e5e7eb; }
+
+    /* ── Divider ── */
+    .divider {
+      max-width: 1100px; margin: 32px auto 0;
+      border: none; border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .section-title {
+      max-width: 1100px; margin: 24px auto 14px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🧭</div>
+      <h1>GoTogether</h1>
+    </div>
+    <p>System Design Overview — Architecture, Data Model &amp; User Flows</p>
+  </div>
+
+  <!-- ── Main 3-column diagram ── -->
+  <div class="diagram">
+
+    <!-- LEFT: Client / Frontend -->
+    <div class="col-client">
+      <div class="layer-label">🖥 Client — Next.js 14</div>
+
+      <div class="client-box">
+        <h3><span class="icon">🌐</span>Routing &amp; i18n</h3>
+        <span class="tag tag-teal">/he/…</span>
+        <span class="tag tag-teal">/en/…</span>
+        <br/>
+        <span class="tag tag-gray">next-intl</span>
+        <span class="tag tag-gray">RTL support</span>
+      </div>
+
+      <div class="client-box">
+        <h3><span class="icon">⚛️</span>Auth Context</h3>
+        <span class="tag tag-teal">useAuth()</span>
+        <br/>
+        <span class="tag tag-gray">user</span>
+        <span class="tag tag-gray">profile</span>
+        <span class="tag tag-gray">session</span>
+      </div>
+
+      <div class="client-box">
+        <h3><span class="icon">📦</span>Data Library</h3>
+        <span class="tag tag-gray">cards.ts</span>
+        <span class="tag tag-gray">reviews.ts</span>
+        <br/>
+        <span class="tag tag-gray">supabase.ts</span>
+        <br/>
+        <small style="color:#4b5563;font-size:.7rem">Single anon client,<br/>all queries client-side</small>
+      </div>
+
+      <div class="client-box">
+        <h3><span class="icon">🎨</span>UI Stack</h3>
+        <span class="tag tag-teal">Tailwind CSS</span>
+        <br/>
+        <span class="tag tag-gray">Framer Motion</span>
+        <span class="tag tag-gray">Lucide Icons</span>
+      </div>
+    </div>
+
+    <!-- CENTER: Supabase + DB -->
+    <div class="col-center">
+
+      <!-- Supabase services -->
+      <div>
+        <div class="layer-label">☁️ Backend — Supabase (hosted)</div>
+        <div class="supabase-outer">
+          <div class="title">⚡ Supabase Services</div>
+          <div class="supabase-inner">
+            <div class="supabase-service">
+              <div class="s-icon">🔐</div>
+              <div class="s-name">Auth</div>
+              <div class="s-desc">Email/password<br/>JWT sessions<br/>Auto profile creation</div>
+            </div>
+            <div class="supabase-service">
+              <div class="s-icon">🗄️</div>
+              <div class="s-name">Database</div>
+              <div class="s-desc">PostgreSQL<br/>Row Level Security<br/>RPC functions</div>
+            </div>
+            <div class="supabase-service">
+              <div class="s-icon">🪣</div>
+              <div class="s-name">Storage</div>
+              <div class="s-desc">card-images bucket<br/>Public read<br/>Auth upload</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database tables -->
+      <div>
+        <div class="layer-label">🗃 Database Tables (PostgreSQL + RLS)</div>
+        <div class="db-outer">
+          <div class="title">📊 Schema</div>
+          <div class="db-tables">
+            <div class="db-table">
+              <div class="t-name">👤 profiles</div>
+              <div class="t-cols">
+                <span class="t-pk">id (FK→auth)</span>
+                <span class="t-col">full_name</span>
+                <span class="t-col">phone</span>
+                <span class="t-col">avatar_url</span>
+                <span class="t-col">bio</span>
+                <span class="t-col">title</span>
+              </div>
+            </div>
+            <div class="db-table">
+              <div class="t-name">🗺️ travel_cards</div>
+              <div class="t-cols">
+                <span class="t-pk">id</span>
+                <span class="t-fk">user_id</span>
+                <span class="t-col">title</span>
+                <span class="t-col">type</span>
+                <span class="t-col">city</span>
+                <span class="t-col">min/max_participants</span>
+                <span class="t-col">event_date</span>
+                <span class="t-col">min_deadline</span>
+                <span class="t-col">tags</span>
+              </div>
+            </div>
+            <div class="db-table">
+              <div class="t-name">🖼 card_images</div>
+              <div class="t-cols">
+                <span class="t-pk">id</span>
+                <span class="t-fk">card_id</span>
+                <span class="t-col">url</span>
+                <span class="t-col">position</span>
+              </div>
+            </div>
+            <div class="db-table">
+              <div class="t-name">🙋 participants</div>
+              <div class="t-cols">
+                <span class="t-pk">id</span>
+                <span class="t-fk">card_id</span>
+                <span class="t-fk">user_id</span>
+                <span class="t-col">joined_at</span>
+              </div>
+            </div>
+            <div class="db-table">
+              <div class="t-name">⭐ reviews</div>
+              <div class="t-cols">
+                <span class="t-pk">id</span>
+                <span class="t-fk">card_id</span>
+                <span class="t-fk">reviewer_id</span>
+                <span class="t-col">card_rating</span>
+                <span class="t-col">organizer_rating</span>
+                <span class="t-col">comment</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Key flows -->
+    <div class="col-right">
+      <div class="layer-label">🔄 Key User Flows</div>
+
+      <div class="flow-box">
+        <h3>🔐 Sign Up</h3>
+        <div class="flow-step"><div class="flow-num">1</div>Register email/password</div>
+        <div class="flow-step"><div class="flow-num">2</div>DB trigger creates profile row</div>
+        <div class="flow-step"><div class="flow-num">3</div>JWT stored in session</div>
+        <div class="flow-step"><div class="flow-num">4</div>AuthContext updates app state</div>
+      </div>
+
+      <div class="flow-box">
+        <h3>🗺️ Create Card</h3>
+        <div class="flow-step"><div class="flow-num">1</div>Fill form (type, location, dates, min/max)</div>
+        <div class="flow-step"><div class="flow-num">2</div>Upload images → Storage bucket</div>
+        <div class="flow-step"><div class="flow-num">3</div>Insert travel_card row</div>
+        <div class="flow-step"><div class="flow-num">4</div>If role=traveler → auto-join as participant</div>
+      </div>
+
+      <div class="flow-box">
+        <h3>🙋 Join Event</h3>
+        <div class="flow-step"><div class="flow-num">1</div>View card detail page</div>
+        <div class="flow-step"><div class="flow-num">2</div>Click Join</div>
+        <div class="flow-step"><div class="flow-num">3</div>Insert participants row</div>
+        <div class="flow-step"><div class="flow-num">4</div>Participant count updates live</div>
+      </div>
+
+      <div class="flow-box">
+        <h3>🗑️ Card Expiry</h3>
+        <div class="flow-step"><div class="flow-num">1</div>Any user loads card list</div>
+        <div class="flow-step"><div class="flow-num">2</div>cleanup_expired_cards() RPC fires</div>
+        <div class="flow-step"><div class="flow-num">3</div>Future cards past min_deadline → deleted</div>
+        <div class="flow-step"><div class="flow-num">4</div>Past events (event_date &lt; today) preserved</div>
+      </div>
+
+      <div class="flow-box">
+        <h3>⭐ Review</h3>
+        <div class="flow-step"><div class="flow-num">1</div>Must be a participant</div>
+        <div class="flow-step"><div class="flow-num">2</div>Rate card + organizer (1–5 stars)</div>
+        <div class="flow-step"><div class="flow-num">3</div>Visible on organizer's public profile</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pages ── -->
+  <hr class="divider" />
+  <div class="section-title">📄 Pages &amp; Routes</div>
+  <div class="pages-section">
+    <div class="pages-grid">
+      <div class="page-card">
+        <div class="p-icon">🏠</div>
+        <div class="p-route">/[locale]</div>
+        <div class="p-name">Explore</div>
+        <div class="p-desc">Browse &amp; filter all active cards. Search by type, location, tags.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">🗺️</div>
+        <div class="p-route">/[locale]/cards/[id]</div>
+        <div class="p-name">Card Detail</div>
+        <div class="p-desc">Full card info, participant list, join/leave, share links.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">✏️</div>
+        <div class="p-route">/[locale]/cards/[id]/edit</div>
+        <div class="p-name">Edit Card</div>
+        <div class="p-desc">Owner-only. Update card details and images.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">➕</div>
+        <div class="p-route">/[locale]/create</div>
+        <div class="p-name">Create Card</div>
+        <div class="p-desc">Multi-step form. Set type, location, dates, participant limits.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">📅</div>
+        <div class="p-route">/[locale]/my-events</div>
+        <div class="p-name">My Events</div>
+        <div class="p-desc">Active &amp; past events you created or joined.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">👤</div>
+        <div class="p-route">/[locale]/profile</div>
+        <div class="p-name">My Profile</div>
+        <div class="p-desc">Edit profile, view your events &amp; reviews received.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">🌐</div>
+        <div class="p-route">/[locale]/profile/[userId]</div>
+        <div class="p-name">Public Profile</div>
+        <div class="p-desc">View any user's events, ratings &amp; reviews.</div>
+      </div>
+      <div class="page-card">
+        <div class="p-icon">🔐</div>
+        <div class="p-route">/[locale]/auth</div>
+        <div class="p-name">Auth</div>
+        <div class="p-desc">Sign in / Sign up with email &amp; password.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tech stack ── -->
+  <hr class="divider" />
+  <div class="section-title">🛠 Tech Stack</div>
+  <div class="tech-strip">
+    <div class="tech-badge"><span class="tb-icon">▲</span><strong>Next.js 14</strong> App Router, SSR/CSR hybrid</div>
+    <div class="tech-badge"><span class="tb-icon">⚛️</span><strong>React 18</strong> Client components, Context API</div>
+    <div class="tech-badge"><span class="tb-icon">🎨</span><strong>Tailwind CSS</strong> Utility-first, dark theme</div>
+    <div class="tech-badge"><span class="tb-icon">🟦</span><strong>TypeScript</strong> Full type safety</div>
+    <div class="tech-badge"><span class="tb-icon">⚡</span><strong>Supabase</strong> Auth + PostgreSQL + Storage</div>
+    <div class="tech-badge"><span class="tb-icon">🌍</span><strong>next-intl</strong> Hebrew (RTL) + English</div>
+    <div class="tech-badge"><span class="tb-icon">🎬</span><strong>Framer Motion</strong> Animations</div>
+    <div class="tech-badge"><span class="tb-icon">📦</span><strong>pnpm</strong> Package manager</div>
+  </div>
+
+</body>
+</html>
