@@ -55,6 +55,7 @@
     "eventTime": "Event Time",
     "minDeadline": "Minimum Deadline",
     "lastDayWarning": "⚡ Last day to reach minimum participants!",
+    "cancelled": "Cancelled",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram",
     "contact": "Contact",

@@ -1,6 +1,10 @@
--- Deletes travel cards where the minimum-participant deadline has passed.
--- SECURITY DEFINER lets this run as the function owner, bypassing RLS so
--- it can delete any card regardless of who calls it.
+-- Add status column to travel_cards (active / cancelled)
+ALTER TABLE public.travel_cards
+ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active'
+  CHECK (status IN ('active', 'cancelled'));
+
+-- Mark cards as cancelled (not deleted) when min-participant deadline passes.
+-- SECURITY DEFINER bypasses RLS so any authenticated user can trigger this.
 CREATE OR REPLACE FUNCTION cleanup_expired_cards()
 RETURNS void
 LANGUAGE plpgsql
@@ -8,9 +12,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  DELETE FROM travel_cards
+  UPDATE travel_cards
+  SET status = 'cancelled'
   WHERE min_deadline IS NOT NULL
-    AND min_deadline < CURRENT_DATE;
+    AND min_deadline < CURRENT_DATE
+    AND status = 'active';
 END;
 $$;
 

@@ -26,16 +26,29 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
     card.maxParticipants
   )
 
+  const isCancelled = card.status === 'cancelled'
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3 }}
-      onClick={() => router.push(`/${locale}/cards/${card.id}`)}
-      className="group relative bg-gray-900 rounded-2xl overflow-hidden border border-white/5
-                 hover:border-teal-500/25 cursor-pointer transition-all duration-300 card-glow"
+      whileHover={isCancelled ? undefined : { y: -3 }}
+      onClick={() => !isCancelled && router.push(`/${locale}/cards/${card.id}`)}
+      className={cn(
+        'group relative bg-gray-900 rounded-2xl overflow-hidden border border-white/5 transition-all duration-300',
+        isCancelled ? 'cursor-default opacity-60' : 'hover:border-teal-500/25 cursor-pointer card-glow'
+      )}
     >
+      {/* Cancelled overlay */}
+      {isCancelled && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-900/60 backdrop-blur-[2px]">
+          <span className="px-4 py-1.5 rounded-lg text-sm font-bold bg-red-500/20 text-red-300 border border-red-500/40">
+            {t('cancelled')}
+          </span>
+        </div>
+      )}
+
       {/* Image */}
       <div className="relative h-44 overflow-hidden bg-gray-800">
         {card.images[0] ? (

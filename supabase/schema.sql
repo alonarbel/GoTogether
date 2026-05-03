@@ -47,6 +47,7 @@ create table if not exists public.travel_cards (
   contact_info     text not null default '',
   phone            text,
   tags             text[] default '{}',
+  status           text not null default 'active' check (status in ('active', 'cancelled')),
   expires_at       timestamptz,
   created_at       timestamptz default now(),
   updated_at       timestamptz default now()
