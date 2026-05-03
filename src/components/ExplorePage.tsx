@@ -5,11 +5,15 @@ import { TravelCard, CardType } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar, FilterType } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Compass, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, MapPin, Compass, Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from 'lucide-react'
 import { CardSkeletonGrid } from './ui/CardSkeleton'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
+import dynamic from 'next/dynamic'
+
+// Leaflet uses window.* — load only on client
+const CardsMap = dynamic(() => import('./cards/CardsMap'), { ssr: false })
 
 export function ExplorePage() {
   const t = useTranslations('hero')
@@ -21,6 +25,7 @@ export function ExplorePage() {
   const [cards, setCards] = useState<TravelCard[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
+  const [view, setView] = useState<'grid' | 'map'>('grid')
   const CARDS_PER_PAGE = 12
   const params = useParams()
   const locale = params.locale as string
@@ -156,13 +161,44 @@ export function ExplorePage() {
           <CardSkeletonGrid count={6} />
         ) : (
           <>
-            {/* Count */}
+            {/* Count + view toggle */}
             <div className="flex items-center justify-between">
               <p className="text-xs text-gray-600">{t('cardsFound', { count: filtered.length })}</p>
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-900 border border-white/8">
+                <button
+                  onClick={() => setView('grid')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                    view === 'grid' ? 'bg-teal-500 text-white' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  {t('viewGrid')}
+                </button>
+                <button
+                  onClick={() => setView('map')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                    view === 'map' ? 'bg-teal-500 text-white' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <MapIcon className="w-3.5 h-3.5" />
+                  {t('viewMap')}
+                </button>
+              </div>
             </div>
 
             <AnimatePresence mode="wait">
               {filtered.length > 0 ? (
+                view === 'map' ? (
+                  <motion.div
+                    key="map-view"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <CardsMap cards={filtered} />
+                  </motion.div>
+                ) : (
                 <>
                   <motion.div
                     key={filter + search + page}
@@ -213,6 +249,7 @@ export function ExplorePage() {
                     </div>
                   )}
                 </>
+                )
               ) : (
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}

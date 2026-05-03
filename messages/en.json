@@ -15,7 +15,9 @@
     "searchPlaceholder": "Search by city, attraction...",
     "useLocation": "Use my location",
     "searchBtn": "Search",
-    "cardsFound": "{count} cards found"
+    "cardsFound": "{count} cards found",
+    "viewGrid": "Grid",
+    "viewMap": "Map"
   },
   "filters": {
     "all": "All",

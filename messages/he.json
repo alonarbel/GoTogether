@@ -15,7 +15,9 @@
     "searchPlaceholder": "חפש לפי עיר, אטרקציה...",
     "useLocation": "השתמש במיקום שלי",
     "searchBtn": "חפש",
-    "cardsFound": "{count} כרטיסיות נמצאו"
+    "cardsFound": "{count} כרטיסיות נמצאו",
+    "viewGrid": "רשת",
+    "viewMap": "מפה"
   },
   "filters": {
     "all": "הכל",
