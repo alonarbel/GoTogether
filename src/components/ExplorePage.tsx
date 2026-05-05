@@ -125,21 +125,21 @@ export function ExplorePage() {
   return (
     <div className="min-h-screen">
       {/* ── Hero ── */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-8">
+      <section className="relative pt-32 pb-24 px-4 sm:px-8">
         <div className="relative max-w-6xl mx-auto">
-          {/* Live badge */}
+          {/* Live badge — brighter, bigger */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 mb-7 rounded-full
-                       bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
-                       text-[11px] font-mono text-[--color-mist-200] tracking-wide"
+            className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full
+                       bg-white/[0.08] border border-white/[0.16] backdrop-blur-md
+                       text-[13px] font-bold text-[--color-mist-100]"
           >
             <span className="live-dot" />
-            <span><span className="text-[--color-emerald-400] font-semibold">{cards.length}</span> active adventures</span>
-            <span className="text-[--color-mist-500]">·</span>
-            <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
+            <span><span className="text-[--color-emerald-400] font-bold tabular-nums">{cards.length}</span> active adventures</span>
+            <span className="text-[--color-mist-400]">·</span>
+            <Sparkles className="w-3.5 h-3.5 text-[--color-amber-400] pulse-glow" strokeWidth={2.5} />
             <span>fresh today</span>
           </motion.div>
 
@@ -149,49 +149,50 @@ export function ExplorePage() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-6 max-w-4xl"
           >
-            <h1 className="headline-xl text-[--color-mist-50] text-6xl sm:text-7xl md:text-8xl">
+            <h1 className="headline-xl text-[--color-mist-50] text-7xl sm:text-8xl md:text-9xl"
+                style={{ fontVariationSettings: "'wdth' 115" }}>
               {t('title').split(' ').slice(0, -1).join(' ')}{' '}
               <span className="text-gradient">{t('title').split(' ').slice(-1)[0]}</span>
             </h1>
 
-            <p className="text-[--color-mist-300] text-lg sm:text-xl max-w-2xl leading-relaxed">
+            <p className="text-[--color-mist-200] text-xl sm:text-2xl max-w-2xl leading-relaxed font-medium">
               {t('subtitle')}
             </p>
           </motion.div>
 
-          {/* Search bar */}
+          {/* Search bar — bigger, brighter */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 flex gap-2.5 max-w-2xl"
+            className="mt-12 flex gap-3 max-w-2xl"
           >
             <div className="flex-1 relative group">
-              <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+              <Search className="absolute start-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[--color-mist-300] pointer-events-none" strokeWidth={2.25} />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('searchPlaceholder')}
-                className="w-full ps-11 pe-4 py-4 rounded-xl
-                           bg-[--color-night-900]/70 backdrop-blur-md border border-white/[0.06]
-                           text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500]
-                           focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-[--color-night-800]
-                           focus:shadow-[0_0_28px_rgba(255,84,112,.18)]
+                className="w-full ps-14 pe-5 py-5 rounded-2xl
+                           bg-white/[0.06] backdrop-blur-md border border-white/[0.14]
+                           text-[--color-mist-50] text-[16px] font-semibold placeholder:text-[--color-mist-400] placeholder:font-medium
+                           focus:outline-none focus:border-[--color-coral-500]/60 focus:bg-white/[0.10]
+                           focus:shadow-[0_0_36px_rgba(255,84,112,.30)]
                            transition-all duration-300"
               />
             </div>
             <button
               onClick={handleUseLocation}
               disabled={locating}
-              className={`flex items-center gap-2 px-4 py-4 rounded-xl transition-all
-                          text-[12px] font-semibold whitespace-nowrap disabled:opacity-60 ${
+              className={`flex items-center gap-2 px-5 py-5 rounded-2xl transition-all
+                          text-[14px] font-bold whitespace-nowrap disabled:opacity-60 ${
                 userLocation
-                  ? 'bg-gradient-to-r from-[--color-coral-500]/20 to-[--color-violet-500]/20 border border-[--color-coral-500]/40 text-[--color-coral-300] shadow-[0_0_20px_rgba(255,84,112,.18)]'
-                  : 'bg-[--color-night-900]/70 backdrop-blur-md border border-white/[0.06] text-[--color-mist-200] hover:border-white/[0.14] hover:text-[--color-mist-50]'
+                  ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] border border-white/20 text-white shadow-[0_0_28px_rgba(255,84,112,.45)]'
+                  : 'bg-white/[0.06] backdrop-blur-md border border-white/[0.14] text-[--color-mist-100] hover:border-white/[0.24] hover:bg-white/[0.10]'
               }`}
             >
-              <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2} />
+              <MapPin className={`w-5 h-5 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
               <span className="hidden sm:block">
                 {userLocation ? t('locationActive') : t('useLocation')}
               </span>

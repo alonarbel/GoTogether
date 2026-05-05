@@ -12,10 +12,11 @@ import { getCardTypeIcon, getParticipantStatus, cn, isLastDayForMinimum } from '
 import { ParticipantBar } from './ParticipantBar'
 import { ReviewSection } from './ReviewSection'
 import { EventPhotoGallery } from './EventPhotoGallery'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { joinCard, leaveCard, hasJoined } from '@/lib/cards'
+import { fireConfetti } from '@/lib/confetti'
 import Link from 'next/link'
 
 interface CardDetailPageProps {
@@ -34,6 +35,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
   const [joined, setJoined] = useState(false)
   const [joinLoading, setJoinLoading] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
+  const joinBtnRef = useRef<HTMLButtonElement>(null)
   const isOwner = user?.id === card.createdByUserId
   const today = new Date().toISOString().split('T')[0]
   const isPast = !!card.eventDate && card.eventDate < today
@@ -54,7 +56,11 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
       if (ok) { setJoined(false); toast(t('leftCard'), 'info') } else toast('שגיאה בעזיבת הכרטיסייה', 'error')
     } else {
       const ok = await joinCard(card.id, user.id)
-      if (ok) { setJoined(true); toast(t('joinedCard'), 'success') } else toast('שגיאה בהצטרפות לכרטיסייה', 'error')
+      if (ok) {
+        setJoined(true)
+        toast(t('joinedCard'), 'success')
+        fireConfetti({ from: 'button', element: joinBtnRef.current })
+      } else toast('שגיאה בהצטרפות לכרטיסייה', 'error')
     }
     setJoinLoading(false)
     router.refresh()
@@ -310,29 +316,31 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 transition={{ delay: 0.1, duration: 0.6 }}
                 className="glass rounded-2xl p-5 space-y-5"
               >
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="eyebrow">— capacity</div>
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
-                      <div className="font-display text-2xl font-semibold text-[--color-mist-50] tabular-nums leading-none">
+                    <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/[0.10] text-center">
+                      <div className="font-display text-4xl font-bold text-[--color-mist-50] tabular-nums leading-none">
                         {currentCount}
                       </div>
-                      <div className="text-[10px] font-mono text-[--color-mist-400] mt-1.5 tracking-wider uppercase">{t('participants')}</div>
+                      <div className="text-[10px] font-mono font-bold text-[--color-mist-300] mt-2 tracking-widest uppercase">{t('participants')}</div>
                     </div>
-                    <div className="p-3 rounded-xl bg-[--color-amber-400]/10 border border-[--color-amber-400]/20 text-center">
-                      <div className="font-display text-2xl font-semibold text-[--color-amber-400] tabular-nums leading-none">
+                    <div className="p-4 rounded-2xl bg-[--color-amber-400]/15 border border-[--color-amber-400]/35 text-center">
+                      <div className="font-display text-4xl font-bold text-[--color-amber-400] tabular-nums leading-none">
                         {card.minParticipants}
                       </div>
-                      <div className="text-[10px] font-mono text-[--color-mist-400] mt-1.5 tracking-wider uppercase">{t('min')}</div>
+                      <div className="text-[10px] font-mono font-bold text-[--color-amber-300] mt-2 tracking-widest uppercase">{t('min')}</div>
                     </div>
-                    <div className="p-3 rounded-xl bg-[--color-cyan-400]/10 border border-[--color-cyan-400]/20 text-center">
-                      <div className="font-display text-2xl font-semibold text-[--color-cyan-400] tabular-nums leading-none">
+                    <div className="p-4 rounded-2xl bg-[--color-cyan-400]/15 border border-[--color-cyan-400]/35 text-center">
+                      <div className="font-display text-4xl font-bold text-[--color-cyan-400] tabular-nums leading-none">
                         {card.maxParticipants}
                       </div>
-                      <div className="text-[10px] font-mono text-[--color-mist-400] mt-1.5 tracking-wider uppercase">{t('max')}</div>
+                      <div className="text-[10px] font-mono font-bold text-[--color-cyan-300] mt-2 tracking-widest uppercase">{t('max')}</div>
                     </div>
                   </div>
-                  <ParticipantBar current={currentCount} min={card.minParticipants} max={card.maxParticipants} />
+                  <div className="pt-3">
+                    <ParticipantBar current={currentCount} min={card.minParticipants} max={card.maxParticipants} />
+                  </div>
                 </div>
 
                 {!hasMinimum && neededForMin > 0 && (
@@ -349,20 +357,21 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
 
                 {!isOwner && !isPast && (
                   <motion.button
-                    whileTap={{ scale: 0.98 }}
+                    ref={joinBtnRef}
+                    whileTap={{ scale: 0.97 }}
                     onClick={handleJoin}
                     disabled={(isFull && !joined) || joinLoading}
                     className={cn(
-                      'w-full py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[13px] font-semibold',
+                      'w-full py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[15px] font-bold',
                       joined
-                        ? 'bg-[--color-emerald-500]/15 text-[--color-emerald-400] border border-[--color-emerald-500]/30 hover:bg-[--color-rose-500]/10 hover:text-[--color-rose-400] hover:border-[--color-rose-500]/30'
+                        ? 'bg-[--color-emerald-500]/20 text-[--color-emerald-400] border border-[--color-emerald-500]/40 hover:bg-[--color-rose-500]/15 hover:text-[--color-rose-400] hover:border-[--color-rose-500]/40'
                         : isFull
-                        ? 'bg-white/[0.04] text-[--color-mist-500] cursor-not-allowed border border-white/[0.04]'
+                        ? 'bg-white/[0.04] text-[--color-mist-500] cursor-not-allowed border border-white/[0.06]'
                         : 'btn-primary'
                     )}
                   >
-                    {joinLoading ? <Loader2 className="w-4 h-4 animate-spin" /> :
-                      joined ? <><CheckCircle2 className="w-4 h-4" strokeWidth={2.5} /> {t('joined')}</> :
+                    {joinLoading ? <Loader2 className="w-5 h-5 animate-spin" /> :
+                      joined ? <><CheckCircle2 className="w-5 h-5" strokeWidth={2.5} /> {t('joined')}</> :
                       isFull ? t('full') : <span className="relative z-[1]">{t('joinBtn')}</span>}
                   </motion.button>
                 )}

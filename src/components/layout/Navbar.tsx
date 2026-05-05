@@ -106,9 +106,9 @@ export function Navbar({ locale }: NavbarProps) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
-                 px-4 sm:px-8 py-3
-                 bg-[--color-night-1000]/70 backdrop-blur-2xl
-                 border-b border-white/[0.04]"
+                 px-4 sm:px-8 py-3.5
+                 bg-[--color-night-1000]/65 backdrop-blur-2xl
+                 border-b border-white/[0.08]"
     >
       {/* ── Logo with gradient orb ── */}
       <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
@@ -121,11 +121,11 @@ export function Navbar({ locale }: NavbarProps) {
                           opacity-0 group-hover:opacity-50 blur-md transition-opacity duration-500 -z-10" />
         </div>
         <span className="hidden sm:flex flex-col leading-none">
-          <span className="font-display text-[--color-mist-50] text-[16px] font-semibold tracking-tight"
-                style={{ fontVariationSettings: "'wdth' 105" }}>
+          <span className="font-display text-[--color-mist-50] text-[18px] font-bold tracking-tight"
+                style={{ fontVariationSettings: "'wdth' 110" }}>
             {t('logo')}
           </span>
-          <span className="font-mono text-[9px] text-[--color-mist-400] tracking-[0.18em] uppercase mt-0.5">
+          <span className="font-mono text-[10px] text-[--color-mist-300] tracking-[0.2em] uppercase mt-1 font-bold">
             find your crew
           </span>
         </span>
@@ -198,12 +198,12 @@ export function Navbar({ locale }: NavbarProps) {
       <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={toggleLocale}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg
-                     text-[12px] font-medium
-                     text-[--color-mist-300] hover:text-[--color-mist-50] hover:bg-white/[0.04]
+          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
+                     text-[13px] font-bold
+                     text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
                      transition-all"
         >
-          <Globe className="w-3.5 h-3.5" strokeWidth={2} />
+          <Globe className="w-4 h-4" strokeWidth={2.25} />
           <span className="hidden sm:block">{locale === 'he' ? tLang('en') : tLang('he')}</span>
         </button>
 
@@ -213,22 +213,22 @@ export function Navbar({ locale }: NavbarProps) {
 
             <Link
               href={`/${locale}/my-events`}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg
-                         text-[12px] font-medium
-                         text-[--color-mist-300] hover:text-[--color-mist-50] hover:bg-white/[0.04]
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
+                         text-[13px] font-bold
+                         text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
                          transition-all"
             >
-              <CalendarDays className="w-3.5 h-3.5" strokeWidth={2} />
+              <CalendarDays className="w-4 h-4" strokeWidth={2.25} />
               <span className="hidden sm:block">{t('myEvents')}</span>
             </Link>
 
-            {/* Primary CTA */}
+            {/* Primary CTA — bigger, bolder */}
             <Link
               href={`/${locale}/create`}
-              className="btn-primary ms-1 flex items-center gap-1.5 px-4 py-2 rounded-lg
-                         text-[12px] font-semibold tracking-tight"
+              className="btn-primary ms-1 flex items-center gap-2 px-5 py-2.5 rounded-xl
+                         text-[13px] font-bold tracking-tight"
             >
-              <Plus className="w-3.5 h-3.5 relative z-[1]" strokeWidth={2.5} />
+              <Plus className="w-4 h-4 relative z-[1]" strokeWidth={3} />
               <span className="hidden sm:block relative z-[1]">{t('create')}</span>
             </Link>
 
@@ -303,10 +303,10 @@ export function Navbar({ locale }: NavbarProps) {
         ) : (
           <Link
             href={`/${locale}/auth`}
-            className="btn-primary ms-1 flex items-center gap-1.5 px-4 py-2 rounded-lg
-                       text-[12px] font-semibold tracking-tight"
+            className="btn-primary ms-1 flex items-center gap-2 px-5 py-2.5 rounded-xl
+                       text-[13px] font-bold tracking-tight"
           >
-            <LogIn className="w-3.5 h-3.5 relative z-[1]" strokeWidth={2.5} />
+            <LogIn className="w-4 h-4 relative z-[1]" strokeWidth={3} />
             <span className="relative z-[1]">{t('signIn')}</span>
           </Link>
         )}
