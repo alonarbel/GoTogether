@@ -4,8 +4,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Compass, Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 const COUNTRY_CODES = [
   { code: '+972', flag: '🇮🇱', name: 'IL' },
@@ -25,6 +26,12 @@ const COUNTRY_CODES = [
   { code: '+20',  flag: '🇪🇬', name: 'EG' },
 ]
 
+const inputClass =
+  'w-full ps-10 pe-4 py-3 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm ' +
+  'text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600] ' +
+  'focus:outline-none focus:border-[--color-amber-400]/40 focus:bg-[--color-ink-800] ' +
+  'transition-all duration-200'
+
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
   const [email, setEmail] = useState('')
@@ -40,7 +47,6 @@ export function AuthPage() {
   const [isRecovery, setIsRecovery] = useState(false)
   const [passwordUpdated, setPasswordUpdated] = useState(false)
 
-  // Detect Supabase PASSWORD_RECOVERY event from email link
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
@@ -50,6 +56,7 @@ export function AuthPage() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
@@ -61,7 +68,6 @@ export function AuthPage() {
     setError('')
 
     if (mode === 'reset') {
-      // If user came from recovery email, update the password
       if (isRecovery) {
         const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
         if (updateError) { setError(updateError.message); setLoading(false); return }
@@ -70,7 +76,6 @@ export function AuthPage() {
         setTimeout(() => router.push(`/${locale}`), 2000)
         return
       }
-      // Otherwise send reset email
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/${locale}/auth`,
       })
@@ -83,8 +88,7 @@ export function AuthPage() {
     if (mode === 'register') {
       const fullPhone = `${phoneCode}${phoneNumber}`
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email, password,
         options: { data: { full_name: fullName, phone: fullPhone } },
       })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
@@ -98,66 +102,112 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-16 pb-8">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-teal-950/20 to-gray-950 pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen grid lg:grid-cols-5">
+      {/* ── Left: editorial side panel (desktop only) ── */}
+      <div className="hidden lg:flex lg:col-span-2 relative overflow-hidden bg-[--color-ink-900] border-e border-[rgba(255,255,255,.04)]">
+        {/* decorative ticket-stub edge */}
+        <div className="absolute end-0 inset-y-0 flex flex-col items-center justify-around w-px"
+             style={{ backgroundImage: 'repeating-linear-gradient(to bottom, rgba(255,255,255,.08) 0 6px, transparent 6px 12px)' }} />
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative w-full max-w-md"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-2xl shadow-teal-500/30 mx-auto mb-4"
-          >
-            <Compass className="w-7 h-7 text-white" />
-          </motion.div>
-          <h1 className="text-2xl font-bold text-white">GoTogether</h1>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={mode}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="text-gray-400 text-sm mt-1"
-            >
-              {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
-            </motion.p>
-          </AnimatePresence>
+        <div className="relative w-full p-12 xl:p-16 flex flex-col justify-between">
+          <div className="space-y-8">
+            <Link href={`/${locale}`}>
+              <div className="flex items-center gap-2.5 group cursor-pointer">
+                <div className="w-10 h-10 grid place-items-center
+                                rounded-sm border border-[--color-amber-400]/40 bg-[--color-amber-400]/5 corner-marks">
+                  <span className="font-display text-[--color-amber-400] text-base translate-y-[1px]">G</span>
+                </div>
+                <div className="leading-none">
+                  <div className="font-display text-[--color-bone-50] text-base tracking-tight">GoTogether</div>
+                  <div className="eyebrow mt-1 text-[8.5px]">find your crew</div>
+                </div>
+              </div>
+            </Link>
+
+            <div className="space-y-5 mt-16">
+              <div className="eyebrow text-[--color-amber-400]">— №1 issue · vol. {new Date().getFullYear()}</div>
+              <h2 className="headline text-[--color-bone-50] text-5xl xl:text-6xl">
+                Travel<br />
+                <span className="text-[--color-amber-400]">together.</span>
+              </h2>
+              <p className="text-[--color-bone-200] text-base leading-relaxed max-w-sm">
+                Find your crew for the next adventure. Hike, eat, explore — but never alone.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="h-px bg-gradient-to-r from-[--color-ink-700] via-[--color-amber-400]/40 to-transparent" />
+            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[--color-bone-400]">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Card */}
-        <div className="bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-white/8 shadow-2xl shadow-black/40 overflow-hidden">
-          {/* Tab switcher — hidden in reset mode */}
+      {/* ── Right: form ── */}
+      <div className="lg:col-span-3 flex items-center justify-center px-4 sm:px-8 py-16 sm:py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-sm"
+        >
+          {/* Mobile logo */}
+          <div className="lg:hidden text-center mb-10">
+            <div className="inline-flex items-center gap-2.5 mb-3">
+              <div className="w-10 h-10 grid place-items-center
+                              rounded-sm border border-[--color-amber-400]/40 bg-[--color-amber-400]/5 corner-marks">
+                <span className="font-display text-[--color-amber-400] text-base translate-y-[1px]">G</span>
+              </div>
+              <div className="font-display text-[--color-bone-50] text-base tracking-tight">GoTogether</div>
+            </div>
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-2 mb-8">
+            <div className="eyebrow text-[--color-amber-400]">— {mode === 'reset' ? 'recovery' : mode === 'login' ? 'sign in' : 'create account'}</div>
+            <AnimatePresence mode="wait">
+              <motion.h1
+                key={mode}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="headline text-[--color-bone-50] text-3xl"
+              >
+                {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
+              </motion.h1>
+            </AnimatePresence>
+          </div>
+
+          {/* Tab switcher — login/register only */}
           {mode !== 'reset' && (
-            <div className="flex bg-gray-950/50 p-1.5 gap-1">
+            <div className="flex border-b border-[--color-ink-800] mb-6">
               {(['login', 'register'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError('') }}
                   className={cn(
-                    'flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                    'flex-1 pb-3 -mb-px font-mono text-[11px] tracking-[0.18em] uppercase transition-colors relative',
                     mode === m
-                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/20'
-                      : 'text-gray-500 hover:text-gray-300'
+                      ? 'text-[--color-amber-400]'
+                      : 'text-[--color-bone-400] hover:text-[--color-bone-50]'
                   )}
                 >
                   {m === 'login' ? t('loginTab') : t('registerTab')}
+                  {mode === m && (
+                    <motion.div
+                      layoutId="auth-tab"
+                      className="absolute inset-x-0 bottom-0 h-px bg-[--color-amber-400]"
+                    />
+                  )}
                 </button>
               ))}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <AnimatePresence mode="wait">
               {mode === 'register' && (
                 <motion.div
@@ -167,55 +217,35 @@ export function AuthPage() {
                   transition={{ duration: 0.2 }}
                   className="space-y-4 overflow-hidden"
                 >
-                  {/* Full name */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('fullNameLabel')}</label>
+                    <label className="eyebrow">{t('fullNameLabel')}</label>
                     <div className="relative">
-                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                      <input
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder={t('fullNamePlaceholder')}
-                        required
-                        className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                                   placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                                   transition-all duration-200"
-                      />
+                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                      <input value={fullName} onChange={(e) => setFullName(e.target.value)}
+                        placeholder={t('fullNamePlaceholder')} required className={inputClass} />
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('phoneLabel')}</label>
+                    <label className="eyebrow">{t('phoneLabel')}</label>
                     <div className="flex gap-2">
                       <div className="relative">
-                        <select
-                          value={phoneCode}
-                          onChange={(e) => setPhoneCode(e.target.value)}
-                          className="appearance-none ps-3 pe-7 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white
-                                     text-sm focus:outline-none focus:border-teal-500/50 transition-all cursor-pointer"
-                          dir="ltr"
-                        >
+                        <select value={phoneCode} onChange={(e) => setPhoneCode(e.target.value)}
+                          className="appearance-none ps-3 pe-7 py-3 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
+                                     text-[--color-bone-50] text-[13px] font-mono focus:outline-none focus:border-[--color-amber-400]/40 cursor-pointer"
+                          dir="ltr">
                           {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code} className="bg-gray-900">
+                            <option key={c.code} value={c.code} className="bg-[--color-ink-850]">
                               {c.flag} {c.code}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none" />
+                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[--color-bone-400] pointer-events-none" />
                       </div>
                       <div className="relative flex-1">
-                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                        <input
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder={t('phonePlaceholder')}
-                          required
-                          dir="ltr"
-                          className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                                     placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                                     transition-all duration-200"
-                        />
+                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                        <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder={t('phonePlaceholder')} required dir="ltr" className={inputClass} />
                       </div>
                     </div>
                   </div>
@@ -223,53 +253,34 @@ export function AuthPage() {
               )}
             </AnimatePresence>
 
-            {/* Email — hidden when coming from recovery email */}
-            {!isRecovery && <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('emailLabel')}</label>
-              <div className="relative">
-                <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('emailPlaceholder')}
-                  required
-                  dir="ltr"
-                  className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                             transition-all duration-200"
-                />
+            {!isRecovery && (
+              <div className="space-y-1.5">
+                <label className="eyebrow">{t('emailLabel')}</label>
+                <div className="relative">
+                  <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('emailPlaceholder')} required dir="ltr" className={inputClass} />
+                </div>
               </div>
-            </div>}
+            )}
 
-            {/* Password — hidden in reset/recovery modes */}
-            {!isRecovery && mode !== 'reset' && <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('passwordLabel')}</label>
-              <div className="relative">
-                <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('passwordPlaceholder')}
-                  required
-                  minLength={6}
-                  dir="ltr"
-                  className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                             transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5"
-                >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {!isRecovery && mode !== 'reset' && (
+              <div className="space-y-1.5">
+                <label className="eyebrow">{t('passwordLabel')}</label>
+                <div className="relative">
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <input type={showPass ? 'text' : 'password'} value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t('passwordPlaceholder')} required minLength={6} dir="ltr"
+                    className={`${inputClass} pe-11`} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-bone-400] hover:text-[--color-bone-50] transition-colors p-0.5">
+                    {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
               </div>
-            </div>}
+            )}
 
-            {/* Error */}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -278,94 +289,81 @@ export function AuthPage() {
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  <div className="p-3 rounded-sm bg-[--color-coral-500]/10 border border-[--color-coral-500]/20 text-[--color-coral-400] text-[12px] font-mono">
                     {error}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Forgot password (login mode only) */}
             {mode === 'login' && (
               <div className="text-center">
                 <button type="button" onClick={() => { setMode('reset'); setError('') }}
-                  className="text-xs text-gray-500 hover:text-teal-400 transition-colors">
+                  className="font-mono text-[10px] tracking-[0.16em] uppercase
+                             text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline">
                   {t('forgotPassword')}
                 </button>
               </div>
             )}
 
-            {/* Recovery: new password field */}
             {mode === 'reset' && isRecovery && !passwordUpdated && (
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">סיסמה חדשה</label>
+                <label className="eyebrow">סיסמה חדשה</label>
                 <div className="relative">
-                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                  <input
-                    type={showPass ? 'text' : 'password'}
-                    value={newPassword}
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <input type={showPass ? 'text' : 'password'} value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
-                    placeholder="לפחות 6 תווים"
-                    required
-                    minLength={6}
-                    dir="ltr"
-                    className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                               placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800 transition-all"
-                  />
+                    placeholder="לפחות 6 תווים" required minLength={6} dir="ltr"
+                    className={`${inputClass} pe-11`} />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5">
-                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-bone-400] hover:text-[--color-bone-50] transition-colors p-0.5">
+                    {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Password updated success */}
             {passwordUpdated && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
-                ✅ הסיסמה עודכנה! מעביר אותך...
+                className="p-4 rounded-sm bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[12px] font-mono text-center">
+                ✓ הסיסמה עודכנה — מעביר אותך
               </motion.div>
             )}
 
-            {/* Reset mode UI — email sent */}
-            {mode === 'reset' && !isRecovery && (
-              <AnimatePresence>
-                {resetSent ? (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
-                    ✉️ {t('resetSent')}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+            {mode === 'reset' && !isRecovery && resetSent && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="p-4 rounded-sm bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[12px] font-mono text-center">
+                ✉ {t('resetSent')}
+              </motion.div>
             )}
 
-            {/* Submit */}
             {!resetSent && !passwordUpdated && (
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                           text-white font-semibold text-sm hover:from-teal-400 hover:to-cyan-400
-                           transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50
-                           disabled:cursor-not-allowed flex items-center justify-center gap-2
-                           active:scale-[0.98]"
+                className="w-full py-3.5 mt-2 rounded-sm
+                           font-mono text-[11px] tracking-[0.2em] uppercase font-semibold
+                           bg-[--color-amber-400] text-[--color-amber-ink]
+                           hover:bg-[--color-amber-500] active:scale-[0.99]
+                           transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)]
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           flex items-center justify-center gap-2"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
               </button>
             )}
 
-            {/* Back to login from reset */}
             {mode === 'reset' && (
               <button type="button" onClick={() => { setMode('login'); setResetSent(false); setError('') }}
-                className="w-full text-center text-sm text-gray-500 hover:text-white transition-colors">
+                className="w-full text-center font-mono text-[10px] tracking-[0.16em] uppercase
+                           text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors">
                 ← {t('backToLogin')}
               </button>
             )}
           </form>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }
