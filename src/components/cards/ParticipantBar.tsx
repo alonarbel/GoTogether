@@ -34,20 +34,11 @@ export function ParticipantBar({ current, min, max, className, showLabels = fals
           )}
         />
 
-        {/* Min marker — thin neutral line */}
+        {/* Min limit line */}
         <div
-          className="absolute -top-1 -bottom-1 w-px bg-[--color-mist-200]/60"
+          className="absolute -top-1 -bottom-1 w-px bg-[--color-mist-100]/70"
           style={{ insetInlineStart: `calc(${minPercentage}% - 0.5px)` }}
         />
-        {/* Min marker caption — subtle sans label */}
-        <div
-          className="absolute -top-5 -translate-x-1/2
-                     text-[10px] font-medium tracking-wide
-                     text-[--color-mist-300] whitespace-nowrap"
-          style={{ insetInlineStart: `${minPercentage}%` }}
-        >
-          min · {min}
-        </div>
       </div>
 
       {showLabels && (
