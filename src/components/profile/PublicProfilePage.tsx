@@ -138,10 +138,19 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
                   {orgAvg.toFixed(1)}
                 </div>
                 <div className="flex justify-center gap-0.5 mt-2">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Star key={i} className={cn('w-2.5 h-2.5',
-                      i < Math.round(orgAvg) ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/15')} />
-                  ))}
+                  {Array.from({ length: 5 }, (_, i) => {
+                    const filled = i < Math.round(orgAvg)
+                    return (
+                      <Star
+                        key={i}
+                        className="w-2.5 h-2.5"
+                        style={{
+                          color: filled ? '#fbbf24' : 'rgba(255,255,255,0.18)',
+                          fill: filled ? '#fbbf24' : 'transparent',
+                        }}
+                      />
+                    )
+                  })}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">avg rating</div>
               </div>
@@ -200,7 +209,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             className="mt-10 space-y-4"
           >
             <header className="flex items-center gap-3">
-              <Star className="w-3.5 h-3.5 text-[--color-amber-400] fill-[--color-amber-400]" />
+              <Star className="w-3.5 h-3.5" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
               <h2 className="eyebrow">— {t('reviewsReceived')}</h2>
             </header>
             <div className="space-y-3">
@@ -221,8 +230,17 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }, (_, i) => {
                         const rating = r.organizer_rating || r.card_rating || 0
-                        return <Star key={i} className={cn('w-3 h-3',
-                          i < rating ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/15')} />
+                        const filled = i < rating
+                        return (
+                          <Star
+                            key={i}
+                            className="w-3 h-3"
+                            style={{
+                              color: filled ? '#fbbf24' : 'rgba(255,255,255,0.18)',
+                              fill: filled ? '#fbbf24' : 'transparent',
+                            }}
+                          />
+                        )
                       })}
                     </div>
                   </div>

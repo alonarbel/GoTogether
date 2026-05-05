@@ -218,9 +218,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               transition={{ delay: 0.14, duration: 0.6 }}
               className="space-y-4"
             >
-              <p className="font-display text-[--color-mist-100] text-[18px] leading-relaxed
-                            first-letter:font-semibold first-letter:text-5xl first-letter:me-1.5
-                            first-letter:float-start first-letter:leading-[0.85] first-letter:text-gradient">
+              <p className="font-display text-[--color-mist-100] text-[18px] leading-relaxed">
                 {card.description}
               </p>
 

@@ -177,7 +177,8 @@ export function Navbar({ locale }: NavbarProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
-              className="glass-strong absolute top-full mt-2 w-full z-[200] overflow-hidden rounded-xl"
+              className="glass-strong absolute top-full mt-2 w-full overflow-hidden rounded-xl"
+              style={{ zIndex: 9999 }}
             >
               <div className="px-3.5 py-2 border-b border-white/[0.06] eyebrow">
                 {t('searchUsers')}

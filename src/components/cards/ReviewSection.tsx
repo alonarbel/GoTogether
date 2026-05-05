@@ -23,8 +23,13 @@ function StarRating({ value, onChange, readOnly }: { value: number; onChange?: (
           onMouseLeave={() => !readOnly && setHover(0)}
           className={cn('transition-transform', readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110')}
         >
-          <Star className={cn('w-4 h-4 transition-colors',
-            (hover || value) >= n ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/20')} />
+          <Star
+            className="w-4 h-4 transition-colors"
+            style={{
+              color: (hover || value) >= n ? '#fbbf24' : 'rgba(255,255,255,0.22)',
+              fill: (hover || value) >= n ? '#fbbf24' : 'transparent',
+            }}
+          />
         </button>
       ))}
     </div>
@@ -138,15 +143,15 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
         </div>
         <div className="flex gap-4 text-[12px] font-medium">
           {avgCardRating && (
-            <span className="text-[--color-amber-400] flex items-center gap-1">
-              <Star className="w-3 h-3 fill-[--color-amber-400]" />
+            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
+              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
               <span className="font-semibold">{avgCardRating}</span>
               <span className="text-[--color-mist-400] text-[10px] uppercase">{t('cardRating')}</span>
             </span>
           )}
           {avgOrgRating && isOrganizer && (
-            <span className="text-[--color-violet-400] flex items-center gap-1">
-              <Star className="w-3 h-3 fill-[--color-violet-400]" />
+            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
+              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
               <span className="font-semibold">{avgOrgRating}</span>
               <span className="text-[--color-mist-400] text-[10px] uppercase">{t('organizerRating')}</span>
             </span>

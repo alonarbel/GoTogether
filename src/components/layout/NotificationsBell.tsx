@@ -93,20 +93,37 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
     return t('daysAgo', { count: days })
   }
 
+  const handleToggle = async () => {
+    const next = !open
+    setOpen(next)
+    // When opening: visually clear the counter immediately, and mark all as read server-side
+    if (next && count > 0) {
+      setCount(0)
+      try { await markAllAsRead(userId) } catch {}
+    }
+  }
+
   return (
     <div ref={wrapperRef} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={handleToggle}
         className="relative flex items-center justify-center w-9 h-9 rounded-lg
                    text-[--color-mist-300] hover:text-[--color-coral-400] hover:bg-white/[0.04]
                    transition-all"
       >
         <Bell className="w-3.5 h-3.5" strokeWidth={2} />
         {count > 0 && (
-          <span className="absolute top-0.5 end-0.5 min-w-[16px] h-[16px] px-1 rounded-full
-                           bg-gradient-to-br from-[--color-coral-500] to-[--color-rose-500]
-                           text-white text-[10px] font-mono font-bold tabular-nums
-                           grid place-items-center">
+          <span
+            className="absolute top-0.5 end-0.5 min-w-[18px] h-[18px] px-1 rounded-full
+                       text-[10px] font-mono font-bold tabular-nums grid place-items-center
+                       border"
+            style={{
+              background: 'linear-gradient(135deg, #f43f5e, #ef4444)',
+              color: '#ffffff',
+              borderColor: 'rgba(255,255,255,0.25)',
+              boxShadow: '0 4px 12px -2px rgba(244,63,94,0.55)',
+            }}
+          >
             {count > 9 ? '9+' : count}
           </span>
         )}

@@ -264,11 +264,19 @@ export function ProfilePage() {
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[--color-mist-400]">{r.card_title}</span>
                       <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }, (_, i) => (
-                          <Star key={i} className={cn('w-3 h-3',
-                            i < (r.organizer_rating || 0) ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/15'
-                          )} />
-                        ))}
+                        {Array.from({ length: 5 }, (_, i) => {
+                          const filled = i < (r.organizer_rating || 0)
+                          return (
+                            <Star
+                              key={i}
+                              className="w-3 h-3"
+                              style={{
+                                color: filled ? '#fbbf24' : 'rgba(255,255,255,0.18)',
+                                fill: filled ? '#fbbf24' : 'transparent',
+                              }}
+                            />
+                          )
+                        })}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
