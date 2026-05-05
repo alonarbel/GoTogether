@@ -109,16 +109,18 @@ export function Navbar({ locale }: NavbarProps) {
   }
 
   return (
-    <motion.nav
-      initial={{ y: -16, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
+    <nav
+      className="flex items-center justify-between gap-3
                  px-4 sm:px-8 py-3.5 backdrop-blur-2xl border-b
                  transition-[background-color,border-color,box-shadow] duration-300"
       style={{
-        backgroundColor: scrolled ? 'rgba(10,22,32,0.92)' : 'rgba(10,22,32,0.55)',
-        borderBottomColor: scrolled ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.05)',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: scrolled ? 'rgba(10,22,32,0.94)' : 'rgba(10,22,32,0.70)',
+        borderBottomColor: scrolled ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.06)',
         boxShadow: scrolled ? '0 8px 24px -12px rgba(0,0,0,0.6)' : 'none',
       }}
     >
@@ -322,6 +324,6 @@ export function Navbar({ locale }: NavbarProps) {
           </Link>
         )}
       </div>
-    </motion.nav>
+    </nav>
   )
 }
