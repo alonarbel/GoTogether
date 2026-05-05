@@ -23,6 +23,11 @@ const COUNTRY_CODES = [
   { code: '+27', flag: '🇿🇦' }, { code: '+20', flag: '🇪🇬' }, { code: '+90', flag: '🇹🇷' },
 ]
 
+const inputClass =
+  'w-full px-3.5 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm ' +
+  'text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600] ' +
+  'focus:outline-none focus:border-[--color-amber-400]/40 transition-all'
+
 export function EditCardPage({ card }: { card: TravelCard }) {
   const t = useTranslations('create')
   const tFilters = useTranslations('filters')
@@ -35,9 +40,8 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   const [deleting, setDeleting] = useState(false)
   const { toast } = useToast()
 
-  // Parse phone if stored as "+972050..."
   const existingPhone = card.phone || ''
-  const matchedCode = COUNTRY_CODES.find(c => existingPhone.startsWith(c.code)) 
+  const matchedCode = COUNTRY_CODES.find(c => existingPhone.startsWith(c.code))
   const defaultCode = matchedCode?.code || '+972'
   const defaultNumber = matchedCode ? existingPhone.slice(defaultCode.length) : existingPhone
 
@@ -65,7 +69,6 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   const set = <K extends keyof typeof form>(key: K, val: typeof form[K]) =>
     setForm(f => ({ ...f, [key]: val }))
 
-  // Guard: only owner can edit
   if (user?.id !== card.createdByUserId) {
     router.push(`/${locale}/cards/${card.id}`)
     return null
@@ -74,7 +77,6 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   const handleSave = async () => {
     setLoading(true)
     try {
-      // Re-geocode if location changed so the map pin moves to the new address
       const locationChanged =
         form.address !== card.location.address ||
         form.city !== card.location.city ||
@@ -108,7 +110,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         toast('השינויים נשמרו בהצלחה', 'success')
         router.push(`/${locale}/cards/${card.id}`)
       } else throw new Error('Update failed')
-    } catch (e) {
+    } catch {
       toast('שגיאה בשמירת השינויים', 'error')
     } finally {
       setLoading(false)
@@ -129,70 +131,81 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-16">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6">
-
+    <div className="min-h-screen pt-24 pb-20">
+      <div className="max-w-2xl mx-auto px-4 sm:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <motion.button
-            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+        <div className="flex items-center justify-between mb-10">
+          <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+            className="flex items-center gap-2 group
+                       font-mono text-[11px] tracking-[0.18em] uppercase
+                       text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm">חזור</span>
-          </motion.button>
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
+            חזור
+          </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all text-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[--color-coral-500]/20
+                       font-mono text-[10px] tracking-[0.18em] uppercase
+                       text-[--color-coral-400] hover:bg-[--color-coral-500]/10 hover:border-[--color-coral-500]/40
+                       transition-all"
           >
-            {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+            {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" strokeWidth={2} />}
             מחק כרטיסייה
           </button>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-          <h1 className="text-2xl font-bold text-white">{t('title').replace('חדשה', '').trim()} — עריכה</h1>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-6"
+        >
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-px bg-[--color-amber-400]" />
+              <span className="eyebrow text-[--color-amber-400]">— editing dispatch</span>
+            </div>
+            <h1 className="headline text-[--color-bone-50] text-4xl">{card.title}</h1>
+          </div>
 
-          {/* Title */}
           <Field label={t('titleLabel')}>
             <input value={form.title} onChange={e => set('title', e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" placeholder={t('titlePlaceholder')} />
+              className={inputClass} placeholder={t('titlePlaceholder')} />
           </Field>
 
-          {/* Description */}
           <Field label={t('descLabel')}>
             <textarea value={form.description} onChange={e => set('description', e.target.value)}
-              rows={4} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600 resize-none" placeholder={t('descPlaceholder')} />
+              rows={4} className={`${inputClass} resize-none`} placeholder={t('descPlaceholder')} />
           </Field>
 
-          {/* Type */}
           <Field label={t('typeLabel')}>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
               {CARD_TYPES.map(type => (
                 <button key={type} type="button" onClick={() => set('type', type)}
-                  className={cn('flex flex-col items-center gap-1 py-3 rounded-xl text-xs transition-all border',
+                  className={cn('flex flex-col items-center gap-1 py-3 rounded-sm border transition-all',
                     form.type === type
-                      ? 'bg-teal-500/15 border-teal-500/40 text-teal-300'
-                      : 'bg-gray-900 border-white/5 text-gray-400 hover:border-white/15'
+                      ? 'bg-[--color-amber-400]/5 border-[--color-amber-400]/50 text-[--color-amber-400]'
+                      : 'border-[--color-ink-700] text-[--color-bone-400] hover:border-[--color-ink-600]'
                   )}>
                   <span className="text-xl">{getCardTypeIcon(type)}</span>
-                  <span>{tFilters(type as Parameters<typeof tFilters>[0])}</span>
+                  <span className="font-mono text-[9px] tracking-[0.14em] uppercase">{tFilters(type as Parameters<typeof tFilters>[0])}</span>
                 </button>
               ))}
             </div>
           </Field>
 
-          {/* Organizer role */}
           <Field label={t('organizerRoleLabel')}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
               {ORGANIZER_ROLES.map(role => (
                 <button key={role} type="button" onClick={() => set('organizer_role', role)}
-                  className={cn('py-2.5 px-3 rounded-xl text-sm transition-all border',
+                  className={cn('py-2 px-2 rounded-sm border transition-all',
+                    'font-mono text-[10px] tracking-[0.14em] uppercase',
                     form.organizer_role === role
-                      ? 'bg-teal-500/15 border-teal-500/40 text-teal-300'
-                      : 'bg-gray-900 border-white/5 text-gray-400 hover:border-white/15'
+                      ? 'bg-[--color-amber-400]/5 border-[--color-amber-400]/50 text-[--color-amber-400]'
+                      : 'border-[--color-ink-700] text-[--color-bone-400]'
                   )}>
                   {tRoles(role as Parameters<typeof tRoles>[0])}
                 </button>
@@ -200,97 +213,91 @@ export function EditCardPage({ card }: { card: TravelCard }) {
             </div>
           </Field>
 
-          {/* Location */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label={t('addressLabel')} className="sm:col-span-1">
-              <input value={form.address} onChange={e => set('address', e.target.value)} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" />
+            <Field label={t('addressLabel')}>
+              <input value={form.address} onChange={e => set('address', e.target.value)} className={inputClass} />
             </Field>
             <Field label={t('cityLabel')}>
-              <input value={form.city} onChange={e => set('city', e.target.value)} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" />
+              <input value={form.city} onChange={e => set('city', e.target.value)} className={inputClass} />
             </Field>
             <Field label={t('countryLabel')}>
-              <input value={form.country} onChange={e => set('country', e.target.value)} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" />
+              <input value={form.country} onChange={e => set('country', e.target.value)} className={inputClass} />
             </Field>
           </div>
 
-          {/* Participants */}
           <div className="grid grid-cols-2 gap-3">
             <Field label={t('minLabel')}>
               <input type="number" min={1} value={form.min_participants}
-                onChange={e => set('min_participants', +e.target.value)} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" />
+                onChange={e => set('min_participants', +e.target.value)} className={inputClass} />
             </Field>
             <Field label={t('maxLabel')}>
               <input type="number" min={1} value={form.max_participants}
-                onChange={e => set('max_participants', +e.target.value)} className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" />
+                onChange={e => set('max_participants', +e.target.value)} className={inputClass} />
             </Field>
           </div>
 
-          {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label={t('eventDateLabel')}>
               <input type="date" value={form.event_date} onChange={e => set('event_date', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" style={{ colorScheme: 'dark' }} />
+                className={inputClass} style={{ colorScheme: 'dark' }} />
             </Field>
             <Field label={t('eventTimeLabel')}>
               <input type="time" value={form.event_time} onChange={e => set('event_time', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" style={{ colorScheme: 'dark' }} />
+                className={inputClass} style={{ colorScheme: 'dark' }} />
             </Field>
             <Field label={t('minDeadlineLabel')}>
               <input type="date" value={form.min_deadline} onChange={e => set('min_deadline', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" style={{ colorScheme: 'dark' }} />
+                className={inputClass} style={{ colorScheme: 'dark' }} />
             </Field>
           </div>
 
-          {/* Phone */}
           <Field label={t('phoneLabel')}>
             <div className="flex gap-2">
               <select value={form.phoneCode} onChange={e => set('phoneCode', e.target.value)}
-                className="w-28 flex-shrink-0 px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors" dir="ltr">
+                className="w-28 flex-shrink-0 px-3 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
+                           text-[--color-bone-50] text-[12px] font-mono focus:outline-none focus:border-[--color-amber-400]/40 transition-all"
+                dir="ltr">
                 {COUNTRY_CODES.map(c => (
-                  <option key={c.code} value={c.code} className="bg-gray-900">{c.flag} {c.code}</option>
+                  <option key={c.code} value={c.code} className="bg-[--color-ink-850]">{c.flag} {c.code}</option>
                 ))}
               </select>
               <input value={form.phoneNumber} onChange={e => set('phoneNumber', e.target.value)}
-                className="flex-1 px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" dir="ltr" placeholder="050-0000000" />
+                className={`${inputClass} flex-1`} dir="ltr" placeholder="050-0000000" />
             </div>
           </Field>
 
-          {/* Contact */}
           <Field label={t('contactLabel')}>
             <input value={form.contact_info} onChange={e => set('contact_info', e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" dir="ltr" />
+              className={inputClass} dir="ltr" />
           </Field>
 
-          {/* Chat links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label={t('whatsappLabel')}>
               <input value={form.whatsapp_link} onChange={e => set('whatsapp_link', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" dir="ltr" placeholder="https://chat.whatsapp.com/..." />
+                className={inputClass} dir="ltr" placeholder="https://chat.whatsapp.com/..." />
             </Field>
             <Field label={t('telegramLabel')}>
               <input value={form.telegram_link} onChange={e => set('telegram_link', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" dir="ltr" placeholder="https://t.me/..." />
+                className={inputClass} dir="ltr" placeholder="https://t.me/..." />
             </Field>
           </div>
 
-          {/* Tags */}
           <Field label="תגיות (מופרדות בפסיק)">
             <input value={form.tags} onChange={e => set('tags', e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm outline-none focus:border-teal-500/50 transition-colors placeholder:text-gray-600" placeholder="ים, שקיעה, ירושלים..." />
+              className={inputClass} placeholder="ים, שקיעה, ירושלים..." />
           </Field>
 
-          {/* Save */}
           <button onClick={handleSave} disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                       text-white font-semibold hover:from-teal-400 hover:to-cyan-400 transition-all
-                       shadow-lg shadow-teal-500/20 disabled:opacity-50 flex items-center justify-center gap-2">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            className="w-full py-3.5 mt-2 rounded-sm
+                       font-mono text-[11px] tracking-[0.2em] uppercase font-semibold
+                       bg-[--color-amber-400] text-[--color-amber-ink] hover:bg-[--color-amber-500]
+                       transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)]
+                       disabled:opacity-50 flex items-center justify-center gap-2">
+            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" strokeWidth={2.5} />}
             שמור שינויים
           </button>
         </motion.div>
       </div>
-
-
     </div>
   )
 }
@@ -298,7 +305,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
 function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={cn('space-y-1.5', className)}>
-      <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</label>
+      <label className="eyebrow">{label}</label>
       {children}
     </div>
   )

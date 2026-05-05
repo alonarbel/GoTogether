@@ -33,16 +33,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               className={cn(
-                'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border max-w-sm w-full',
-                t.type === 'success' && 'bg-green-950/80 border-green-500/30 text-green-300',
-                t.type === 'error'   && 'bg-red-950/80 border-red-500/30 text-red-300',
-                t.type === 'info'    && 'bg-gray-900/90 border-white/10 text-gray-200',
+                'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-sm shadow-2xl backdrop-blur-xl border max-w-sm w-full',
+                'font-mono text-[12px] tracking-[0.04em]',
+                t.type === 'success' && 'bg-[--color-emerald-500]/15 border-[--color-emerald-500]/30 text-[--color-emerald-400]',
+                t.type === 'error'   && 'bg-[--color-coral-500]/15 border-[--color-coral-500]/30 text-[--color-coral-400]',
+                t.type === 'info'    && 'bg-[--color-ink-850] border-[rgba(255,255,255,.1)] text-[--color-bone-200]',
               )}
             >
-              {t.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-              {t.type === 'error'   && <XCircle className="w-4 h-4 shrink-0" />}
-              {t.type === 'info'    && <Info className="w-4 h-4 shrink-0" />}
-              <span className="text-sm flex-1">{t.message}</span>
+              {t.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2} />}
+              {t.type === 'error'   && <XCircle className="w-4 h-4 shrink-0" strokeWidth={2} />}
+              {t.type === 'info'    && <Info className="w-4 h-4 shrink-0" strokeWidth={2} />}
+              <span className="flex-1">{t.message}</span>
               <button onClick={() => remove(t.id)} className="opacity-50 hover:opacity-100 transition-opacity">
                 <X className="w-3.5 h-3.5" />
               </button>
