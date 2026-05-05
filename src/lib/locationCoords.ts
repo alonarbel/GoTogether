@@ -30,6 +30,29 @@ export function resolveCardCoords(card: TravelCard): [number, number] | null {
   return CITY_COORDS[raw] || CITY_COORDS[raw.toLowerCase()] || null
 }
 
+// Geocode an address using OpenStreetMap's Nominatim service (free, no API key).
+// Returns null on failure — callers should fall back to CITY_COORDS or skip lat/lng.
+export async function geocodeAddress(
+  address: string,
+  city: string,
+  country: string
+): Promise<[number, number] | null> {
+  const query = [address, city, country].filter(Boolean).join(', ').trim()
+  if (!query) return null
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`
+    const res = await fetch(url, {
+      headers: { 'Accept-Language': 'en' },
+    })
+    if (!res.ok) return null
+    const data = (await res.json()) as Array<{ lat: string; lon: string }>
+    if (!data.length) return null
+    return [parseFloat(data[0].lat), parseFloat(data[0].lon)]
+  } catch {
+    return null
+  }
+}
+
 // Haversine distance in km between two [lat, lng] points
 export function distanceKm(a: [number, number], b: [number, number]): number {
   const R = 6371

@@ -9,6 +9,7 @@ import { CheckCircle2, Upload, ArrowLeft, ArrowRight, Check, Loader2, LogIn } fr
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { createCard } from '@/lib/cards'
+import { geocodeAddress } from '@/lib/locationCoords'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
@@ -70,6 +71,9 @@ export function CreateCardPage() {
     if (!user) return
     setLoading(true)
     try {
+      // Auto-geocode the address via Nominatim so the card shows up on the map
+      // and in distance-based sorting. Fails silently — card still saves without coords.
+      const coords = await geocodeAddress(form.address, form.city, form.country)
       const result = await createCard({
         userId: user.id,
         title: form.title,
@@ -79,6 +83,8 @@ export function CreateCardPage() {
         address: form.address,
         city: form.city,
         country: form.country,
+        lat: coords?.[0],
+        lng: coords?.[1],
         minParticipants: form.minParticipants,
         maxParticipants: form.maxParticipants,
         eventDate: form.eventDate || undefined,

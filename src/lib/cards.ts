@@ -77,6 +77,8 @@ export async function createCard(data: {
   address: string
   city: string
   country: string
+  lat?: number
+  lng?: number
   minParticipants: number
   maxParticipants: number
   eventDate?: string
@@ -99,6 +101,8 @@ export async function createCard(data: {
       address: data.address,
       city: data.city,
       country: data.country,
+      lat: data.lat ?? null,
+      lng: data.lng ?? null,
       min_participants: data.minParticipants,
       max_participants: data.maxParticipants,
       event_date: data.eventDate || null,
