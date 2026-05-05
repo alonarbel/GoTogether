@@ -113,12 +113,14 @@ export function Navbar({ locale }: NavbarProps) {
       initial={{ y: -16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
-                  px-4 sm:px-8 py-3.5 backdrop-blur-2xl
-                  transition-[background-color,border-color,box-shadow] duration-300
-                  ${scrolled
-                    ? 'bg-[--color-night-1000]/92 border-b border-white/[0.10] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)]'
-                    : 'bg-[--color-night-1000]/40 border-b border-white/[0.04]'}`}
+      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
+                 px-4 sm:px-8 py-3.5 backdrop-blur-2xl border-b
+                 transition-[background-color,border-color,box-shadow] duration-300"
+      style={{
+        backgroundColor: scrolled ? 'rgba(10,22,32,0.92)' : 'rgba(10,22,32,0.55)',
+        borderBottomColor: scrolled ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.05)',
+        boxShadow: scrolled ? '0 8px 24px -12px rgba(0,0,0,0.6)' : 'none',
+      }}
     >
       {/* ── Logo with gradient orb ── */}
       <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
