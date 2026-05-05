@@ -10,6 +10,8 @@ import { CardSkeletonGrid } from './ui/CardSkeleton'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
+import { resolveCardCoords, distanceKm } from '@/lib/locationCoords'
+import { useToast } from '@/components/ui/Toast'
 import dynamic from 'next/dynamic'
 
 // Leaflet uses window.* — load only on client
@@ -26,9 +28,38 @@ export function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [view, setView] = useState<'grid' | 'map'>('grid')
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [locating, setLocating] = useState(false)
   const CARDS_PER_PAGE = 12
   const params = useParams()
   const locale = params.locale as string
+  const { toast } = useToast()
+
+  const handleUseLocation = () => {
+    if (userLocation) {
+      // Toggle off — clear sort
+      setUserLocation(null)
+      toast(t('locationCleared'), 'info')
+      return
+    }
+    if (!navigator.geolocation) {
+      toast(t('locationUnsupported'), 'error')
+      return
+    }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setUserLocation([pos.coords.latitude, pos.coords.longitude])
+        setLocating(false)
+        toast(t('locationFound'), 'success')
+      },
+      () => {
+        setLocating(false)
+        toast(t('locationDenied'), 'error')
+      },
+      { timeout: 10000 }
+    )
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -68,16 +99,28 @@ export function ExplorePage() {
       return matchesFilter && matchesSearch && matchesDateFrom && matchesDateTo && notPast
     })
 
-    // Sort by event date ascending
-    result = result.sort((a, b) => {
-      if (!a.eventDate && !b.eventDate) return 0
-      if (!a.eventDate) return 1
-      if (!b.eventDate) return -1
-      return a.eventDate.localeCompare(b.eventDate)
-    })
+    if (userLocation) {
+      // Sort by distance from user — cards without coords go to the end
+      result = result.sort((a, b) => {
+        const ca = resolveCardCoords(a)
+        const cb = resolveCardCoords(b)
+        if (!ca && !cb) return 0
+        if (!ca) return 1
+        if (!cb) return -1
+        return distanceKm(userLocation, ca) - distanceKm(userLocation, cb)
+      })
+    } else {
+      // Sort by event date ascending
+      result = result.sort((a, b) => {
+        if (!a.eventDate && !b.eventDate) return 0
+        if (!a.eventDate) return 1
+        if (!b.eventDate) return -1
+        return a.eventDate.localeCompare(b.eventDate)
+      })
+    }
 
     return result
-  }, [filter, search, dateFrom, dateTo, cards])
+  }, [filter, search, dateFrom, dateTo, cards, userLocation])
 
   const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE)
   const paginated = filtered.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE)
@@ -133,11 +176,19 @@ export function ExplorePage() {
                            transition-all duration-200 shadow-lg shadow-black/20"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-3 bg-gray-900/90 border border-white/8 rounded-xl
-                               text-gray-400 hover:text-teal-400 hover:border-teal-500/25 transition-all text-sm
-                               whitespace-nowrap shadow-lg shadow-black/20">
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:block">{t('useLocation')}</span>
+            <button
+              onClick={handleUseLocation}
+              disabled={locating}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl transition-all text-sm whitespace-nowrap shadow-lg shadow-black/20 disabled:opacity-60 ${
+                userLocation
+                  ? 'bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30'
+                  : 'bg-gray-900/90 border border-white/8 text-gray-400 hover:text-teal-400 hover:border-teal-500/25'
+              }`}
+            >
+              <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} />
+              <span className="hidden sm:block">
+                {userLocation ? t('locationActive') : t('useLocation')}
+              </span>
             </button>
           </motion.div>
         </div>

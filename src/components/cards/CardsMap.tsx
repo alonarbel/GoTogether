@@ -6,38 +6,9 @@ import 'leaflet/dist/leaflet.css'
 import { TravelCard } from '@/types'
 import { useRouter, useParams } from 'next/navigation'
 import { getCardTypeIcon } from '@/lib/utils'
-
-// City fallback coordinates for cards without explicit lat/lng
-const CITY_COORDS: Record<string, [number, number]> = {
-  'תל אביב': [32.0853, 34.7818],
-  'tel aviv': [32.0853, 34.7818],
-  'ירושלים': [31.7683, 35.2137],
-  'jerusalem': [31.7683, 35.2137],
-  'אילת': [29.5577, 34.9519],
-  'eilat': [29.5577, 34.9519],
-  'נתניה': [32.3215, 34.8532],
-  'netanya': [32.3215, 34.8532],
-  'קצרין': [32.9899, 35.6951],
-  'katzrin': [32.9899, 35.6951],
-  'קרית שמונה': [33.2074, 35.5697],
-  'kiryat shmona': [33.2074, 35.5697],
-  'ים המלח': [31.5, 35.5],
-  'dead sea': [31.5, 35.5],
-  'חיפה': [32.7940, 34.9896],
-  'haifa': [32.7940, 34.9896],
-  'באר שבע': [31.2516, 34.7913],
-  'beer sheva': [31.2516, 34.7913],
-}
+import { resolveCardCoords } from '@/lib/locationCoords'
 
 const ISRAEL_CENTER: [number, number] = [31.7683, 34.9519]
-
-function resolveCoords(card: TravelCard): [number, number] | null {
-  if (typeof card.location.lat === 'number' && typeof card.location.lng === 'number') {
-    return [card.location.lat, card.location.lng]
-  }
-  const key = card.location.city.trim().toLowerCase()
-  return CITY_COORDS[card.location.city.trim()] || CITY_COORDS[key] || null
-}
 
 interface FitBoundsProps {
   coords: [number, number][]
@@ -67,7 +38,7 @@ export default function CardsMap({ cards }: CardsMapProps) {
   const pins = useMemo(() => {
     return cards
       .map(card => {
-        const coords = resolveCoords(card)
+        const coords = resolveCardCoords(card)
         return coords ? { card, coords } : null
       })
       .filter((p): p is { card: TravelCard; coords: [number, number] } => p !== null)

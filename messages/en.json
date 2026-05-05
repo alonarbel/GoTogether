@@ -17,7 +17,12 @@
     "searchBtn": "Search",
     "cardsFound": "{count} cards found",
     "viewGrid": "Grid",
-    "viewMap": "Map"
+    "viewMap": "Map",
+    "locationActive": "Sorting by distance",
+    "locationFound": "Sorted by distance from your location",
+    "locationCleared": "Distance sort cleared",
+    "locationDenied": "Couldn't access your location",
+    "locationUnsupported": "Geolocation isn't supported on this device"
   },
   "filters": {
     "all": "All",
