@@ -34,23 +34,19 @@ export function ParticipantBar({ current, min, max, className, showLabels = fals
           )}
         />
 
-        {/* Min marker — vertical bright line */}
+        {/* Min marker — thin neutral line */}
         <div
-          className="absolute -top-1 -bottom-1 w-1 rounded-full bg-[--color-amber-400]"
-          style={{
-            insetInlineStart: `calc(${minPercentage}% - 2px)`,
-            boxShadow: '0 0 12px rgba(251,191,36,.85), 0 0 24px rgba(251,191,36,.5)',
-          }}
+          className="absolute -top-1 -bottom-1 w-px bg-[--color-mist-200]/60"
+          style={{ insetInlineStart: `calc(${minPercentage}% - 0.5px)` }}
         />
-        {/* Min marker label */}
+        {/* Min marker caption — subtle sans label */}
         <div
-          className="absolute -top-7 -translate-x-1/2 px-1.5 py-0.5 rounded
-                     bg-[--color-amber-400] text-[--color-night-1000]
-                     text-[9px] font-bold font-mono tabular-nums tracking-tight
-                     shadow-[0_0_12px_rgba(251,191,36,.45)]"
+          className="absolute -top-5 -translate-x-1/2
+                     text-[10px] font-medium tracking-wide
+                     text-[--color-mist-300] whitespace-nowrap"
           style={{ insetInlineStart: `${minPercentage}%` }}
         >
-          MIN {min}
+          min · {min}
         </div>
       </div>
 
