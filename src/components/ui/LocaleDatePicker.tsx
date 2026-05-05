@@ -40,8 +40,12 @@ export function LocaleDatePicker({ value, onChange, locale }: LocaleDatePickerPr
   const daysInMonth = y && m ? new Date(y, m, 0).getDate() : 31
 
   const selectClass =
-    'bg-gray-900/90 border border-white/8 rounded-lg text-white text-sm px-2 py-1.5 ' +
-    'focus:outline-none focus:border-teal-500/40 transition-all [color-scheme:dark] cursor-pointer'
+    'bg-white/[0.06] border border-white/[0.10] rounded-lg ' +
+    'text-[--color-mist-50] text-[12px] font-mono px-2 py-1.5 ' +
+    'focus:outline-none focus:border-[--color-coral-500]/40 transition-all cursor-pointer'
+
+  // High-contrast options: black text on white (most reliable across browsers/OS)
+  const optionStyle = { backgroundColor: '#ffffff', color: '#0a1620' }
 
   return (
     <div className="flex gap-1 items-center">
@@ -50,9 +54,9 @@ export function LocaleDatePicker({ value, onChange, locale }: LocaleDatePickerPr
         onChange={(e) => { const val = Number(e.target.value); setD(val); emit(y, m, val) }}
         className={selectClass}
       >
-        <option value="">—</option>
+        <option value="" style={optionStyle}>—</option>
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(n => (
-          <option key={n} value={n}>{n}</option>
+          <option key={n} value={n} style={optionStyle}>{n}</option>
         ))}
       </select>
 
@@ -61,9 +65,9 @@ export function LocaleDatePicker({ value, onChange, locale }: LocaleDatePickerPr
         onChange={(e) => { const val = Number(e.target.value); setM(val); emit(y, val, d) }}
         className={selectClass}
       >
-        <option value="">—</option>
+        <option value="" style={optionStyle}>—</option>
         {monthNames.map((name, i) => (
-          <option key={i + 1} value={i + 1}>{name}</option>
+          <option key={i + 1} value={i + 1} style={optionStyle}>{name}</option>
         ))}
       </select>
 
@@ -72,9 +76,9 @@ export function LocaleDatePicker({ value, onChange, locale }: LocaleDatePickerPr
         onChange={(e) => { const val = Number(e.target.value); setY(val); emit(val, m, d) }}
         className={selectClass}
       >
-        <option value="">—</option>
+        <option value="" style={optionStyle}>—</option>
         {years.map(n => (
-          <option key={n} value={n}>{n}</option>
+          <option key={n} value={n} style={optionStyle}>{n}</option>
         ))}
       </select>
     </div>

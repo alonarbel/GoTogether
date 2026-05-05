@@ -1,11 +1,12 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Compass, Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown, Compass, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 const COUNTRY_CODES = [
   { code: '+972', flag: '🇮🇱', name: 'IL' },
@@ -25,6 +26,14 @@ const COUNTRY_CODES = [
   { code: '+20',  flag: '🇪🇬', name: 'EG' },
 ]
 
+const inputClass =
+  'w-full ps-11 pe-4 py-3 rounded-xl ' +
+  'bg-white/[0.03] border border-white/[0.08] ' +
+  'text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500] ' +
+  'focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-white/[0.05] ' +
+  'focus: ' +
+  'transition-all duration-300'
+
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
   const [email, setEmail] = useState('')
@@ -40,7 +49,6 @@ export function AuthPage() {
   const [isRecovery, setIsRecovery] = useState(false)
   const [passwordUpdated, setPasswordUpdated] = useState(false)
 
-  // Detect Supabase PASSWORD_RECOVERY event from email link
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
@@ -50,6 +58,7 @@ export function AuthPage() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
   const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
@@ -61,7 +70,6 @@ export function AuthPage() {
     setError('')
 
     if (mode === 'reset') {
-      // If user came from recovery email, update the password
       if (isRecovery) {
         const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
         if (updateError) { setError(updateError.message); setLoading(false); return }
@@ -70,7 +78,6 @@ export function AuthPage() {
         setTimeout(() => router.push(`/${locale}`), 2000)
         return
       }
-      // Otherwise send reset email
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/${locale}/auth`,
       })
@@ -83,8 +90,7 @@ export function AuthPage() {
     if (mode === 'register') {
       const fullPhone = `${phoneCode}${phoneNumber}`
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email, password,
         options: { data: { full_name: fullName, phone: fullPhone } },
       })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
@@ -98,56 +104,118 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-16 pb-8">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-teal-950/20 to-gray-950 pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* ── Left: Vivid hero panel (desktop) ── */}
+      <div className="hidden lg:flex relative overflow-hidden">
+        {/* Layered gradient orbs */}
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full
+                        bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] blur-[120px] opacity-50" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full
+                        bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] blur-[120px] opacity-40" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative w-full max-w-md"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-2xl shadow-teal-500/30 mx-auto mb-4"
-          >
-            <Compass className="w-7 h-7 text-white" />
-          </motion.div>
-          <h1 className="text-2xl font-bold text-white">GoTogether</h1>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={mode}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="text-gray-400 text-sm mt-1"
-            >
-              {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
-            </motion.p>
-          </AnimatePresence>
+        <div className="relative w-full p-12 xl:p-16 flex flex-col justify-between z-10">
+          <Link href={`/${locale}`} className="flex items-center gap-2.5 group w-fit">
+            <div className="w-10 h-10 grid place-items-center rounded-xl
+                            bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                            transition-transform duration-500 group-hover:rotate-[-8deg]">
+              <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
+            </div>
+            <div className="leading-none">
+              <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>
+              <div className="font-mono text-[9px] text-[--color-mist-400] tracking-[0.18em] uppercase mt-0.5">find your crew</div>
+            </div>
+          </Link>
+
+          <div className="space-y-7 max-w-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            text-[11px] font-mono text-[--color-mist-200] tracking-wide">
+              <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
+              <span>built for adventurers</span>
+            </div>
+
+            <h2 className="headline-xl text-[--color-mist-50] text-6xl xl:text-7xl">
+              Travel<br />
+              <span className="text-gradient">together.</span>
+            </h2>
+            <p className="text-[--color-mist-300] text-lg leading-relaxed max-w-sm">
+              Find your crew for the next trip. Hike, eat, ride — but never alone.
+            </p>
+
+            {/* feature dots */}
+            <div className="space-y-3 pt-4">
+              {[
+                { c: 'coral', l: 'Discover events near you' },
+                { c: 'violet', l: 'Join travelers worldwide' },
+                { c: 'cyan', l: 'Photos, reviews, real connections' },
+              ].map((f, i) => (
+                <div key={i} className="flex items-center gap-3 text-[13px] text-[--color-mist-200]">
+                  <span className={cn(
+                    'w-1.5 h-1.5 rounded-full',
+                    f.c === 'coral'  && 'bg-[--color-coral-500]',
+                    f.c === 'violet' && 'bg-[--color-violet-400]',
+                    f.c === 'cyan'   && 'bg-[--color-cyan-400]',
+                  )} />
+                  {f.l}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[--color-mist-400]">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </div>
         </div>
+      </div>
 
-        {/* Card */}
-        <div className="bg-gray-900/80 backdrop-blur-sm rounded-3xl border border-white/8 shadow-2xl shadow-black/40 overflow-hidden">
-          {/* Tab switcher — hidden in reset mode */}
+      {/* ── Right: form ── */}
+      <div className="flex items-center justify-center px-4 sm:px-12 py-16 sm:py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-sm"
+        >
+          {/* Mobile logo */}
+          <div className="lg:hidden text-center mb-10">
+            <div className="inline-flex items-center gap-2.5">
+              <div className="w-10 h-10 grid place-items-center rounded-xl
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]">
+                <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
+              </div>
+              <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>
+            </div>
+          </div>
+
+          <div className="space-y-2 mb-8">
+            <AnimatePresence mode="wait">
+              <motion.h1
+                key={mode}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="headline text-[--color-mist-50] text-4xl"
+              >
+                {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
+              </motion.h1>
+            </AnimatePresence>
+            <p className="text-[--color-mist-400] text-[13px]">
+              {mode === 'reset' ? 'we will send you a magic link' : mode === 'login' ? 'sign in to continue your journey' : 'create your account in seconds'}
+            </p>
+          </div>
+
+          {/* Tabs */}
           {mode !== 'reset' && (
-            <div className="flex bg-gray-950/50 p-1.5 gap-1">
+            <div className="flex gap-1 p-1 mb-6 rounded-xl bg-white/[0.03] border border-white/[0.06]">
               {(['login', 'register'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError('') }}
                   className={cn(
-                    'flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                    'flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all relative',
                     mode === m
-                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/20'
-                      : 'text-gray-500 hover:text-gray-300'
+                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
+                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   )}
                 >
                   {m === 'login' ? t('loginTab') : t('registerTab')}
@@ -157,65 +225,45 @@ export function AuthPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <AnimatePresence mode="wait">
               {mode === 'register' && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.22 }}
                   className="space-y-4 overflow-hidden"
                 >
-                  {/* Full name */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('fullNameLabel')}</label>
+                    <label className="eyebrow">{t('fullNameLabel')}</label>
                     <div className="relative">
-                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                      <input
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder={t('fullNamePlaceholder')}
-                        required
-                        className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                                   placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                                   transition-all duration-200"
-                      />
+                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+                      <input value={fullName} onChange={(e) => setFullName(e.target.value)}
+                        placeholder={t('fullNamePlaceholder')} required className={inputClass} />
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('phoneLabel')}</label>
+                    <label className="eyebrow">{t('phoneLabel')}</label>
                     <div className="flex gap-2">
                       <div className="relative">
-                        <select
-                          value={phoneCode}
-                          onChange={(e) => setPhoneCode(e.target.value)}
-                          className="appearance-none ps-3 pe-7 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white
-                                     text-sm focus:outline-none focus:border-teal-500/50 transition-all cursor-pointer"
-                          dir="ltr"
-                        >
+                        <select value={phoneCode} onChange={(e) => setPhoneCode(e.target.value)}
+                          className="appearance-none ps-3 pe-7 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                                     text-[--color-mist-50] text-[13px] font-mono focus:outline-none focus:border-[--color-coral-500]/50 cursor-pointer"
+                          dir="ltr">
                           {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code} className="bg-gray-900">
+                            <option key={c.code} value={c.code} className="bg-[--color-night-900]">
                               {c.flag} {c.code}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none" />
+                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[--color-mist-400] pointer-events-none" />
                       </div>
                       <div className="relative flex-1">
-                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                        <input
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder={t('phonePlaceholder')}
-                          required
-                          dir="ltr"
-                          className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                                     placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                                     transition-all duration-200"
-                        />
+                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+                        <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder={t('phonePlaceholder')} required dir="ltr" className={inputClass} />
                       </div>
                     </div>
                   </div>
@@ -223,53 +271,34 @@ export function AuthPage() {
               )}
             </AnimatePresence>
 
-            {/* Email — hidden when coming from recovery email */}
-            {!isRecovery && <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('emailLabel')}</label>
-              <div className="relative">
-                <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('emailPlaceholder')}
-                  required
-                  dir="ltr"
-                  className="w-full ps-10 pe-4 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                             transition-all duration-200"
-                />
+            {!isRecovery && (
+              <div className="space-y-1.5">
+                <label className="eyebrow">{t('emailLabel')}</label>
+                <div className="relative">
+                  <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('emailPlaceholder')} required dir="ltr" className={inputClass} />
+                </div>
               </div>
-            </div>}
+            )}
 
-            {/* Password — hidden in reset/recovery modes */}
-            {!isRecovery && mode !== 'reset' && <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{t('passwordLabel')}</label>
-              <div className="relative">
-                <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('passwordPlaceholder')}
-                  required
-                  minLength={6}
-                  dir="ltr"
-                  className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                             placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800
-                             transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5"
-                >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {!isRecovery && mode !== 'reset' && (
+              <div className="space-y-1.5">
+                <label className="eyebrow">{t('passwordLabel')}</label>
+                <div className="relative">
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+                  <input type={showPass ? 'text' : 'password'} value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t('passwordPlaceholder')} required minLength={6} dir="ltr"
+                    className={`${inputClass} pe-12`} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors">
+                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>}
+            )}
 
-            {/* Error */}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -278,94 +307,77 @@ export function AuthPage() {
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  <div className="p-3 rounded-xl bg-[--color-rose-500]/10 border border-[--color-rose-500]/20 text-[--color-rose-400] text-[13px]">
                     {error}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Forgot password (login mode only) */}
             {mode === 'login' && (
               <div className="text-center">
                 <button type="button" onClick={() => { setMode('reset'); setError('') }}
-                  className="text-xs text-gray-500 hover:text-teal-400 transition-colors">
+                  className="text-[12px] text-[--color-mist-400] hover:text-[--color-coral-400] transition-colors link-underline">
                   {t('forgotPassword')}
                 </button>
               </div>
             )}
 
-            {/* Recovery: new password field */}
             {mode === 'reset' && isRecovery && !passwordUpdated && (
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">סיסמה חדשה</label>
+                <label className="eyebrow">סיסמה חדשה</label>
                 <div className="relative">
-                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                  <input
-                    type={showPass ? 'text' : 'password'}
-                    value={newPassword}
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
+                  <input type={showPass ? 'text' : 'password'} value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
-                    placeholder="לפחות 6 תווים"
-                    required
-                    minLength={6}
-                    dir="ltr"
-                    className="w-full ps-10 pe-11 py-3 bg-gray-800/60 border border-white/8 rounded-xl text-white text-sm
-                               placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 focus:bg-gray-800 transition-all"
-                  />
+                    placeholder="לפחות 6 תווים" required minLength={6} dir="ltr"
+                    className={`${inputClass} pe-12`} />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors p-0.5">
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Password updated success */}
             {passwordUpdated && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
-                ✅ הסיסמה עודכנה! מעביר אותך...
+                className="p-4 rounded-xl bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[13px] text-center font-medium">
+                ✓ הסיסמה עודכנה — מעביר אותך
               </motion.div>
             )}
 
-            {/* Reset mode UI — email sent */}
-            {mode === 'reset' && !isRecovery && (
-              <AnimatePresence>
-                {resetSent ? (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
-                    ✉️ {t('resetSent')}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+            {mode === 'reset' && !isRecovery && resetSent && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="p-4 rounded-xl bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[13px] text-center font-medium">
+                ✉ {t('resetSent')}
+              </motion.div>
             )}
 
-            {/* Submit */}
             {!resetSent && !passwordUpdated && (
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                           text-white font-semibold text-sm hover:from-teal-400 hover:to-cyan-400
-                           transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50
-                           disabled:cursor-not-allowed flex items-center justify-center gap-2
-                           active:scale-[0.98]"
+                className="btn-primary w-full py-3.5 mt-2 rounded-xl text-[13px] font-semibold
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           flex items-center justify-center gap-2"
               >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
+                {loading && <Loader2 className="w-4 h-4 animate-spin relative z-[1]" />}
+                <span className="relative z-[1]">
+                  {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
+                </span>
               </button>
             )}
 
-            {/* Back to login from reset */}
             {mode === 'reset' && (
               <button type="button" onClick={() => { setMode('login'); setResetSent(false); setError('') }}
-                className="w-full text-center text-sm text-gray-500 hover:text-white transition-colors">
+                className="w-full text-center text-[12px] text-[--color-mist-400] hover:text-[--color-coral-400] transition-colors">
                 ← {t('backToLogin')}
               </button>
             )}
           </form>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }

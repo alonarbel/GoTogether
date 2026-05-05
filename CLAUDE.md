@@ -40,8 +40,42 @@ Five tables, all with RLS enabled: `profiles`, `travel_cards`, `card_images`, `p
 - Participant count is derived from the length of the joined `participants` array (not a stored column).
 - **Card expiry:** `fetchCards()` calls `cleanup_expired_cards()` (a `SECURITY DEFINER` RPC) which hard-deletes future cards whose `min_deadline < CURRENT_DATE`. Cards whose `event_date` is already in the past are preserved as historical records. This RPC must be registered in Supabase via `supabase/migrations/20260503_cleanup_expired_cards.sql`.
 
-### Navbar z-index
-The Navbar uses `z-[100]` and its search dropdown uses `z-[200]`. This is intentionally higher than the default `z-50` to stay above stacking contexts created by Framer Motion transforms on page content.
+### Navbar
+- The Navbar is `position: fixed` (set via inline `style`, not Tailwind, to bypass Tailwind v4 / opacity quirks — see Styling gotchas below).
+- It is **scroll-aware**: quiet/transparent at top of page, solid + bordered + shadowed once `window.scrollY > 24`. Listener is attached with `{ passive: true }` and toggles inline-style background/border/shadow only — no layout thrash.
+- Z-stacking: navbar `zIndex: 100`, search dropdown `zIndex: 9999` (inline). High-z dropdown is intentional — profile pages and other surfaces render `motion.div` wrappers whose transforms create stacking contexts that can otherwise shadow the dropdown.
+- Do **not** wrap the navbar in `motion.nav` — framer-motion's `initial={{ opacity: 0 }}` leaves an SSR inline `opacity:0;transform:translateY(-16px)` style. If client-side hydration/animation is delayed for any reason, the navbar stays invisible. Keep it as a plain `<nav>`.
+
+### Landing hero (`src/components/HeroCinematic.tsx`)
+- Full-viewport (`min-h-[100svh]`) hero with: floating photo tiles drawn from the first image of each card with mouse-parallax depth (via `useMotionValue` + `useSpring` + `useTransform` inside a child `PhotoTile` component — never call `useTransform` inside `.map()` directly, that breaks rules of hooks); a word-stagger headline reveal where the last word picks up `.text-gradient`; an animated odometer counter for active card count; a focus-ringed search input; a bouncing scroll cue button that calls `onScrollCue` to smooth-scroll to the grid section.
+- Hero photos avoid the headline area by using percentage-based positions tuned to keep the center column clear; if the headline length grows, photo positions may need re-tuning.
+
+### Theme — "Deep Tide"
+- Surfaces: deep midnight-teal (`--color-night-1000` = `#0a1620`).
+- Accent: single electric cyan-teal (`--color-coral-500` = `#06b6d4`). The token name is `coral-*` for historical reasons; treat it as the brand accent.
+- Gradients: cyan → violet (`#06b6d4 → #8b5cf6`) is the canonical brand gradient, used on buttons, active filter pills, the grid/map toggle, card hover rings (masked border), and the participant bar fill.
+- No glow halos: the previous "Aurora" theme had heavy `box-shadow: 0 0 32px rgba(...)` glow rings on every interactive element. Those are removed. The only persistent ambient glow is the body's subtle cyan + violet orb gradient and the live-dot's emerald pulse.
+- Stars: rendered with inline `style={{ color: '#fbbf24', fill: '#fbbf24' }}` (gold) — see Styling gotchas for why.
+
+### Styling gotchas (Tailwind v4)
+**Tailwind v4 silently drops `/opacity` modifiers on arbitrary CSS-variable values.** This bit us repeatedly:
+- `bg-[--color-night-1000]/65` → compiles to no background → element appears transparent
+- `text-[--color-amber-400]/70` → compiles to no color
+- `fill-[--color-amber-400]` on Lucide icons → unreliable; the SVG `fill` may stay `currentColor`
+
+**Rules**:
+1. For interactive states, button highlights, badges, focus rings, navbar background, and any place where the visibility of the styling is critical — **use inline `style={{ background, color, ... }}` with literal `rgba()` or hex values**, not Tailwind arbitrary classes.
+2. For Lucide `<Star />` and similar icons that need a colored `fill`, set `style={{ color, fill }}` directly — don't rely on `fill-[--color-...]` Tailwind classes.
+3. Plain `bg-[--color-coral-500]` (no opacity modifier) is safe and works.
+4. Gradient stops via tokens (`from-[--color-coral-500]`) work but are also brittle — prefer inline `style={{ background: 'linear-gradient(...)' }}` for visible accents.
+
+### Navbar search keyboard nav
+ArrowDown/ArrowUp navigates results, Enter selects (or selects index 0 if nothing highlighted), Esc closes. Mouse hover updates `selectedIndex` so the highlight stays in sync if the user mixes inputs. The active row gets an inline cyan-tinted background and a 3px cyan→violet leading-edge accent stripe (see Styling gotchas — needs inline style).
+
+### Notifications bell
+- Polls `unreadCount(userId)` every 60s.
+- **Opening the bell marks all as read server-side AND sets local count to 0 immediately** so the badge clears without waiting for the next poll. This is intentional UX; if you want lazy "mark on click" instead, change the `handleToggle` handler.
+- Badge background is a solid inline rose→red gradient (not Tailwind classes — see gotchas).
 
 ## Git & GitHub
 

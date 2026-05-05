@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 function StarRating({ value, onChange, readOnly }: { value: number; onChange?: (v: number) => void; readOnly?: boolean }) {
   const [hover, setHover] = useState(0)
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map(n => (
         <button
           key={n}
@@ -21,9 +21,15 @@ function StarRating({ value, onChange, readOnly }: { value: number; onChange?: (
           onClick={() => onChange?.(n)}
           onMouseEnter={() => !readOnly && setHover(n)}
           onMouseLeave={() => !readOnly && setHover(0)}
-          className={cn('transition-colors', readOnly ? 'cursor-default' : 'cursor-pointer')}
+          className={cn('transition-transform', readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110')}
         >
-          <Star className={cn('w-5 h-5 transition-colors', (hover || value) >= n ? 'text-amber-400 fill-amber-400' : 'text-gray-600')} />
+          <Star
+            className="w-4 h-4 transition-colors"
+            style={{
+              color: (hover || value) >= n ? '#fbbf24' : 'rgba(255,255,255,0.22)',
+              fill: (hover || value) >= n ? '#fbbf24' : 'transparent',
+            }}
+          />
         </button>
       ))}
     </div>
@@ -57,7 +63,6 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
   const isOrganizer = ['guide', 'coach', 'instructor', 'driver', 'organizer'].includes(cardOrganizerRole)
   const isCardCreator = user?.id === cardCreatedByUserId
   const myReview = reviews.find(r => r.reviewer_id === user?.id)
-  // Block organizer from reviewing their own card
   const canReview = isPast && isParticipant && user && !isCardCreator
 
   useEffect(() => {
@@ -74,7 +79,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
 
   const handleAddPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    const newFiles = [...photoFiles, ...files].slice(0, 4) // max 4 photos
+    const newFiles = [...photoFiles, ...files].slice(0, 4)
     setPhotoFiles(newFiles)
     setPhotoPreviews(newFiles.map(f => URL.createObjectURL(f)))
   }
@@ -104,19 +109,16 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
     setSubmitting(true)
     const uploadedPhotos = photoFiles.length > 0 ? await uploadPhotos() : (myReview?.photos || [])
     const ok = await submitReview({
-      cardId,
-      reviewerId: user.id,
+      cardId, reviewerId: user.id,
       cardRating: cardRating || undefined,
       organizerRating: organizerRating || undefined,
-      comment,
-      photos: uploadedPhotos,
+      comment, photos: uploadedPhotos,
     })
     if (ok) {
       toast(t('submitted'), 'success')
       const updated = await fetchReviews(cardId)
       setReviews(updated)
-      setPhotoFiles([])
-      setPhotoPreviews([])
+      setPhotoFiles([]); setPhotoPreviews([])
     }
     setSubmitting(false)
   }
@@ -127,40 +129,51 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
   const avgOrgRating = avgOrg.length ? (avgOrg.reduce((a, b) => a + b, 0) / avgOrg.length).toFixed(1) : null
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-      className="bg-gray-900 rounded-2xl p-5 space-y-5 border border-white/5"
+    <motion.section
+      initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+      className="space-y-5"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-white flex items-center gap-2">
-          <Star className="w-5 h-5 text-amber-400" />
-          {t('title')} ({reviews.length})
-        </h2>
-        <div className="flex gap-4 text-sm">
+      <header className="flex items-end justify-between pb-4 border-b border-white/[0.06]">
+        <div>
+          <div className="eyebrow mb-1.5">— guestbook</div>
+          <h2 className="font-display text-[--color-mist-50] text-2xl font-semibold flex items-baseline gap-2">
+            {t('title')}
+            <span className="font-mono text-sm text-[--color-mist-300] tabular-nums">{reviews.length}</span>
+          </h2>
+        </div>
+        <div className="flex gap-4 text-[12px] font-medium">
           {avgCardRating && (
-            <span className="text-amber-400">⭐ {avgCardRating} <span className="text-gray-500 text-xs">{t('cardRating')}</span></span>
+            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
+              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
+              <span className="font-semibold">{avgCardRating}</span>
+              <span className="text-[--color-mist-400] text-[10px] uppercase">{t('cardRating')}</span>
+            </span>
           )}
           {avgOrgRating && isOrganizer && (
-            <span className="text-purple-400">⭐ {avgOrgRating} <span className="text-gray-500 text-xs">{t('organizerRating')}</span></span>
+            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
+              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
+              <span className="font-semibold">{avgOrgRating}</span>
+              <span className="text-[--color-mist-400] text-[10px] uppercase">{t('organizerRating')}</span>
+            </span>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Review form */}
       {canReview && (
-        <div className="border border-teal-500/20 rounded-xl p-4 space-y-4 bg-teal-500/5">
-          <h3 className="text-sm font-medium text-teal-400">{myReview ? t('editReview') : t('writeReview')}</h3>
+        <div className="glass rounded-2xl p-5 space-y-4">
+          <h3 className="font-display text-[--color-coral-300] text-base font-semibold">
+            {myReview ? t('editReview') : t('writeReview')}
+          </h3>
 
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs text-gray-400 mb-1.5">{t('cardRating')}</p>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <p className="eyebrow">{t('cardRating')}</p>
               <StarRating value={cardRating} onChange={setCardRating} />
             </div>
 
             {isOrganizer && (
-              <div>
-                <p className="text-xs text-gray-400 mb-1.5">{t('organizerRating')}</p>
+              <div className="space-y-1.5">
+                <p className="eyebrow">{t('organizerRating')}</p>
                 <StarRating value={organizerRating} onChange={setOrganizerRating} />
               </div>
             )}
@@ -170,20 +183,18 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
               onChange={e => setComment(e.target.value)}
               placeholder={t('commentPlaceholder')}
               rows={3}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-white/8 rounded-xl text-white text-sm
-                         placeholder:text-gray-600 focus:outline-none focus:border-teal-500/40 transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                         text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500]
+                         focus:outline-none focus:border-[--color-coral-500]/40 transition-all resize-none"
             />
 
-            {/* Photo previews */}
             {photoPreviews.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {photoPreviews.map((src, i) => (
                   <div key={i} className="relative w-20 h-20">
-                    <img src={src} className="w-full h-full object-cover rounded-lg" />
-                    <button
-                      onClick={() => removePhoto(i)}
-                      className="absolute -top-1.5 -end-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-400 transition-colors"
-                    >
+                    <img src={src} className="w-full h-full object-cover rounded-xl" alt="" />
+                    <button onClick={() => removePhoto(i)}
+                      className="absolute -top-1.5 -end-1.5 w-5 h-5 bg-[--color-rose-500] rounded-full grid place-items-center hover:bg-[--color-rose-400] transition-colors">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
@@ -192,79 +203,82 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
             )}
 
             <div className="flex items-center gap-2">
-              {/* Photo upload button */}
               {photoPreviews.length < 4 && (
-                <button
-                  onClick={() => photoInputRef.current?.click()}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-gray-400
-                             hover:text-white hover:border-white/20 transition-all text-sm"
-                >
-                  <ImagePlus className="w-4 h-4" />
+                <button onClick={() => photoInputRef.current?.click()}
+                  className="btn-ghost flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold">
+                  <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />
                   {t('addPhotos')}
                 </button>
               )}
               <input ref={photoInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleAddPhotos} />
 
-              <button
-                onClick={handleSubmit}
+              <button onClick={handleSubmit}
                 disabled={submitting || (!cardRating && !organizerRating && !comment.trim())}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-500 text-white text-sm font-medium
-                           hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all ms-auto"
-              >
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {t('submit')}
+                className="btn-primary flex items-center gap-2 ms-auto px-4 py-2 rounded-xl text-[12px] font-semibold
+                           disabled:opacity-40 disabled:cursor-not-allowed">
+                {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin relative z-[1]" /> : <Send className="w-3.5 h-3.5 relative z-[1]" strokeWidth={2.5} />}
+                <span className="relative z-[1]">{t('submit')}</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reviews list */}
       {loading ? (
-        <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-gray-600" /></div>
+        <div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-[--color-mist-500]" /></div>
       ) : reviews.length === 0 ? (
-        <p className="text-sm text-gray-600 text-center py-4">{t('noReviews')}</p>
+        <p className="text-[12px] text-[--color-mist-500] text-center py-6">{t('noReviews')}</p>
       ) : (
         <div className="space-y-3">
           {reviews.map(r => (
             <div key={r.id} className={cn(
-              'p-4 rounded-xl border space-y-2',
-              r.reviewer_id === user?.id ? 'bg-teal-500/5 border-teal-500/20' : 'bg-gray-800/50 border-white/5'
+              'p-4 rounded-2xl border space-y-3',
+              r.reviewer_id === user?.id
+                ? 'bg-gradient-to-br from-[--color-coral-500]/8 to-[--color-violet-500]/4 border-[--color-coral-500]/20'
+                : 'bg-white/[0.02] border-white/[0.06]'
             )}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 overflow-hidden flex-shrink-0 flex items-center justify-center text-xs font-bold text-white">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center
+                                  bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400]
+                                  text-white font-mono text-[11px] font-semibold">
                     {r.reviewer_avatar
                       ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
-                      : r.reviewer_name[0]}
+                      : r.reviewer_name[0]?.toUpperCase()}
                   </div>
-                  <span className="text-sm font-medium text-white">{r.reviewer_name}</span>
+                  <span className="text-[13px] font-display font-semibold text-[--color-mist-50]">{r.reviewer_name}</span>
                 </div>
-                <span className="text-xs text-gray-600">{new Date(r.created_at).toLocaleDateString()}</span>
+                <span className="font-mono text-[10px] text-[--color-mist-400]">
+                  {new Date(r.created_at).toLocaleDateString()}
+                </span>
               </div>
 
-              <div className="flex gap-4 flex-wrap">
+              <div className="flex gap-4 flex-wrap text-[10px] font-medium">
                 {r.card_rating && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <StarRating value={r.card_rating} readOnly />
-                    <span className="text-xs text-gray-500 ms-1">{t('cardRating')}</span>
+                    <span className="text-[--color-mist-400] uppercase">{t('cardRating')}</span>
                   </div>
                 )}
                 {r.organizer_rating && isOrganizer && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <StarRating value={r.organizer_rating} readOnly />
-                    <span className="text-xs text-purple-400 ms-1">{t('organizerRating')}</span>
+                    <span className="text-[--color-mist-400] uppercase">{t('organizerRating')}</span>
                   </div>
                 )}
               </div>
 
-              {r.comment && <p className="text-sm text-gray-300">{r.comment}</p>}
+              {r.comment && (
+                <p className="text-[13px] text-[--color-mist-200] leading-relaxed border-s-2 border-[--color-coral-500]/40 ps-3 italic">
+                  &ldquo;{r.comment}&rdquo;
+                </p>
+              )}
 
               {r.photos && r.photos.length > 0 && (
                 <div className="flex gap-2 flex-wrap pt-1">
                   {r.photos.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                      <img src={url} className="w-20 h-20 object-cover rounded-lg hover:opacity-80 transition-opacity" />
+                      <img src={url} className="w-20 h-20 object-cover rounded-xl hover:opacity-80 transition-opacity" alt="" />
                     </a>
                   ))}
                 </div>
@@ -273,6 +287,6 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
           ))}
         </div>
       )}
-    </motion.div>
+    </motion.section>
   )
 }

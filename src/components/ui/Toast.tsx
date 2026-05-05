@@ -24,25 +24,26 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-6 inset-x-0 flex flex-col items-center gap-2 z-50 pointer-events-none px-4">
+      <div className="fixed bottom-6 inset-x-0 flex flex-col items-center gap-2 z-[300] pointer-events-none px-4">
         <AnimatePresence>
           {toasts.map(t => (
             <motion.div
               key={t.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              exit={{ opacity: 0, y: 8, scale: 0.96 }}
               className={cn(
-                'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border max-w-sm w-full',
-                t.type === 'success' && 'bg-green-950/80 border-green-500/30 text-green-300',
-                t.type === 'error'   && 'bg-red-950/80 border-red-500/30 text-red-300',
-                t.type === 'info'    && 'bg-gray-900/90 border-white/10 text-gray-200',
+                'pointer-events-auto glass-strong flex items-center gap-3 px-4 py-3 rounded-xl max-w-sm w-full',
+                'text-[13px] font-medium',
+                t.type === 'success' && 'border-[--color-emerald-500]/30 text-[--color-emerald-400]',
+                t.type === 'error'   && 'border-[--color-rose-500]/30 text-[--color-rose-400]',
+                t.type === 'info'    && 'text-[--color-mist-100]',
               )}
             >
-              {t.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-              {t.type === 'error'   && <XCircle className="w-4 h-4 shrink-0" />}
-              {t.type === 'info'    && <Info className="w-4 h-4 shrink-0" />}
-              <span className="text-sm flex-1">{t.message}</span>
+              {t.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2.5} />}
+              {t.type === 'error'   && <XCircle className="w-4 h-4 shrink-0" strokeWidth={2.5} />}
+              {t.type === 'info'    && <Info className="w-4 h-4 shrink-0" strokeWidth={2.5} />}
+              <span className="flex-1">{t.message}</span>
               <button onClick={() => remove(t.id)} className="opacity-50 hover:opacity-100 transition-opacity">
                 <X className="w-3.5 h-3.5" />
               </button>

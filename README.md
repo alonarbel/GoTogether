@@ -8,12 +8,16 @@ GoTogether connects people who want to travel together. Create an event card for
 
 ## Features
 
-- **Explore & Filter** — browse cards by type (Trips, Attractions, Workshops, Sports, Food), date range, and availability
+- **Cinematic landing** — full-viewport hero with floating photo collage from real cards, mouse-parallax depth, word-by-word headline reveal, animated live counter, and scroll cue
+- **Explore & Filter** — browse cards by type (Trips, Attractions, Workshops, Sports, Food), date range, and availability with a clear active-state pill that morphs between selections
+- **Grid / Map toggle** — switch between card grid and an interactive Mapbox view of all events
 - **Create Cards** — multi-step form with location, dates, participant limits, and chat links
-- **Participant Tracking** — live min/max progress bar showing how many spots are left
-- **Reviews** — rate experiences and organizers after events; photo uploads supported
+- **Participant Tracking** — live min/max progress bar with a clear minimum-limit marker line
+- **Reviews** — rate experiences and organizers after events with gold stars; photo uploads supported
 - **Public Profiles** — view any organizer's past events, ratings, and bio
-- **User Search** — find people by name directly from the navbar
+- **User Search** — find people from the navbar with full keyboard navigation (↑/↓/Enter/Esc)
+- **Notifications** — bell with live unread badge that clears on open and marks all read
+- **Scroll-aware Navbar** — quiet over the hero, solidifies with a soft shadow once you scroll into content
 - **Bilingual** — Hebrew (RTL) and English (LTR) with full i18n parity
 - **Authentication** — email/password sign up, login, and password reset
 
@@ -25,13 +29,15 @@ GoTogether connects people who want to travel together. Create an event card for
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript |
-| Styling | Tailwind CSS v4 + Framer Motion |
+| Styling | Tailwind CSS v4 (CSS-first @theme) + Framer Motion |
+| Theme | "Deep Tide" — midnight-teal surfaces with electric cyan + violet gradient accents |
 | i18n | next-intl (he + en) |
 | Database | Supabase (PostgreSQL + RLS) |
 | Auth | Supabase Auth |
 | Maps | Mapbox GL JS |
 | Icons | Lucide React |
 | Email | Resend |
+| Deploy | Vercel (auto-deploy from `master`) |
 
 ---
 
@@ -101,12 +107,13 @@ src/
 │       └── profile/[userId]/   # Public profile
 ├── components/
 │   ├── auth/                   # AuthPage
-│   ├── cards/                  # CardDetail, FilterBar, ReviewSection, TravelCard
+│   ├── cards/                  # CardDetail, FilterBar, ReviewSection, TravelCard, ParticipantBar
 │   ├── create/                 # CreateCardPage
-│   ├── layout/                 # Navbar
+│   ├── layout/                 # Navbar (scroll-aware), NotificationsBell
 │   ├── profile/                # ProfilePage, PublicProfilePage
 │   ├── ui/                     # CardSkeleton, LocaleDatePicker, Toast
-│   └── ExplorePage.tsx
+│   ├── ExplorePage.tsx
+│   └── HeroCinematic.tsx       # Full-viewport landing hero
 ├── lib/
 │   ├── auth-context.tsx
 │   ├── cards.ts

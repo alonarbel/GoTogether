@@ -22,7 +22,8 @@
     "locationFound": "המיון מבוסס על המיקום שלך",
     "locationCleared": "מיון לפי מרחק בוטל",
     "locationDenied": "לא הצלחנו לגשת למיקום שלך",
-    "locationUnsupported": "המכשיר לא תומך באיתור מיקום"
+    "locationUnsupported": "המכשיר לא תומך באיתור מיקום",
+    "scrollDiscover": "גלה"
   },
   "filters": {
     "all": "הכל",

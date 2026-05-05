@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
@@ -30,8 +30,16 @@ export function Navbar({ locale }: NavbarProps) {
   const [searchResults, setSearchResults] = useState<ProfileResult[]>([])
   const [searchOpen, setSearchOpen] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [scrolled, setScrolled] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const toggleLocale = () => {
     const newLocale = locale === 'he' ? 'en' : 'he'
@@ -46,7 +54,6 @@ export function Navbar({ locale }: NavbarProps) {
     router.push(`/${locale}`)
   }
 
-  // Search profiles as user types
   useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults([]); return }
     const timer = setTimeout(async () => {
@@ -61,7 +68,6 @@ export function Navbar({ locale }: NavbarProps) {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // Close search when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -103,27 +109,48 @@ export function Navbar({ locale }: NavbarProps) {
   }
 
   return (
-    <motion.nav
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 sm:px-6 py-4
-                 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 gap-3"
+    <nav
+      className="flex items-center justify-between gap-3
+                 px-4 sm:px-8 py-3.5 backdrop-blur-2xl border-b
+                 transition-[background-color,border-color,box-shadow] duration-300"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: scrolled ? 'rgba(10,22,32,0.94)' : 'rgba(10,22,32,0.70)',
+        borderBottomColor: scrolled ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.06)',
+        boxShadow: scrolled ? '0 8px 24px -12px rgba(0,0,0,0.6)' : 'none',
+      }}
     >
-      {/* Logo */}
-      <Link href={`/${locale}`} className="flex items-center gap-2 group shrink-0">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/25">
-          <Compass className="w-4 h-4 text-white" />
+      {/* ── Logo with gradient orb ── */}
+      <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
+        <div className="relative w-10 h-10 grid place-items-center rounded-xl
+                        bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                        transition-all duration-500 group-hover:scale-105 group-hover:rotate-[-4deg]">
+          <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
+          <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                          opacity-0 group-hover:opacity-50 blur-md transition-opacity duration-500 -z-10" />
         </div>
-        <span className="text-lg font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent hidden sm:block">
-          {t('logo')}
+        <span className="hidden sm:flex flex-col leading-none">
+          <span className="font-display text-[--color-mist-50] text-[18px] font-bold tracking-tight"
+                style={{ fontVariationSettings: "'wdth' 110" }}>
+            {t('logo')}
+          </span>
+          <span className="font-mono text-[10px] text-[--color-mist-300] tracking-[0.2em] uppercase mt-1 font-bold">
+            find your crew
+          </span>
         </span>
       </Link>
 
-      {/* User search */}
-      <div ref={searchRef} className="relative flex-1 max-w-xs">
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all
-          ${searchOpen ? 'bg-gray-900 border-teal-500/40' : 'bg-gray-900/60 border-white/8 hover:border-white/15'}`}>
-          <Search className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+      {/* ── Search ── */}
+      <div ref={searchRef} className="relative flex-1 max-w-sm mx-2">
+        <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all duration-300
+          ${searchOpen
+            ? 'bg-[--color-night-800]/80 border-[--color-coral-500]/40'
+            : 'bg-[--color-night-900]/60 border-white/[0.06] hover:border-white/[0.14]'}`}>
+          <Search className="w-3.5 h-3.5 text-[--color-mist-400] shrink-0" strokeWidth={2} />
           <input
             ref={inputRef}
             type="text"
@@ -133,11 +160,12 @@ export function Navbar({ locale }: NavbarProps) {
             onKeyDown={handleKeyDown}
             autoComplete="off"
             placeholder={t('searchUsers')}
-            className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-600 focus:outline-none min-w-0"
+            className="flex-1 bg-transparent text-[--color-mist-50] text-[13px]
+                       placeholder:text-[--color-mist-500] focus:outline-none min-w-0"
           />
           {searchQuery && (
-            <button onClick={() => { setSearchQuery(''); setSearchResults([]) }}>
-              <X className="w-3.5 h-3.5 text-gray-500 hover:text-white transition-colors" />
+            <button onClick={() => { setSearchQuery(''); setSearchResults([]) }} aria-label="Clear">
+              <X className="w-3.5 h-3.5 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors" />
             </button>
           )}
         </div>
@@ -145,122 +173,152 @@ export function Navbar({ locale }: NavbarProps) {
         <AnimatePresence>
           {searchOpen && searchResults.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="absolute top-full mt-2 w-full bg-gray-900 border border-white/10 rounded-xl shadow-xl shadow-black/40 overflow-hidden z-[200]"
+              initial={{ opacity: 0, y: -6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
+              className="glass-strong absolute top-full mt-2 w-full overflow-hidden rounded-xl"
+              style={{ zIndex: 9999 }}
             >
-              {searchResults.map((r, i) => (
-                <button
-                  key={r.id}
-                  onClick={() => handleSelectProfile(r.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-start ${
-                    i === selectedIndex ? 'bg-teal-500/15 text-teal-300' : 'hover:bg-white/5'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0">
-                    {r.avatar_url
-                      ? <img src={r.avatar_url} alt={r.full_name} className="w-full h-full object-cover" />
-                      : r.full_name[0]?.toUpperCase()}
-                  </div>
-                  <span className="text-sm text-white truncate">{r.full_name}</span>
-                </button>
-              ))}
+              <div className="px-3.5 py-2 border-b border-white/[0.06] eyebrow">
+                {t('searchUsers')}
+              </div>
+              {searchResults.map((r, i) => {
+                const active = i === selectedIndex
+                return (
+                  <button
+                    key={r.id}
+                    onClick={() => handleSelectProfile(r.id)}
+                    onMouseEnter={() => setSelectedIndex(i)}
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 transition-colors text-start relative"
+                    style={{
+                      backgroundColor: active ? 'rgba(34,211,238,0.10)' : 'transparent',
+                    }}
+                  >
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute inset-y-1 start-0 w-[3px] rounded-full"
+                        style={{ background: 'linear-gradient(180deg, #22d3ee, #a78bfa)' }}
+                      />
+                    )}
+                    <div className="w-8 h-8 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono shrink-0
+                                    text-[--color-mist-100] border border-white/[0.06]"
+                         style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.20), rgba(34,211,238,0.20))' }}>
+                      {r.avatar_url
+                        ? <img src={r.avatar_url} alt={r.full_name} className="w-full h-full object-cover" />
+                        : r.full_name[0]?.toUpperCase()}
+                    </div>
+                    <span className={`text-[13px] truncate ${active ? 'text-[--color-coral-300] font-semibold' : 'text-[--color-mist-50]'}`}>
+                      {r.full_name}
+                    </span>
+                  </button>
+                )
+              })}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        {/* Language toggle */}
+      {/* ── Right cluster ── */}
+      <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={toggleLocale}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400
-                     hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
+                     text-[13px] font-bold
+                     text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
+                     transition-all"
         >
-          <Globe className="w-4 h-4" />
+          <Globe className="w-4 h-4" strokeWidth={2.25} />
           <span className="hidden sm:block">{locale === 'he' ? tLang('en') : tLang('he')}</span>
         </button>
 
         {user ? (
           <>
-            {/* Notifications */}
             <NotificationsBell userId={user.id} locale={locale} />
 
-            {/* My Events */}
             <Link
               href={`/${locale}/my-events`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-400
-                         hover:text-white hover:bg-white/5 transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
+                         text-[13px] font-bold
+                         text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
+                         transition-all"
             >
-              <CalendarDays className="w-4 h-4" />
+              <CalendarDays className="w-4 h-4" strokeWidth={2.25} />
               <span className="hidden sm:block">{t('myEvents')}</span>
             </Link>
 
-            {/* Create */}
+            {/* Primary CTA — bigger, bolder */}
             <Link
               href={`/${locale}/create`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                         text-white text-sm font-medium hover:from-teal-400 hover:to-cyan-400 transition-all
-                         shadow-lg shadow-teal-500/20"
+              className="btn-primary ms-1 flex items-center gap-2 px-5 py-2.5 rounded-xl
+                         text-[13px] font-bold tracking-tight"
             >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:block">{t('create')}</span>
+              <Plus className="w-4 h-4 relative z-[1]" strokeWidth={3} />
+              <span className="hidden sm:block relative z-[1]">{t('create')}</span>
             </Link>
 
             {/* User menu */}
-            <div className="relative">
+            <div className="relative ms-1">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-900 border border-white/10
-                           hover:border-teal-500/30 transition-all text-sm"
+                className="glow-ring flex items-center gap-2 p-1.5 rounded-full
+                           hover:bg-white/[0.04] transition-colors"
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
+                <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono
+                                bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500]
+                                text-white">
                   {profile?.avatar_url
                     ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                     : (profile?.full_name?.[0]?.toUpperCase() || '?')
                   }
                 </div>
-                <span className="hidden sm:block text-gray-300 max-w-[100px] truncate">
-                  {profile?.full_name?.split(' ')[0] || 'User'}
-                </span>
-                <ChevronDown className="w-3 h-3 text-gray-500" />
+                <ChevronDown className="w-3 h-3 text-[--color-mist-300] me-1" strokeWidth={2} />
               </button>
 
               <AnimatePresence>
                 {menuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    className="absolute end-0 top-full mt-2 w-52 bg-gray-900 border border-white/10 rounded-xl
-                               shadow-xl shadow-black/40 overflow-hidden z-50"
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
+                    className="glass-strong absolute end-0 top-full mt-2 w-64 z-50 overflow-hidden rounded-xl"
                   >
-                    <div className="p-3 border-b border-white/5 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white overflow-hidden shrink-0">
+                    <div className="p-4 border-b border-white/[0.06] flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full overflow-hidden grid place-items-center text-[14px] font-display font-semibold
+                                      bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white">
                         {profile?.avatar_url
                           ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                           : (profile?.full_name?.[0]?.toUpperCase() || '?')
                         }
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-medium text-white truncate">{profile?.full_name || 'משתמש'}</div>
-                        <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                        <div className="font-display text-[14px] font-semibold text-[--color-mist-50] truncate leading-tight">
+                          {profile?.full_name || 'משתמש'}
+                        </div>
+                        <div className="text-[11px] font-mono text-[--color-mist-400] truncate mt-1">
+                          {user.email}
+                        </div>
                       </div>
                     </div>
                     <Link
                       href={`/${locale}/profile`}
                       onClick={() => setMenuOpen(false)}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-3
+                                 text-[13px] text-[--color-mist-200]
+                                 hover:bg-white/[0.04] hover:text-[--color-mist-50] transition-colors"
                     >
-                      <UserCircle className="w-4 h-4" />
+                      <UserCircle className="w-3.5 h-3.5" strokeWidth={2} />
                       {t('profile')}
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-3 border-t border-white/[0.06]
+                                 text-[13px] text-[--color-rose-400]
+                                 hover:bg-[--color-rose-500]/10 transition-colors"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
                       {t('signOut')}
                     </button>
                   </motion.div>
@@ -271,15 +329,14 @@ export function Navbar({ locale }: NavbarProps) {
         ) : (
           <Link
             href={`/${locale}/auth`}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                       text-white text-sm font-medium hover:from-teal-400 hover:to-cyan-400 transition-all
-                       shadow-lg shadow-teal-500/25"
+            className="btn-primary ms-1 flex items-center gap-2 px-5 py-2.5 rounded-xl
+                       text-[13px] font-bold tracking-tight"
           >
-            <LogIn className="w-4 h-4" />
-            <span>{t('signIn')}</span>
+            <LogIn className="w-4 h-4 relative z-[1]" strokeWidth={3} />
+            <span className="relative z-[1]">{t('signIn')}</span>
           </Link>
         )}
       </div>
-    </motion.nav>
+    </nav>
   )
 }

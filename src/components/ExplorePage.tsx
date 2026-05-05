@@ -1,12 +1,13 @@
-'use client'
-import { useState, useMemo, useEffect } from 'react'
+﻿'use client'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { TravelCard, CardType } from '@/types'
+import { TravelCard } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar, FilterType } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Compass, Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from 'lucide-react'
 import { CardSkeletonGrid } from './ui/CardSkeleton'
+import { HeroCinematic } from './HeroCinematic'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
@@ -14,7 +15,6 @@ import { resolveCardCoords, distanceKm } from '@/lib/locationCoords'
 import { useToast } from '@/components/ui/Toast'
 import dynamic from 'next/dynamic'
 
-// Leaflet uses window.* — load only on client
 const CardsMap = dynamic(() => import('./cards/CardsMap'), { ssr: false })
 
 export function ExplorePage() {
@@ -34,10 +34,14 @@ export function ExplorePage() {
   const params = useParams()
   const locale = params.locale as string
   const { toast } = useToast()
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  const scrollToGrid = () => {
+    gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const handleUseLocation = () => {
     if (userLocation) {
-      // Toggle off — clear sort
       setUserLocation(null)
       toast(t('locationCleared'), 'info')
       return
@@ -92,7 +96,6 @@ export function ExplorePage() {
       const matchesDateFrom = !dateFrom || !card.eventDate || card.eventDate >= dateFrom
       const matchesDateTo = !dateTo || !card.eventDate || card.eventDate <= dateTo
 
-      // Hide past events
       const today = new Date().toISOString().split('T')[0]
       const notPast = !card.eventDate || card.eventDate >= today
 
@@ -100,7 +103,6 @@ export function ExplorePage() {
     })
 
     if (userLocation) {
-      // Sort by distance from user — cards without coords go to the end
       result = result.sort((a, b) => {
         const ca = resolveCardCoords(a)
         const cb = resolveCardCoords(b)
@@ -110,7 +112,6 @@ export function ExplorePage() {
         return distanceKm(userLocation, ca) - distanceKm(userLocation, cb)
       })
     } else {
-      // Sort by event date ascending
       result = result.sort((a, b) => {
         if (!a.eventDate && !b.eventDate) return 0
         if (!a.eventDate) return 1
@@ -125,78 +126,27 @@ export function ExplorePage() {
   const totalPages = Math.ceil(filtered.length / CARDS_PER_PAGE)
   const paginated = filtered.slice((page - 1) * CARDS_PER_PAGE, page * CARDS_PER_PAGE)
 
-  // Reset to page 1 when filters change
   useEffect(() => { setPage(1) }, [filter, search, dateFrom, dateTo])
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <div className="relative overflow-hidden pt-24 pb-14 px-4 sm:px-6">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-teal-950/25 via-gray-950/80 to-gray-950 pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-teal-500/8 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-20 right-1/4 w-[200px] h-[200px] bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+      <HeroCinematic
+        cards={cards}
+        search={search}
+        onSearchChange={setSearch}
+        onUseLocation={handleUseLocation}
+        userLocation={userLocation}
+        locating={locating}
+        onScrollCue={scrollToGrid}
+      />
 
-        <div className="relative max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-          >
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-6">
-              <Compass className="w-3.5 h-3.5" />
-              <span>GoTogether</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight tracking-tight">
-              {t('title')}
-            </h1>
-            <p className="mt-4 text-base sm:text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
-              {t('subtitle')}
-            </p>
-          </motion.div>
-
-          {/* Search */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.45 }}
-            className="mt-8 flex gap-2.5 max-w-lg mx-auto"
-          >
-            <div className="flex-1 relative">
-              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                className="w-full ps-10 pe-4 py-3 bg-gray-900/90 border border-white/8 rounded-xl text-white text-sm
-                           placeholder:text-gray-600 focus:outline-none focus:border-teal-500/40 focus:bg-gray-900
-                           transition-all duration-200 shadow-lg shadow-black/20"
-              />
-            </div>
-            <button
-              onClick={handleUseLocation}
-              disabled={locating}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl transition-all text-sm whitespace-nowrap shadow-lg shadow-black/20 disabled:opacity-60 ${
-                userLocation
-                  ? 'bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30'
-                  : 'bg-gray-900/90 border border-white/8 text-gray-400 hover:text-teal-400 hover:border-teal-500/25'
-              }`}
-            >
-              <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} />
-              <span className="hidden sm:block">
-                {userLocation ? t('locationActive') : t('useLocation')}
-              </span>
-            </button>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Filters + content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 space-y-5">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
+      {/* ── Filters + content ── */}
+      <div ref={gridRef} className="max-w-7xl mx-auto px-4 sm:px-8 pb-24 pt-12 space-y-7 scroll-mt-24">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
           <FilterBar
             active={filter}
             onChange={setFilter}
@@ -213,25 +163,43 @@ export function ExplorePage() {
         ) : (
           <>
             {/* Count + view toggle */}
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-600">{t('cardsFound', { count: filtered.length })}</p>
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-900 border border-white/8">
+            <div className="flex items-end justify-between gap-4 pt-2">
+              <div className="text-[12px] font-mono text-[--color-mist-300] tabular-nums">
+                <span className="text-[--color-coral-400] font-semibold">{filtered.length}</span> {filtered.length === 1 ? 'experience' : 'experiences'} found
+              </div>
+              <div className="glass flex items-center gap-0.5 p-1 rounded-full">
                 <button
                   onClick={() => setView('grid')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                    view === 'grid' ? 'bg-teal-500 text-white' : 'text-gray-400 hover:text-white'
-                  }`}
+                  aria-pressed={view === 'grid'}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-colors text-[11px] font-semibold"
+                  style={
+                    view === 'grid'
+                      ? {
+                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          color: '#fff',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                        }
+                      : { color: 'var(--color-mist-300)' }
+                  }
                 >
-                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <LayoutGrid className="w-3 h-3" strokeWidth={2.5} />
                   {t('viewGrid')}
                 </button>
                 <button
                   onClick={() => setView('map')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
-                    view === 'map' ? 'bg-teal-500 text-white' : 'text-gray-400 hover:text-white'
-                  }`}
+                  aria-pressed={view === 'map'}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-colors text-[11px] font-semibold"
+                  style={
+                    view === 'map'
+                      ? {
+                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          color: '#fff',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                        }
+                      : { color: 'var(--color-mist-300)' }
+                  }
                 >
-                  <MapIcon className="w-3.5 h-3.5" />
+                  <MapIcon className="w-3 h-3" strokeWidth={2.5} />
                   {t('viewMap')}
                 </button>
               </div>
@@ -245,79 +213,80 @@ export function ExplorePage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.25 }}
                   >
                     <CardsMap cards={filtered} />
                   </motion.div>
                 ) : (
-                <>
-                  <motion.div
-                    key={filter + search + page}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                  >
-                    {paginated.map((card, i) => (
-                      <TravelCardComponent key={card.id} card={card} index={i} />
-                    ))}
-                  </motion.div>
-
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-4">
-                      <button
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        className="p-2 rounded-lg border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30
-                                   disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                        <button
-                          key={n}
-                          onClick={() => setPage(n)}
-                          className={`w-8 h-8 rounded-lg text-sm font-medium transition-all
-                            ${n === page
-                              ? 'bg-teal-500 text-white'
-                              : 'border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30'
-                            }`}
-                        >
-                          {n}
-                        </button>
+                  <>
+                    <motion.div
+                      key={filter + search + page}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+                    >
+                      {paginated.map((card, i) => (
+                        <TravelCardComponent key={card.id} card={card} index={i} />
                       ))}
+                    </motion.div>
 
-                      <button
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                        className="p-2 rounded-lg border border-white/8 text-gray-400 hover:text-white hover:border-teal-500/30
-                                   disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </>
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-1.5 pt-8">
+                        <button
+                          onClick={() => setPage(p => Math.max(1, p - 1))}
+                          disabled={page === 1}
+                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                                     text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
+                                     disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                          <button
+                            key={n}
+                            onClick={() => setPage(n)}
+                            className={`w-9 h-9 rounded-lg text-[12px] font-mono font-semibold tabular-nums transition-all ${
+                              n === page
+                                ? 'bg-[--color-coral-500] text-[--color-night-1000]'
+                                : 'border border-white/[0.06] bg-white/[0.02] text-[--color-mist-300] hover:text-[--color-mist-50] hover:border-white/[0.16]'
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+
+                        <button
+                          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                          disabled={page === totalPages}
+                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                                     text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
+                                     disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )
               ) : (
                 <motion.div
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center py-28 space-y-4"
+                  className="text-center py-32 space-y-5"
                 >
-                  <div className="text-6xl mb-2">🌍</div>
-                  <h3 className="text-xl font-semibold text-white">{tEmpty('title')}</h3>
-                  <p className="text-gray-500 text-sm">{tEmpty('subtitle')}</p>
+                  <div className="text-7xl mb-4 float">🌍</div>
+                  <h3 className="font-display text-[--color-mist-50] text-3xl font-semibold">{tEmpty('title')}</h3>
+                  <p className="text-[--color-mist-300] text-base max-w-sm mx-auto">{tEmpty('subtitle')}</p>
                   <Link
                     href={`/${locale}/create`}
-                    className="inline-flex items-center gap-2 px-6 py-3 mt-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500
-                               text-white text-sm font-semibold hover:from-teal-400 hover:to-cyan-400 transition-all
-                               shadow-lg shadow-teal-500/20"
+                    className="btn-primary inline-flex items-center gap-2 px-6 py-3 mt-2 rounded-full
+                               text-[13px] font-semibold"
                   >
-                    <Plus className="w-4 h-4" />
-                    {tEmpty('cta')}
+                    <Plus className="w-4 h-4 relative z-[1]" strokeWidth={2.5} />
+                    <span className="relative z-[1]">{tEmpty('cta')}</span>
                   </Link>
                 </motion.div>
               )}
