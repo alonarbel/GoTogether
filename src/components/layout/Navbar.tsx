@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
@@ -114,7 +114,6 @@ export function Navbar({ locale }: NavbarProps) {
       <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
         <div className="relative w-10 h-10 grid place-items-center rounded-xl
                         bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                        shadow-[0_0_20px_rgba(255,84,112,.4)]
                         transition-all duration-500 group-hover:scale-105 group-hover:rotate-[-4deg]">
           <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
           <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
@@ -135,7 +134,7 @@ export function Navbar({ locale }: NavbarProps) {
       <div ref={searchRef} className="relative flex-1 max-w-sm mx-2">
         <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all duration-300
           ${searchOpen
-            ? 'bg-[--color-night-800]/80 border-[--color-coral-500]/40 shadow-[0_0_24px_rgba(255,84,112,.18)]'
+            ? 'bg-[--color-night-800]/80 border-[--color-coral-500]/40'
             : 'bg-[--color-night-900]/60 border-white/[0.06] hover:border-white/[0.14]'}`}>
           <Search className="w-3.5 h-3.5 text-[--color-mist-400] shrink-0" strokeWidth={2} />
           <input

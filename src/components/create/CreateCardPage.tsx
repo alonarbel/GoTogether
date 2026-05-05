@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
@@ -145,8 +145,7 @@ export function CreateCardPage() {
           <motion.div
             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.15 }}
             className="w-24 h-24 mx-auto rounded-full grid place-items-center
-                       bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                       shadow-[0_0_40px_rgba(255,84,112,.5)]">
+                       bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]">
             <CheckCircle2 className="w-12 h-12 text-white" strokeWidth={2} />
           </motion.div>
           <h2 className="font-display text-[--color-mist-50] text-3xl font-semibold">{t('success')}</h2>
@@ -188,7 +187,7 @@ export function CreateCardPage() {
                   disabled={num >= step}
                   className={cn(
                     'h-1 rounded-full transition-all',
-                    isActive ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] shadow-[0_0_8px_rgba(255,84,112,.5)]' :
+                    isActive ? 'bg-[--color-coral-500]' :
                     isDone   ? 'bg-[--color-violet-500]/40 cursor-pointer' :
                                'bg-white/[0.06]'
                   )}

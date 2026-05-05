@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { TravelCard } from '@/types'
@@ -172,7 +172,7 @@ export function ExplorePage() {
                   onClick={() => setView('grid')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
                     view === 'grid'
-                      ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(255,84,112,.4)]'
+                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
                       : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   }`}
                 >
@@ -183,7 +183,7 @@ export function ExplorePage() {
                   onClick={() => setView('map')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
                     view === 'map'
-                      ? 'bg-gradient-to-r from-[--color-cyan-400] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(34,211,238,.4)]'
+                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
                       : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   }`}
                 >
@@ -238,7 +238,7 @@ export function ExplorePage() {
                             onClick={() => setPage(n)}
                             className={`w-9 h-9 rounded-lg text-[12px] font-mono font-semibold tabular-nums transition-all ${
                               n === page
-                                ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(255,84,112,.4)]'
+                                ? 'bg-[--color-coral-500] text-[--color-night-1000]'
                                 : 'border border-white/[0.06] bg-white/[0.02] text-[--color-mist-300] hover:text-[--color-mist-50] hover:border-white/[0.16]'
                             }`}
                           >

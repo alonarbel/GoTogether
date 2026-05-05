@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
@@ -133,7 +133,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                           <button key={i} onClick={() => setImgIndex(i)}
                             className={cn('h-1 rounded-full transition-all',
                               i === imgIndex
-                                ? 'w-10 bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500]'
+                                ? 'w-10 bg-[--color-coral-500]'
                                 : 'w-4 bg-white/40 hover:bg-white/60'
                             )} />
                         ))}
@@ -387,8 +387,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 <Link href={`/${locale}/profile/${card.createdByUserId}`}
                   className="flex items-center gap-3 group">
                   <div className="w-12 h-12 rounded-full overflow-hidden grid place-items-center
-                                  bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white text-base font-display font-semibold
-                                  shadow-[0_0_16px_rgba(255,84,112,.3)]">
+                                  bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white text-base font-display font-semibold">
                     {card.createdBy[0]?.toUpperCase()}
                   </div>
                   <div>

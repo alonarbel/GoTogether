@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
@@ -106,8 +106,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
                         bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500]
                         border border-white/20 grid place-items-center
                         opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0
-                        transition-all duration-500
-                        shadow-[0_0_20px_rgba(255,84,112,.55)]">
+                        transition-all duration-500">
           <ArrowUpRight className="w-5 h-5 text-white" strokeWidth={2.5} />
         </div>
       </div>

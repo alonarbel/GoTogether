@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useTranslations } from 'next-intl'
 import { CardType } from '@/types'
 import { getCardTypeIcon, cn } from '@/lib/utils'
@@ -42,8 +42,7 @@ export function FilterBar({ active, onChange, dateFrom, dateTo, onDateFromChange
               <motion.div
                 layoutId="activeFilter"
                 className="absolute inset-0 rounded-full
-                           bg-gradient-to-r from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                           shadow-[0_0_20px_rgba(255,84,112,.45)]"
+                           bg-gradient-to-r from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]"
                 transition={{ type: 'spring', bounce: 0.18, duration: 0.5 }}
               />
             )}

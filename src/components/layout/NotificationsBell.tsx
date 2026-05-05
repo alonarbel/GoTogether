@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -106,8 +106,7 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
           <span className="absolute top-0.5 end-0.5 min-w-[16px] h-[16px] px-1 rounded-full
                            bg-gradient-to-br from-[--color-coral-500] to-[--color-rose-500]
                            text-white text-[10px] font-mono font-bold tabular-nums
-                           grid place-items-center
-                           shadow-[0_0_8px_rgba(255,84,112,.5)]">
+                           grid place-items-center">
             {count > 9 ? '9+' : count}
           </span>
         )}
@@ -165,7 +164,7 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
                           {formatTime(n.created_at)}
                         </p>
                       </div>
-                      {!n.read && <div className="w-2 h-2 rounded-full bg-[--color-coral-500] flex-shrink-0 mt-2 shadow-[0_0_6px_rgba(255,84,112,.6)]" />}
+                      {!n.read && <div className="w-2 h-2 rounded-full bg-[--color-coral-500] flex-shrink-0 mt-2" />}
                     </button>
                   )
                 })

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -94,8 +94,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             <div className="glow-ring rounded-full">
               <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
                               bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                              text-white font-display text-3xl font-semibold shrink-0
-                              shadow-[0_0_28px_rgba(255,84,112,.3)]">
+                              text-white font-display text-3xl font-semibold shrink-0">
                 {profile.avatar_url
                   ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
                   : initials}

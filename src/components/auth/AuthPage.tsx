@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -31,7 +31,7 @@ const inputClass =
   'bg-white/[0.03] border border-white/[0.08] ' +
   'text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500] ' +
   'focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-white/[0.05] ' +
-  'focus:shadow-[0_0_20px_rgba(255,84,112,.18)] ' +
+  'focus: ' +
   'transition-all duration-300'
 
 export function AuthPage() {
@@ -117,7 +117,6 @@ export function AuthPage() {
           <Link href={`/${locale}`} className="flex items-center gap-2.5 group w-fit">
             <div className="w-10 h-10 grid place-items-center rounded-xl
                             bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                            shadow-[0_0_20px_rgba(255,84,112,.4)]
                             transition-transform duration-500 group-hover:rotate-[-8deg]">
               <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
@@ -153,9 +152,9 @@ export function AuthPage() {
                 <div key={i} className="flex items-center gap-3 text-[13px] text-[--color-mist-200]">
                   <span className={cn(
                     'w-1.5 h-1.5 rounded-full',
-                    f.c === 'coral'  && 'bg-[--color-coral-500] shadow-[0_0_8px_rgba(255,84,112,.6)]',
-                    f.c === 'violet' && 'bg-[--color-violet-400] shadow-[0_0_8px_rgba(167,139,250,.6)]',
-                    f.c === 'cyan'   && 'bg-[--color-cyan-400] shadow-[0_0_8px_rgba(34,211,238,.6)]',
+                    f.c === 'coral'  && 'bg-[--color-coral-500]',
+                    f.c === 'violet' && 'bg-[--color-violet-400]',
+                    f.c === 'cyan'   && 'bg-[--color-cyan-400]',
                   )} />
                   {f.l}
                 </div>
@@ -181,8 +180,7 @@ export function AuthPage() {
           <div className="lg:hidden text-center mb-10">
             <div className="inline-flex items-center gap-2.5">
               <div className="w-10 h-10 grid place-items-center rounded-xl
-                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                              shadow-[0_0_20px_rgba(255,84,112,.4)]">
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]">
                 <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
               <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>
@@ -216,7 +214,7 @@ export function AuthPage() {
                   className={cn(
                     'flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all relative',
                     mode === m
-                      ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_18px_rgba(255,84,112,.32)]'
+                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
                       : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   )}
                 >
