@@ -34,10 +34,14 @@ export function ParticipantBar({ current, min, max, className, showLabels = fals
           )}
         />
 
-        {/* Min limit line */}
+        {/* Min limit marker */}
         <div
-          className="absolute -top-1 -bottom-1 w-px bg-[--color-mist-100]/70"
-          style={{ insetInlineStart: `calc(${minPercentage}% - 0.5px)` }}
+          className="absolute -top-1.5 -bottom-1.5 w-0.5 rounded-sm z-10"
+          style={{
+            insetInlineStart: `calc(${minPercentage}% - 1px)`,
+            background: 'rgba(255,255,255,0.85)',
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.35)',
+          }}
         />
       </div>
 
