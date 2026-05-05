@@ -30,8 +30,16 @@ export function Navbar({ locale }: NavbarProps) {
   const [searchResults, setSearchResults] = useState<ProfileResult[]>([])
   const [searchOpen, setSearchOpen] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [scrolled, setScrolled] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const toggleLocale = () => {
     const newLocale = locale === 'he' ? 'en' : 'he'
@@ -105,10 +113,12 @@ export function Navbar({ locale }: NavbarProps) {
       initial={{ y: -16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
-                 px-4 sm:px-8 py-3.5
-                 bg-[--color-night-1000]/65 backdrop-blur-2xl
-                 border-b border-white/[0.08]"
+      className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3
+                  px-4 sm:px-8 py-3.5 backdrop-blur-2xl
+                  transition-[background-color,border-color,box-shadow] duration-300
+                  ${scrolled
+                    ? 'bg-[--color-night-1000]/92 border-b border-white/[0.10] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)]'
+                    : 'bg-[--color-night-1000]/40 border-b border-white/[0.04]'}`}
     >
       {/* ── Logo with gradient orb ── */}
       <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
