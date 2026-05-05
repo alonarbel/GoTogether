@@ -64,15 +64,15 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
       className="space-y-5"
     >
-      <header className="flex items-end justify-between pb-3 border-b border-[--color-ink-800]">
+      <header className="flex items-end justify-between pb-4 border-b border-white/[0.06]">
         <div>
-          <div className="eyebrow mb-1">— from the field</div>
-          <h2 className="font-display text-[--color-bone-50] text-2xl flex items-baseline gap-2">
-            <Camera className="w-4 h-4 text-[--color-amber-400] inline-block" strokeWidth={2} />
+          <div className="eyebrow mb-1.5">— from the field</div>
+          <h2 className="font-display text-[--color-mist-50] text-2xl font-semibold flex items-baseline gap-2">
+            <Camera className="w-4 h-4 text-[--color-coral-400] inline-block" strokeWidth={2} />
             {t('eventPhotos')}
             {photos.length > 0 && (
-              <span className="font-mono text-sm text-[--color-bone-400] tabular-nums">
-                {String(photos.length).padStart(2, '0')}
+              <span className="font-mono text-sm text-[--color-mist-300] tabular-nums">
+                {photos.length}
               </span>
             )}
           </h2>
@@ -90,13 +90,10 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm
-                         font-mono text-[10px] tracking-[0.18em] uppercase font-semibold
-                         bg-[--color-amber-400]/15 text-[--color-amber-400] border border-[--color-amber-400]/30
-                         hover:bg-[--color-amber-400]/25 transition-all disabled:opacity-50"
+              className="btn-primary flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold disabled:opacity-50"
             >
-              {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" strokeWidth={2.5} />}
-              {t('uploadPhoto')}
+              {uploading ? <Loader2 className="w-3 h-3 animate-spin relative z-[1]" /> : <Upload className="w-3 h-3 relative z-[1]" strokeWidth={2.5} />}
+              <span className="relative z-[1]">{t('uploadPhoto')}</span>
             </button>
           </>
         )}
@@ -104,10 +101,10 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="w-5 h-5 animate-spin text-[--color-amber-400]" />
+          <Loader2 className="w-5 h-5 animate-spin text-[--color-coral-400]" />
         </div>
       ) : photos.length === 0 ? (
-        <div className="text-center py-10 font-mono text-[11px] tracking-[0.14em] uppercase text-[--color-bone-600]">
+        <div className="text-center py-12 text-[12px] text-[--color-mist-500]">
           {canUpload ? t('noPhotosYetParticipant') : t('noPhotosYet')}
         </div>
       ) : (
@@ -116,10 +113,10 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
             <button
               key={p.id}
               onClick={() => openLightbox(i)}
-              className="relative aspect-square rounded-sm overflow-hidden bg-[--color-ink-800] group"
+              className="relative aspect-square rounded-xl overflow-hidden bg-[--color-night-800] group
+                         hover:ring-2 hover:ring-[--color-coral-500]/40 transition-all"
             >
-              <img src={p.url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+              <img src={p.url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
             </button>
           ))}
         </div>
@@ -131,7 +128,7 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={closeLightbox}
-            className="fixed inset-0 z-[300] bg-[--color-ink-950]/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[300] bg-[--color-night-1000]/95 backdrop-blur-xl flex items-center justify-center p-4"
           >
             <button
               onClick={e => { e.stopPropagation(); closeLightbox() }}

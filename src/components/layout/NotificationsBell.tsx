@@ -21,9 +21,9 @@ const ICON_BY_TYPE: Record<NotificationType, typeof Users> = {
 }
 
 const COLOR_BY_TYPE: Record<NotificationType, string> = {
-  participant_joined: 'text-[--color-amber-400]',
+  participant_joined: 'text-[--color-coral-400]',
   min_reached: 'text-[--color-emerald-400]',
-  deadline_soon: 'text-[--color-rust-400]',
+  deadline_soon: 'text-[--color-amber-400]',
 }
 
 export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
@@ -34,7 +34,6 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
   const [count, setCount] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // Initial unread count + poll every 60s
   useEffect(() => {
     let cancelled = false
     const tick = async () => {
@@ -46,19 +45,13 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
     return () => { cancelled = true; clearInterval(id) }
   }, [userId])
 
-  // Load list when dropdown opens
   useEffect(() => {
-    if (open) {
-      fetchNotifications(userId).then(setItems)
-    }
+    if (open) fetchNotifications(userId).then(setItems)
   }, [open, userId])
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -104,15 +97,17 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
     <div ref={wrapperRef} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="relative flex items-center justify-center w-9 h-9 rounded-sm
-                   text-[--color-bone-400] hover:text-[--color-amber-400] hover:bg-[rgba(255,255,255,.03)]
+        className="relative flex items-center justify-center w-9 h-9 rounded-lg
+                   text-[--color-mist-300] hover:text-[--color-coral-400] hover:bg-white/[0.04]
                    transition-all"
       >
         <Bell className="w-3.5 h-3.5" strokeWidth={2} />
         {count > 0 && (
           <span className="absolute top-0.5 end-0.5 min-w-[16px] h-[16px] px-1 rounded-full
-                           bg-[--color-amber-400] text-[--color-amber-ink] text-[10px] font-mono font-bold
-                           tabular-nums flex items-center justify-center">
+                           bg-gradient-to-br from-[--color-coral-500] to-[--color-rose-500]
+                           text-white text-[10px] font-mono font-bold tabular-nums
+                           grid place-items-center
+                           shadow-[0_0_8px_rgba(255,84,112,.5)]">
             {count > 9 ? '9+' : count}
           </span>
         )}
@@ -121,22 +116,19 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
-            className="absolute end-0 top-full mt-2 w-80 z-[200] overflow-hidden
-                       bg-[--color-ink-850] border border-[rgba(255,255,255,.08)] rounded-sm
-                       shadow-[0_24px_64px_rgba(0,0,0,.5)]"
+            className="glass-strong absolute end-0 top-full mt-2 w-80 z-[200] overflow-hidden rounded-xl"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[--color-ink-700]">
-              <h3 className="eyebrow">— {t('title')}</h3>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+              <h3 className="font-display text-[--color-mist-50] text-sm font-semibold">{t('title')}</h3>
               {count > 0 && (
                 <button
                   onClick={handleMarkAll}
-                  className="flex items-center gap-1
-                             font-mono text-[10px] tracking-[0.14em] uppercase
-                             text-[--color-amber-400] hover:text-[--color-amber-500] transition-colors"
+                  className="flex items-center gap-1 text-[11px] font-semibold
+                             text-[--color-coral-400] hover:text-[--color-coral-300] transition-colors"
                 >
                   <Check className="w-3 h-3" strokeWidth={2.5} />
                   {t('markAllRead')}
@@ -146,34 +138,34 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
 
             <div className="max-h-96 overflow-y-auto">
               {items.length === 0 ? (
-                <div className="px-4 py-12 text-center font-mono text-[11px] tracking-[0.14em] uppercase text-[--color-bone-600]">
+                <div className="px-4 py-12 text-center text-[12px] text-[--color-mist-500]">
                   {t('empty')}
                 </div>
               ) : (
                 items.map(n => {
                   const Icon = ICON_BY_TYPE[n.type] || Bell
-                  const color = COLOR_BY_TYPE[n.type] || 'text-[--color-bone-400]'
+                  const color = COLOR_BY_TYPE[n.type] || 'text-[--color-mist-300]'
                   return (
                     <button
                       key={n.id}
                       onClick={() => handleClick(n)}
                       className={`w-full flex items-start gap-3 px-4 py-3 transition-colors text-start
-                                  border-b border-[--color-ink-800] last:border-0 ${
-                        n.read ? 'hover:bg-[rgba(255,255,255,.03)]'
-                               : 'bg-[--color-amber-400]/5 hover:bg-[--color-amber-400]/10'
+                                  border-b border-white/[0.04] last:border-0 ${
+                        n.read ? 'hover:bg-white/[0.03]'
+                               : 'bg-gradient-to-r from-[--color-coral-500]/8 to-transparent hover:from-[--color-coral-500]/12'
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-full bg-[--color-ink-800] border border-[--color-ink-700]
-                                       grid place-items-center flex-shrink-0 ${color}`}>
+                      <div className={`w-8 h-8 rounded-full grid place-items-center flex-shrink-0
+                                       bg-white/[0.05] border border-white/[0.06] ${color}`}>
                         <Icon className="w-3.5 h-3.5" strokeWidth={2} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] text-[--color-bone-200] leading-snug">{formatMessage(n)}</p>
-                        <p className="font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-400] mt-1">
+                        <p className="text-[13px] text-[--color-mist-100] leading-snug">{formatMessage(n)}</p>
+                        <p className="text-[10px] font-mono text-[--color-mist-400] mt-1">
                           {formatTime(n.created_at)}
                         </p>
                       </div>
-                      {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-[--color-amber-400] flex-shrink-0 mt-2" />}
+                      {!n.read && <div className="w-2 h-2 rounded-full bg-[--color-coral-500] flex-shrink-0 mt-2 shadow-[0_0_6px_rgba(255,84,112,.6)]" />}
                     </button>
                   )
                 })

@@ -7,7 +7,7 @@ import { fetchMyCards } from '@/lib/cards'
 import { fetchOrganizerReviews, Review } from '@/lib/reviews'
 import { TravelCard } from '@/types'
 import { getCardTypeIcon, cn } from '@/lib/utils'
-import { ArrowLeft, Star, MapPin, Briefcase, Loader2 } from 'lucide-react'
+import { ArrowLeft, Star, MapPin, Briefcase, Loader2, Calendar } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface PublicProfilePageProps {
@@ -55,7 +55,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
   if (loading) {
     return (
       <div className="min-h-screen pt-32 grid place-items-center">
-        <Loader2 className="w-6 h-6 animate-spin text-[--color-amber-400]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[--color-coral-400]" />
       </div>
     )
   }
@@ -63,8 +63,8 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
   if (!profile) {
     return (
       <div className="min-h-screen pt-32 text-center">
-        <div className="font-display text-7xl text-[--color-bone-600] mb-4">∅</div>
-        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[--color-bone-400]">user not found</p>
+        <div className="text-7xl text-[--color-mist-500] mb-4">🗺️</div>
+        <p className="text-[--color-mist-300]">user not found</p>
       </div>
     )
   }
@@ -79,47 +79,44 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
       <div className="max-w-3xl mx-auto px-4 sm:px-8">
         <button onClick={() => router.back()}
           className="flex items-center gap-2 mb-10 group
-                     font-mono text-[11px] tracking-[0.18em] uppercase
-                     text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline">
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
+                     text-[12px] font-medium
+                     text-[--color-mist-300] hover:text-[--color-coral-400] transition-colors link-underline">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
           back
         </button>
 
-        {/* Profile masthead */}
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="space-y-7 pb-10 border-b border-[--color-ink-800]"
+          className="space-y-7 pb-10 border-b border-white/[0.06]"
         >
-          <div className="flex items-center gap-3">
-            <span className="w-8 h-px bg-[--color-amber-400]" />
-            <span className="eyebrow text-[--color-amber-400]">— profile · {totalEventsOrganized} organized</span>
-          </div>
-
           <div className="flex items-center gap-5">
-            <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
-                            bg-[--color-ink-800] border border-[--color-amber-400]/30
-                            text-[--color-bone-200] font-display text-3xl shrink-0">
-              {profile.avatar_url
-                ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
-                : initials}
+            <div className="glow-ring rounded-full">
+              <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                              text-white font-display text-3xl font-semibold shrink-0
+                              shadow-[0_0_28px_rgba(255,84,112,.3)]">
+                {profile.avatar_url
+                  ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+                  : initials}
+              </div>
             </div>
             <div className="space-y-1.5 min-w-0">
-              <h1 className="headline text-[--color-bone-50] text-4xl sm:text-5xl">{profile.full_name}</h1>
+              <h1 className="headline text-[--color-mist-50] text-4xl sm:text-5xl">{profile.full_name}</h1>
               {profile.title && (
-                <p className="font-mono text-[11px] tracking-[0.16em] uppercase text-[--color-amber-400] flex items-center gap-1.5">
+                <p className="flex items-center gap-1.5 text-[12px] font-semibold text-[--color-violet-300]">
                   <Briefcase className="w-3 h-3" strokeWidth={2} />
                   {profile.title}
                 </p>
               )}
-              <p className="font-mono text-[11px] text-[--color-bone-400] tabular-nums">
+              <p className="text-[11px] font-mono text-[--color-mist-400] tabular-nums">
                 {activeEvents.length + pastEvents.length} events · {orgReviews.length} reviews
               </p>
             </div>
           </div>
 
           {profile.bio && (
-            <p className="font-display text-[--color-bone-200] text-base leading-relaxed max-w-xl">
+            <p className="font-display text-[--color-mist-100] text-base leading-relaxed max-w-xl">
               {profile.bio}
             </p>
           )}
@@ -127,9 +124,8 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           {organizedTypes.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {organizedTypes.map(type => (
-                <span key={type} className="font-mono text-[10px] tracking-[0.16em] uppercase
-                                            px-2.5 py-1 text-[--color-bone-200]
-                                            border border-[--color-ink-700]">
+                <span key={type} className="px-3 py-1 rounded-full text-[11px] font-medium
+                                            bg-white/[0.03] border border-white/[0.08] text-[--color-mist-200]">
                   <span aria-hidden>{getCardTypeIcon(type)}</span> {type}
                 </span>
               ))}
@@ -137,27 +133,28 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           )}
 
           {orgAvg && (
-            <div className="grid grid-cols-3 gap-px bg-[--color-ink-700] rounded-sm overflow-hidden max-w-md">
-              <div className="bg-[--color-ink-900] p-4 text-center">
-                <div className="font-display text-3xl text-[--color-amber-400] tabular-nums leading-none">
+            <div className="grid grid-cols-3 gap-3 max-w-md">
+              <div className="glass rounded-xl p-4 text-center">
+                <div className="font-display text-3xl font-semibold text-[--color-amber-400] tabular-nums leading-none">
                   {orgAvg.toFixed(1)}
                 </div>
                 <div className="flex justify-center gap-0.5 mt-2">
                   {Array.from({ length: 5 }, (_, i) => (
-                    <Star key={i} className={cn('w-2.5 h-2.5', i < Math.round(orgAvg) ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-[--color-ink-700]')} />
+                    <Star key={i} className={cn('w-2.5 h-2.5',
+                      i < Math.round(orgAvg) ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/15')} />
                   ))}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">avg rating</div>
               </div>
-              <div className="bg-[--color-ink-900] p-4 text-center">
-                <div className="font-display text-3xl text-[--color-bone-50] tabular-nums leading-none">
-                  {String(orgReviews.length).padStart(2, '0')}
+              <div className="glass rounded-xl p-4 text-center">
+                <div className="font-display text-3xl font-semibold text-[--color-cyan-400] tabular-nums leading-none">
+                  {orgReviews.length}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">reviews</div>
               </div>
-              <div className="bg-[--color-ink-900] p-4 text-center">
-                <div className="font-display text-3xl text-[--color-bone-50] tabular-nums leading-none">
-                  {String(totalEventsOrganized).padStart(2, '0')}
+              <div className="glass rounded-xl p-4 text-center">
+                <div className="font-display text-3xl font-semibold text-[--color-violet-400] tabular-nums leading-none">
+                  {totalEventsOrganized}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">organized</div>
               </div>
@@ -165,7 +162,6 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           )}
         </motion.div>
 
-        {/* Active events */}
         {activeEvents.length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -173,7 +169,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             className="mt-10 space-y-4"
           >
             <header className="flex items-center gap-3">
-              <span className="w-6 h-px bg-[--color-amber-400]" />
+              <span className="w-8 h-px bg-gradient-to-r from-[--color-emerald-400] to-transparent" />
               <h2 className="eyebrow">— active events</h2>
             </header>
             <div className="grid sm:grid-cols-2 gap-2">
@@ -182,7 +178,6 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           </motion.section>
         )}
 
-        {/* Past events */}
         {pastEvents.length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -190,7 +185,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             className="mt-10 space-y-4"
           >
             <header className="flex items-center gap-3">
-              <span className="w-6 h-px bg-[--color-bone-400]" />
+              <span className="w-8 h-px bg-gradient-to-r from-[--color-mist-400] to-transparent" />
               <h2 className="eyebrow">— {t('pastEvents')}</h2>
             </header>
             <div className="grid sm:grid-cols-2 gap-2">
@@ -199,7 +194,6 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           </motion.section>
         )}
 
-        {/* Reviews */}
         {orgReviews.length > 0 && (
           <motion.section
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -212,28 +206,29 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             </header>
             <div className="space-y-3">
               {orgReviews.map(r => (
-                <div key={r.id} className="p-5 border border-[rgba(255,255,255,.05)] rounded-sm space-y-3 bg-[--color-ink-900]">
+                <div key={r.id} className="glass rounded-xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center bg-[--color-ink-800] text-[11px] font-mono text-[--color-bone-200] border border-[--color-ink-700]">
+                      <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] text-white text-[11px] font-mono">
                         {r.reviewer_avatar
                           ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
                           : r.reviewer_name[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-[13px] font-display text-[--color-bone-50]">{r.reviewer_name}</div>
-                        {r.card_title && <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-400] mt-0.5">{r.card_title}</div>}
+                        <div className="text-[13px] font-display font-semibold text-[--color-mist-50]">{r.reviewer_name}</div>
+                        {r.card_title && <div className="text-[10px] font-mono text-[--color-mist-400] mt-0.5">{r.card_title}</div>}
                       </div>
                     </div>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }, (_, i) => {
                         const rating = r.organizer_rating || r.card_rating || 0
-                        return <Star key={i} className={cn('w-3 h-3', i < rating ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-[--color-ink-700]')} />
+                        return <Star key={i} className={cn('w-3 h-3',
+                          i < rating ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/15')} />
                       })}
                     </div>
                   </div>
                   {r.comment && (
-                    <p className="text-[13px] text-[--color-bone-200] leading-relaxed border-s-2 border-[--color-amber-400]/40 ps-3 italic">
+                    <p className="text-[13px] text-[--color-mist-200] leading-relaxed border-s-2 border-[--color-coral-500]/40 ps-3 italic">
                       &ldquo;{r.comment}&rdquo;
                     </p>
                   )}
@@ -253,21 +248,21 @@ function PublicEventRow({ card, locale, muted = false }: { card: TravelCard; loc
     <button
       onClick={() => router.push(`/${locale}/cards/${card.id}`)}
       className={cn(
-        'text-start px-4 py-3 rounded-sm border transition-all group',
+        'text-start px-4 py-3 rounded-xl border transition-all group',
         muted
-          ? 'border-[rgba(255,255,255,.04)] hover:border-[rgba(255,255,255,.1)] opacity-75 hover:opacity-100'
-          : 'border-[rgba(255,255,255,.05)] hover:border-[--color-amber-400]/30'
+          ? 'border-white/[0.04] hover:border-white/[0.1] opacity-75 hover:opacity-100'
+          : 'border-white/[0.06] hover:border-[--color-coral-500]/30 hover:bg-white/[0.02]'
       )}
     >
       <div className="flex items-center gap-2 text-[13px]">
-        <span className="font-display text-[--color-bone-400]" aria-hidden>{getCardTypeIcon(card.type)}</span>
-        <span className="font-display text-[--color-bone-50] truncate group-hover:text-[--color-amber-400] transition-colors">
+        <span className="text-base" aria-hidden>{getCardTypeIcon(card.type)}</span>
+        <span className="font-display font-semibold text-[--color-mist-50] truncate group-hover:text-[--color-coral-300] transition-colors">
           {card.title}
         </span>
       </div>
-      <div className="flex items-center gap-3 mt-1 font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-400]">
+      <div className="flex items-center gap-3 mt-1 text-[11px] font-mono text-[--color-mist-400]">
         <span className="flex items-center gap-1"><MapPin className="w-2.5 h-2.5" strokeWidth={2} />{card.location.city}</span>
-        {card.eventDate && <span>{new Date(card.eventDate).toLocaleDateString()}</span>}
+        {card.eventDate && <span className="flex items-center gap-1"><Calendar className="w-2.5 h-2.5" strokeWidth={2} />{new Date(card.eventDate).toLocaleDateString()}</span>}
       </div>
     </button>
   )

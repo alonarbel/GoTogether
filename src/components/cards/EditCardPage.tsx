@@ -24,9 +24,10 @@ const COUNTRY_CODES = [
 ]
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm ' +
-  'text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600] ' +
-  'focus:outline-none focus:border-[--color-amber-400]/40 transition-all'
+  'w-full px-3.5 py-2.5 rounded-xl ' +
+  'bg-white/[0.03] border border-white/[0.08] ' +
+  'text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500] ' +
+  'focus:outline-none focus:border-[--color-coral-500]/40 transition-all'
 
 export function EditCardPage({ card }: { card: TravelCard }) {
   const t = useTranslations('create')
@@ -82,21 +83,14 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         form.city !== card.location.city ||
         form.country !== card.location.country
       let coords: [number, number] | null | undefined = undefined
-      if (locationChanged) {
-        coords = await geocodeAddress(form.address, form.city, form.country)
-      }
+      if (locationChanged) coords = await geocodeAddress(form.address, form.city, form.country)
 
       const ok = await updateCard(card.id, {
-        title: form.title,
-        description: form.description,
-        type: form.type,
+        title: form.title, description: form.description, type: form.type,
         organizer_role: form.organizer_role,
-        address: form.address,
-        city: form.city,
-        country: form.country,
+        address: form.address, city: form.city, country: form.country,
         ...(locationChanged && { lat: coords?.[0] ?? null, lng: coords?.[1] ?? null }),
-        min_participants: form.min_participants,
-        max_participants: form.max_participants,
+        min_participants: form.min_participants, max_participants: form.max_participants,
         event_date: form.event_date || undefined,
         event_time: form.event_time || undefined,
         min_deadline: form.min_deadline || undefined,
@@ -133,23 +127,22 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="max-w-2xl mx-auto px-4 sm:px-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-10">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 group
-                       font-mono text-[11px] tracking-[0.18em] uppercase
-                       text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline"
+                       text-[12px] font-medium
+                       text-[--color-mist-300] hover:text-[--color-coral-400] transition-colors link-underline"
           >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
             חזור
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[--color-coral-500]/20
-                       font-mono text-[10px] tracking-[0.18em] uppercase
-                       text-[--color-coral-400] hover:bg-[--color-coral-500]/10 hover:border-[--color-coral-500]/40
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[--color-rose-500]/20
+                       text-[11px] font-semibold
+                       text-[--color-rose-400] hover:bg-[--color-rose-500]/10 hover:border-[--color-rose-500]/40
                        transition-all"
           >
             {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" strokeWidth={2} />}
@@ -160,15 +153,16 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-6"
         >
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="w-8 h-px bg-[--color-amber-400]" />
-              <span className="eyebrow text-[--color-amber-400]">— editing dispatch</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            text-[11px] font-mono text-[--color-mist-200] tracking-wide">
+              <span>editing</span>
             </div>
-            <h1 className="headline text-[--color-bone-50] text-4xl">{card.title}</h1>
+            <h1 className="headline text-[--color-mist-50] text-4xl">{card.title}</h1>
           </div>
 
           <Field label={t('titleLabel')}>
@@ -185,13 +179,15 @@ export function EditCardPage({ card }: { card: TravelCard }) {
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
               {CARD_TYPES.map(type => (
                 <button key={type} type="button" onClick={() => set('type', type)}
-                  className={cn('flex flex-col items-center gap-1 py-3 rounded-sm border transition-all',
+                  className={cn('flex flex-col items-center gap-1 py-3 rounded-xl border transition-all',
                     form.type === type
-                      ? 'bg-[--color-amber-400]/5 border-[--color-amber-400]/50 text-[--color-amber-400]'
-                      : 'border-[--color-ink-700] text-[--color-bone-400] hover:border-[--color-ink-600]'
+                      ? 'bg-[--color-coral-500]/10 border-[--color-coral-500]/50'
+                      : 'border-white/[0.06] hover:border-white/[0.14]'
                   )}>
                   <span className="text-xl">{getCardTypeIcon(type)}</span>
-                  <span className="font-mono text-[9px] tracking-[0.14em] uppercase">{tFilters(type as Parameters<typeof tFilters>[0])}</span>
+                  <span className={cn('text-[10px] font-semibold',
+                    form.type === type ? 'text-[--color-coral-300]' : 'text-[--color-mist-300]'
+                  )}>{tFilters(type as Parameters<typeof tFilters>[0])}</span>
                 </button>
               ))}
             </div>
@@ -201,11 +197,10 @@ export function EditCardPage({ card }: { card: TravelCard }) {
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
               {ORGANIZER_ROLES.map(role => (
                 <button key={role} type="button" onClick={() => set('organizer_role', role)}
-                  className={cn('py-2 px-2 rounded-sm border transition-all',
-                    'font-mono text-[10px] tracking-[0.14em] uppercase',
+                  className={cn('py-2 px-2 rounded-lg border transition-all text-[11px] font-medium',
                     form.organizer_role === role
-                      ? 'bg-[--color-amber-400]/5 border-[--color-amber-400]/50 text-[--color-amber-400]'
-                      : 'border-[--color-ink-700] text-[--color-bone-400]'
+                      ? 'bg-[--color-violet-500]/10 border-[--color-violet-500]/50 text-[--color-violet-300]'
+                      : 'border-white/[0.06] text-[--color-mist-300]'
                   )}>
                   {tRoles(role as Parameters<typeof tRoles>[0])}
                 </button>
@@ -254,11 +249,11 @@ export function EditCardPage({ card }: { card: TravelCard }) {
           <Field label={t('phoneLabel')}>
             <div className="flex gap-2">
               <select value={form.phoneCode} onChange={e => set('phoneCode', e.target.value)}
-                className="w-28 flex-shrink-0 px-3 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
-                           text-[--color-bone-50] text-[12px] font-mono focus:outline-none focus:border-[--color-amber-400]/40 transition-all"
+                className="w-28 flex-shrink-0 px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                           text-[--color-mist-50] text-[12px] font-mono focus:outline-none focus:border-[--color-coral-500]/40 transition-all"
                 dir="ltr">
                 {COUNTRY_CODES.map(c => (
-                  <option key={c.code} value={c.code} className="bg-[--color-ink-850]">{c.flag} {c.code}</option>
+                  <option key={c.code} value={c.code} className="bg-[--color-night-900]">{c.flag} {c.code}</option>
                 ))}
               </select>
               <input value={form.phoneNumber} onChange={e => set('phoneNumber', e.target.value)}
@@ -288,13 +283,10 @@ export function EditCardPage({ card }: { card: TravelCard }) {
           </Field>
 
           <button onClick={handleSave} disabled={loading}
-            className="w-full py-3.5 mt-2 rounded-sm
-                       font-mono text-[11px] tracking-[0.2em] uppercase font-semibold
-                       bg-[--color-amber-400] text-[--color-amber-ink] hover:bg-[--color-amber-500]
-                       transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)]
+            className="btn-primary w-full py-3.5 mt-2 rounded-xl text-[13px] font-semibold
                        disabled:opacity-50 flex items-center justify-center gap-2">
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" strokeWidth={2.5} />}
-            שמור שינויים
+            {loading ? <Loader2 className="w-4 h-4 animate-spin relative z-[1]" /> : <Save className="w-4 h-4 relative z-[1]" strokeWidth={2.5} />}
+            <span className="relative z-[1]">שמור שינויים</span>
           </button>
         </motion.div>
       </div>

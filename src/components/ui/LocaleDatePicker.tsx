@@ -40,9 +40,9 @@ export function LocaleDatePicker({ value, onChange, locale }: LocaleDatePickerPr
   const daysInMonth = y && m ? new Date(y, m, 0).getDate() : 31
 
   const selectClass =
-    'bg-[--color-ink-900] border border-[rgba(255,255,255,.06)] rounded-sm ' +
-    'text-[--color-bone-50] text-[12px] font-mono px-2 py-1.5 ' +
-    'focus:outline-none focus:border-[--color-amber-400]/40 transition-all [color-scheme:dark] cursor-pointer'
+    'bg-white/[0.03] border border-white/[0.08] rounded-lg ' +
+    'text-[--color-mist-50] text-[12px] font-mono px-2 py-1.5 ' +
+    'focus:outline-none focus:border-[--color-coral-500]/40 transition-all [color-scheme:dark] cursor-pointer'
 
   return (
     <div className="flex gap-1 items-center">

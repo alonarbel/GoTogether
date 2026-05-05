@@ -21,10 +21,10 @@ function StarRating({ value, onChange, readOnly }: { value: number; onChange?: (
           onClick={() => onChange?.(n)}
           onMouseEnter={() => !readOnly && setHover(n)}
           onMouseLeave={() => !readOnly && setHover(0)}
-          className={cn('transition-colors', readOnly ? 'cursor-default' : 'cursor-pointer')}
+          className={cn('transition-transform', readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110')}
         >
           <Star className={cn('w-4 h-4 transition-colors',
-            (hover || value) >= n ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-[--color-ink-700]')} />
+            (hover || value) >= n ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-white/20')} />
         </button>
       ))}
     </div>
@@ -104,19 +104,16 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
     setSubmitting(true)
     const uploadedPhotos = photoFiles.length > 0 ? await uploadPhotos() : (myReview?.photos || [])
     const ok = await submitReview({
-      cardId,
-      reviewerId: user.id,
+      cardId, reviewerId: user.id,
       cardRating: cardRating || undefined,
       organizerRating: organizerRating || undefined,
-      comment,
-      photos: uploadedPhotos,
+      comment, photos: uploadedPhotos,
     })
     if (ok) {
       toast(t('submitted'), 'success')
       const updated = await fetchReviews(cardId)
       setReviews(updated)
-      setPhotoFiles([])
-      setPhotoPreviews([])
+      setPhotoFiles([]); setPhotoPreviews([])
     }
     setSubmitting(false)
   }
@@ -131,37 +128,35 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
       className="space-y-5"
     >
-      {/* Header */}
-      <header className="flex items-end justify-between pb-3 border-b border-[--color-ink-800]">
+      <header className="flex items-end justify-between pb-4 border-b border-white/[0.06]">
         <div>
-          <div className="eyebrow mb-1">— guestbook</div>
-          <h2 className="font-display text-[--color-bone-50] text-2xl flex items-baseline gap-2">
+          <div className="eyebrow mb-1.5">— guestbook</div>
+          <h2 className="font-display text-[--color-mist-50] text-2xl font-semibold flex items-baseline gap-2">
             {t('title')}
-            <span className="font-mono text-sm text-[--color-bone-400] tabular-nums">
-              {String(reviews.length).padStart(2, '0')}
-            </span>
+            <span className="font-mono text-sm text-[--color-mist-300] tabular-nums">{reviews.length}</span>
           </h2>
         </div>
-        <div className="flex gap-4 font-mono text-[11px] tracking-[0.08em]">
+        <div className="flex gap-4 text-[12px] font-medium">
           {avgCardRating && (
             <span className="text-[--color-amber-400] flex items-center gap-1">
               <Star className="w-3 h-3 fill-[--color-amber-400]" />
-              {avgCardRating} <span className="text-[--color-bone-600] uppercase">{t('cardRating')}</span>
+              <span className="font-semibold">{avgCardRating}</span>
+              <span className="text-[--color-mist-400] text-[10px] uppercase">{t('cardRating')}</span>
             </span>
           )}
           {avgOrgRating && isOrganizer && (
-            <span className="text-[--color-amber-400] flex items-center gap-1">
-              <Star className="w-3 h-3 fill-[--color-amber-400]" />
-              {avgOrgRating} <span className="text-[--color-bone-600] uppercase">{t('organizerRating')}</span>
+            <span className="text-[--color-violet-400] flex items-center gap-1">
+              <Star className="w-3 h-3 fill-[--color-violet-400]" />
+              <span className="font-semibold">{avgOrgRating}</span>
+              <span className="text-[--color-mist-400] text-[10px] uppercase">{t('organizerRating')}</span>
             </span>
           )}
         </div>
       </header>
 
-      {/* Review form */}
       {canReview && (
-        <div className="border border-[--color-amber-400]/20 rounded-sm p-5 space-y-4 bg-[--color-amber-400]/5">
-          <h3 className="font-mono text-[11px] tracking-[0.18em] uppercase text-[--color-amber-400]">
+        <div className="glass rounded-2xl p-5 space-y-4">
+          <h3 className="font-display text-[--color-coral-300] text-base font-semibold">
             {myReview ? t('editReview') : t('writeReview')}
           </h3>
 
@@ -183,18 +178,18 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
               onChange={e => setComment(e.target.value)}
               placeholder={t('commentPlaceholder')}
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
-                         text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600]
-                         focus:outline-none focus:border-[--color-amber-400]/40 transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                         text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500]
+                         focus:outline-none focus:border-[--color-coral-500]/40 transition-all resize-none"
             />
 
             {photoPreviews.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {photoPreviews.map((src, i) => (
                   <div key={i} className="relative w-20 h-20">
-                    <img src={src} className="w-full h-full object-cover rounded-sm" alt="" />
+                    <img src={src} className="w-full h-full object-cover rounded-xl" alt="" />
                     <button onClick={() => removePhoto(i)}
-                      className="absolute -top-1.5 -end-1.5 w-5 h-5 bg-[--color-coral-500] rounded-full grid place-items-center hover:bg-[--color-coral-400] transition-colors">
+                      className="absolute -top-1.5 -end-1.5 w-5 h-5 bg-[--color-rose-500] rounded-full grid place-items-center hover:bg-[--color-rose-400] transition-colors">
                       <X className="w-3 h-3 text-white" />
                     </button>
                   </div>
@@ -205,10 +200,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
             <div className="flex items-center gap-2">
               {photoPreviews.length < 4 && (
                 <button onClick={() => photoInputRef.current?.click()}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-sm border border-[rgba(255,255,255,.08)]
-                             font-mono text-[10px] tracking-[0.16em] uppercase
-                             text-[--color-bone-400] hover:text-[--color-amber-400] hover:border-[--color-amber-400]/30
-                             transition-all">
+                  className="btn-ghost flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-semibold">
                   <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />
                   {t('addPhotos')}
                 </button>
@@ -217,66 +209,62 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
 
               <button onClick={handleSubmit}
                 disabled={submitting || (!cardRating && !organizerRating && !comment.trim())}
-                className="flex items-center gap-2 ms-auto px-4 py-2 rounded-sm
-                           font-mono text-[11px] tracking-[0.18em] uppercase font-semibold
-                           bg-[--color-amber-400] text-[--color-amber-ink] hover:bg-[--color-amber-500]
-                           transition-all shadow-[0_4px_20px_rgba(251,191,36,.18)]
+                className="btn-primary flex items-center gap-2 ms-auto px-4 py-2 rounded-xl text-[12px] font-semibold
                            disabled:opacity-40 disabled:cursor-not-allowed">
-                {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" strokeWidth={2.5} />}
-                {t('submit')}
+                {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin relative z-[1]" /> : <Send className="w-3.5 h-3.5 relative z-[1]" strokeWidth={2.5} />}
+                <span className="relative z-[1]">{t('submit')}</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reviews list */}
       {loading ? (
-        <div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-[--color-bone-600]" /></div>
+        <div className="flex justify-center py-6"><Loader2 className="w-4 h-4 animate-spin text-[--color-mist-500]" /></div>
       ) : reviews.length === 0 ? (
-        <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-[--color-bone-600] text-center py-6">{t('noReviews')}</p>
+        <p className="text-[12px] text-[--color-mist-500] text-center py-6">{t('noReviews')}</p>
       ) : (
         <div className="space-y-3">
           {reviews.map(r => (
             <div key={r.id} className={cn(
-              'p-4 rounded-sm border space-y-3',
+              'p-4 rounded-2xl border space-y-3',
               r.reviewer_id === user?.id
-                ? 'bg-[--color-amber-400]/5 border-[--color-amber-400]/20'
-                : 'bg-[--color-ink-900] border-[rgba(255,255,255,.05)]'
+                ? 'bg-gradient-to-br from-[--color-coral-500]/8 to-[--color-violet-500]/4 border-[--color-coral-500]/20'
+                : 'bg-white/[0.02] border-white/[0.06]'
             )}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center
-                                  bg-[--color-ink-800] text-[--color-bone-200] font-mono text-[11px]
-                                  border border-[--color-ink-700]">
+                                  bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400]
+                                  text-white font-mono text-[11px] font-semibold">
                     {r.reviewer_avatar
                       ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
                       : r.reviewer_name[0]?.toUpperCase()}
                   </div>
-                  <span className="text-[13px] font-display text-[--color-bone-50]">{r.reviewer_name}</span>
+                  <span className="text-[13px] font-display font-semibold text-[--color-mist-50]">{r.reviewer_name}</span>
                 </div>
-                <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-600]">
+                <span className="font-mono text-[10px] text-[--color-mist-400]">
                   {new Date(r.created_at).toLocaleDateString()}
                 </span>
               </div>
 
-              <div className="flex gap-4 flex-wrap font-mono text-[10px] tracking-[0.14em] uppercase">
+              <div className="flex gap-4 flex-wrap text-[10px] font-medium">
                 {r.card_rating && (
                   <div className="flex items-center gap-1.5">
                     <StarRating value={r.card_rating} readOnly />
-                    <span className="text-[--color-bone-400]">{t('cardRating')}</span>
+                    <span className="text-[--color-mist-400] uppercase">{t('cardRating')}</span>
                   </div>
                 )}
                 {r.organizer_rating && isOrganizer && (
                   <div className="flex items-center gap-1.5">
                     <StarRating value={r.organizer_rating} readOnly />
-                    <span className="text-[--color-bone-400]">{t('organizerRating')}</span>
+                    <span className="text-[--color-mist-400] uppercase">{t('organizerRating')}</span>
                   </div>
                 )}
               </div>
 
               {r.comment && (
-                <p className="text-[13px] text-[--color-bone-200] leading-relaxed border-s-2 border-[--color-amber-400]/30 ps-3 italic">
+                <p className="text-[13px] text-[--color-mist-200] leading-relaxed border-s-2 border-[--color-coral-500]/40 ps-3 italic">
                   &ldquo;{r.comment}&rdquo;
                 </p>
               )}
@@ -285,7 +273,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
                 <div className="flex gap-2 flex-wrap pt-1">
                   {r.photos.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                      <img src={url} className="w-20 h-20 object-cover rounded-sm hover:opacity-80 transition-opacity" alt="" />
+                      <img src={url} className="w-20 h-20 object-cover rounded-xl hover:opacity-80 transition-opacity" alt="" />
                     </a>
                   ))}
                 </div>
