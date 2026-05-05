@@ -7,7 +7,7 @@ import { fetchMyCards } from '@/lib/cards'
 import { fetchOrganizerReviews, Review } from '@/lib/reviews'
 import { TravelCard } from '@/types'
 import { getCardTypeIcon, cn } from '@/lib/utils'
-import { ArrowLeft, Star, MapPin, Calendar, Users, Briefcase } from 'lucide-react'
+import { ArrowLeft, Star, MapPin, Briefcase, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface PublicProfilePageProps {
@@ -18,7 +18,6 @@ interface PublicProfilePageProps {
 export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
   const router = useRouter()
   const t = useTranslations('reviews')
-
   const [profile, setProfile] = useState<{ full_name: string; avatar_url?: string; title?: string; bio?: string } | null>(null)
   const [activeEvents, setActiveEvents] = useState<TravelCard[]>([])
   const [pastEvents, setPastEvents] = useState<TravelCard[]>([])
@@ -55,90 +54,112 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen pt-32 grid place-items-center">
+        <Loader2 className="w-6 h-6 animate-spin text-[--color-amber-400]" />
       </div>
     )
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen pt-24 text-center text-gray-500">User not found</div>
+      <div className="min-h-screen pt-32 text-center">
+        <div className="font-display text-7xl text-[--color-bone-600] mb-4">∅</div>
+        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[--color-bone-400]">user not found</p>
+      </div>
     )
   }
 
   const initials = profile.full_name.trim().split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) || '?'
   const organizedEvents = [...activeEvents, ...pastEvents].filter(c => c.createdByUserId === userId)
   const totalEventsOrganized = organizedEvents.length
-  // Unique event types they organize
   const organizedTypes = [...new Set(organizedEvents.map(c => c.type))]
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      <div className="max-w-2xl mx-auto px-4 space-y-8">
+    <div className="min-h-screen pt-24 pb-20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8">
         <button onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors group text-sm">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back
+          className="flex items-center gap-2 mb-10 group
+                     font-mono text-[11px] tracking-[0.18em] uppercase
+                     text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline">
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
+          back
         </button>
 
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 overflow-hidden flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-teal-500/20 shrink-0">
+        {/* Profile masthead */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-7 pb-10 border-b border-[--color-ink-800]"
+        >
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-px bg-[--color-amber-400]" />
+            <span className="eyebrow text-[--color-amber-400]">— profile · {totalEventsOrganized} organized</span>
+          </div>
+
+          <div className="flex items-center gap-5">
+            <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
+                            bg-[--color-ink-800] border border-[--color-amber-400]/30
+                            text-[--color-bone-200] font-display text-3xl shrink-0">
               {profile.avatar_url
                 ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
                 : initials}
             </div>
-            <div className="space-y-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white">{profile.full_name}</h1>
+            <div className="space-y-1.5 min-w-0">
+              <h1 className="headline text-[--color-bone-50] text-4xl sm:text-5xl">{profile.full_name}</h1>
               {profile.title && (
-                <p className="text-sm text-teal-400 flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 shrink-0" />
+                <p className="font-mono text-[11px] tracking-[0.16em] uppercase text-[--color-amber-400] flex items-center gap-1.5">
+                  <Briefcase className="w-3 h-3" strokeWidth={2} />
                   {profile.title}
                 </p>
               )}
-              <p className="text-sm text-gray-500">{activeEvents.length + pastEvents.length} events</p>
+              <p className="font-mono text-[11px] text-[--color-bone-400] tabular-nums">
+                {activeEvents.length + pastEvents.length} events · {orgReviews.length} reviews
+              </p>
             </div>
           </div>
 
-          {/* Bio */}
           {profile.bio && (
-            <p className="text-sm text-gray-300 leading-relaxed bg-gray-900/60 border border-white/5 rounded-xl px-4 py-3">
+            <p className="font-display text-[--color-bone-200] text-base leading-relaxed max-w-xl">
               {profile.bio}
             </p>
           )}
 
-          {/* Event types they organize */}
           {organizedTypes.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {organizedTypes.map(type => (
-                <span key={type} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-900/60 border border-white/8 text-sm text-gray-300">
-                  {getCardTypeIcon(type)} {type}
+                <span key={type} className="font-mono text-[10px] tracking-[0.16em] uppercase
+                                            px-2.5 py-1 text-[--color-bone-200]
+                                            border border-[--color-ink-700]">
+                  <span aria-hidden>{getCardTypeIcon(type)}</span> {type}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Rating banner — only shown if there are reviews */}
           {orgAvg && (
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-1 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-col items-center justify-center gap-1">
-                <div className="text-3xl font-bold text-amber-400">{orgAvg}</div>
-                <div className="flex gap-0.5">
+            <div className="grid grid-cols-3 gap-px bg-[--color-ink-700] rounded-sm overflow-hidden max-w-md">
+              <div className="bg-[--color-ink-900] p-4 text-center">
+                <div className="font-display text-3xl text-[--color-amber-400] tabular-nums leading-none">
+                  {orgAvg.toFixed(1)}
+                </div>
+                <div className="flex justify-center gap-0.5 mt-2">
                   {Array.from({ length: 5 }, (_, i) => (
-                    <Star key={i} className={cn('w-3.5 h-3.5', i < Math.round(orgAvg) ? 'text-amber-400 fill-amber-400' : 'text-amber-900')} />
+                    <Star key={i} className={cn('w-2.5 h-2.5', i < Math.round(orgAvg) ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-[--color-ink-700]')} />
                   ))}
                 </div>
-                <div className="text-xs text-amber-500/70">avg rating</div>
+                <div className="eyebrow mt-2 text-[8px]">avg rating</div>
               </div>
-              <div className="bg-gray-900/60 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center gap-1">
-                <div className="text-3xl font-bold text-white">{orgReviews.length}</div>
-                <div className="text-xs text-gray-500">reviews</div>
+              <div className="bg-[--color-ink-900] p-4 text-center">
+                <div className="font-display text-3xl text-[--color-bone-50] tabular-nums leading-none">
+                  {String(orgReviews.length).padStart(2, '0')}
+                </div>
+                <div className="eyebrow mt-2 text-[8px]">reviews</div>
               </div>
-              <div className="bg-gray-900/60 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center gap-1">
-                <div className="text-3xl font-bold text-white">{totalEventsOrganized}</div>
-                <div className="text-xs text-gray-500">organized</div>
+              <div className="bg-[--color-ink-900] p-4 text-center">
+                <div className="font-display text-3xl text-[--color-bone-50] tabular-nums leading-none">
+                  {String(totalEventsOrganized).padStart(2, '0')}
+                </div>
+                <div className="eyebrow mt-2 text-[8px]">organized</div>
               </div>
             </div>
           )}
@@ -146,106 +167,108 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
 
         {/* Active events */}
         {activeEvents.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-teal-400" /> Active Events
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {activeEvents.map(card => (
-                <button
-                  key={card.id}
-                  onClick={() => router.push(`/${locale}/cards/${card.id}`)}
-                  className="text-start p-4 rounded-xl bg-gray-900/60 border border-teal-500/15 hover:border-teal-500/30 transition-all space-y-1.5"
-                >
-                  <div className="flex items-center gap-2 text-sm">
-                    <span>{getCardTypeIcon(card.type)}</span>
-                    <span className="font-medium text-white truncate">{card.title}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{card.location.city}</span>
-                    {card.eventDate && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(card.eventDate).toLocaleDateString()}</span>}
-                    <span className="flex items-center gap-1"><Users className="w-3 h-3" />{card.currentParticipants}</span>
-                  </div>
-                </button>
-              ))}
+          <motion.section
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mt-10 space-y-4"
+          >
+            <header className="flex items-center gap-3">
+              <span className="w-6 h-px bg-[--color-amber-400]" />
+              <h2 className="eyebrow">— active events</h2>
+            </header>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {activeEvents.map(card => <PublicEventRow key={card.id} card={card} locale={locale} />)}
             </div>
-          </motion.div>
+          </motion.section>
         )}
 
         {/* Past events */}
         {pastEvents.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
-              <Calendar className="w-4 h-4" /> {t('pastEvents')}
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {pastEvents.map(card => (
-                <button
-                  key={card.id}
-                  onClick={() => router.push(`/${locale}/cards/${card.id}`)}
-                  className="text-start p-4 rounded-xl bg-gray-900/60 border border-white/5 hover:border-teal-500/20 transition-all space-y-1.5"
-                >
-                  <div className="flex items-center gap-2 text-sm">
-                    <span>{getCardTypeIcon(card.type)}</span>
-                    <span className="font-medium text-white truncate">{card.title}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{card.location.city}</span>
-                    {card.eventDate && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(card.eventDate).toLocaleDateString()}</span>}
-                    <span className="flex items-center gap-1"><Users className="w-3 h-3" />{card.currentParticipants}</span>
-                  </div>
-                </button>
-              ))}
+          <motion.section
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14 }}
+            className="mt-10 space-y-4"
+          >
+            <header className="flex items-center gap-3">
+              <span className="w-6 h-px bg-[--color-bone-400]" />
+              <h2 className="eyebrow">— {t('pastEvents')}</h2>
+            </header>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {pastEvents.map(card => <PublicEventRow key={card.id} card={card} locale={locale} muted />)}
             </div>
-          </motion.div>
+          </motion.section>
         )}
 
-        {/* Organizer reviews */}
+        {/* Reviews */}
         {orgReviews.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-400" /> {t('reviewsReceived')}
-            </h2>
+          <motion.section
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="mt-10 space-y-4"
+          >
+            <header className="flex items-center gap-3">
+              <Star className="w-3.5 h-3.5 text-[--color-amber-400] fill-[--color-amber-400]" />
+              <h2 className="eyebrow">— {t('reviewsReceived')}</h2>
+            </header>
             <div className="space-y-3">
               {orgReviews.map(r => (
-                <div key={r.id} className="p-4 rounded-xl bg-gray-900/60 border border-white/5 space-y-3">
-                  {/* Reviewer + rating */}
+                <div key={r.id} className="p-5 border border-[rgba(255,255,255,.05)] rounded-sm space-y-3 bg-[--color-ink-900]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center bg-[--color-ink-800] text-[11px] font-mono text-[--color-bone-200] border border-[--color-ink-700]">
                         {r.reviewer_avatar
                           ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
-                          : r.reviewer_name[0]}
+                          : r.reviewer_name[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-white">{r.reviewer_name}</div>
-                        {r.card_title && <div className="text-xs text-gray-500">{r.card_title}</div>}
+                        <div className="text-[13px] font-display text-[--color-bone-50]">{r.reviewer_name}</div>
+                        {r.card_title && <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-400] mt-0.5">{r.card_title}</div>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }, (_, i) => {
-                          const rating = r.organizer_rating || r.card_rating || 0
-                          return <Star key={i} className={cn('w-4 h-4', i < rating ? 'text-amber-400 fill-amber-400' : 'text-gray-700')} />
-                        })}
-                      </div>
-                      {!r.organizer_rating && r.card_rating && (
-                        <span className="text-xs text-gray-500">(experience)</span>
-                      )}
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }, (_, i) => {
+                        const rating = r.organizer_rating || r.card_rating || 0
+                        return <Star key={i} className={cn('w-3 h-3', i < rating ? 'text-[--color-amber-400] fill-[--color-amber-400]' : 'text-[--color-ink-700]')} />
+                      })}
                     </div>
                   </div>
-                  {/* Comment */}
                   {r.comment && (
-                    <p className="text-sm text-gray-300 leading-relaxed border-s-2 border-teal-500/40 ps-3 italic">
-                      "{r.comment}"
+                    <p className="text-[13px] text-[--color-bone-200] leading-relaxed border-s-2 border-[--color-amber-400]/40 ps-3 italic">
+                      &ldquo;{r.comment}&rdquo;
                     </p>
                   )}
                 </div>
               ))}
             </div>
-          </motion.div>
+          </motion.section>
         )}
       </div>
     </div>
+  )
+}
+
+function PublicEventRow({ card, locale, muted = false }: { card: TravelCard; locale: string; muted?: boolean }) {
+  const router = useRouter()
+  return (
+    <button
+      onClick={() => router.push(`/${locale}/cards/${card.id}`)}
+      className={cn(
+        'text-start px-4 py-3 rounded-sm border transition-all group',
+        muted
+          ? 'border-[rgba(255,255,255,.04)] hover:border-[rgba(255,255,255,.1)] opacity-75 hover:opacity-100'
+          : 'border-[rgba(255,255,255,.05)] hover:border-[--color-amber-400]/30'
+      )}
+    >
+      <div className="flex items-center gap-2 text-[13px]">
+        <span className="font-display text-[--color-bone-400]" aria-hidden>{getCardTypeIcon(card.type)}</span>
+        <span className="font-display text-[--color-bone-50] truncate group-hover:text-[--color-amber-400] transition-colors">
+          {card.title}
+        </span>
+      </div>
+      <div className="flex items-center gap-3 mt-1 font-mono text-[10px] tracking-[0.12em] uppercase text-[--color-bone-400]">
+        <span className="flex items-center gap-1"><MapPin className="w-2.5 h-2.5" strokeWidth={2} />{card.location.city}</span>
+        {card.eventDate && <span>{new Date(card.eventDate).toLocaleDateString()}</span>}
+      </div>
+    </button>
   )
 }
