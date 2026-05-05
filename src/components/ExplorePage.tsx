@@ -170,22 +170,34 @@ export function ExplorePage() {
               <div className="glass flex items-center gap-0.5 p-1 rounded-full">
                 <button
                   onClick={() => setView('grid')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
+                  aria-pressed={view === 'grid'}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-colors text-[11px] font-semibold"
+                  style={
                     view === 'grid'
-                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
-                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
-                  }`}
+                      ? {
+                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          color: '#fff',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                        }
+                      : { color: 'var(--color-mist-300)' }
+                  }
                 >
                   <LayoutGrid className="w-3 h-3" strokeWidth={2.5} />
                   {t('viewGrid')}
                 </button>
                 <button
                   onClick={() => setView('map')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
+                  aria-pressed={view === 'map'}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-colors text-[11px] font-semibold"
+                  style={
                     view === 'map'
-                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
-                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
-                  }`}
+                      ? {
+                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          color: '#fff',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                        }
+                      : { color: 'var(--color-mist-300)' }
+                  }
                 >
                   <MapIcon className="w-3 h-3" strokeWidth={2.5} />
                   {t('viewMap')}
