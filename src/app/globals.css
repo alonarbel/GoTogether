@@ -1,80 +1,273 @@
 @import "tailwindcss";
 
-:root {
-  --background: #030712;
-  --foreground: #f9fafb;
+/* ============================================================
+   Design Tokens — GoTogether
+   Modern Refined: editorial typography on a sophisticated
+   near-black canvas, single warm-amber accent, deep negative
+   space, subtle grain. Premium without being loud.
+============================================================ */
+
+@theme {
+  /* ── Surface ── */
+  --color-ink-950: #07080d;          /* deepest base, body bg */
+  --color-ink-900: #0b0d14;          /* primary bg */
+  --color-ink-850: #11141d;          /* slight elevation */
+  --color-ink-800: #181b25;          /* card surface */
+  --color-ink-750: #1f2230;          /* hover/active surface */
+  --color-ink-700: #272a39;          /* border emphasis */
+  --color-ink-600: #353849;          /* divider strong */
+
+  /* ── Text ── */
+  --color-bone-50: #fafaf7;          /* primary text — warm off-white */
+  --color-bone-200: #d6d4cc;         /* secondary text */
+  --color-bone-400: #8a8881;         /* tertiary / muted text */
+  --color-bone-600: #54534e;         /* faintest, decorative */
+
+  /* ── Accent: Burnished Amber ── */
+  --color-amber-50: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-400: #fbbf24;        /* primary accent */
+  --color-amber-500: #f59e0b;        /* primary hover/active */
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-ink: #1a1206;        /* text on amber bg */
+
+  /* ── Semantic ── */
+  --color-emerald-400: #34d399;      /* success / joined */
+  --color-emerald-500: #10b981;
+  --color-rust-400: #fb923c;         /* warning */
+  --color-rust-500: #f97316;
+  --color-coral-400: #f87171;        /* danger */
+  --color-coral-500: #ef4444;
+
+  /* ── Typography ── */
+  --font-sans: var(--font-geist-sans), 'Heebo', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), 'Frank Ruhl Libre', ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* ── Motion ── */
+  --ease-snap: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Shadows ── */
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.25);
+  --shadow-deep: 0 8px 32px rgba(0,0,0,.5), 0 24px 64px rgba(0,0,0,.35);
+  --shadow-amber: 0 0 0 1px rgba(251,191,36,.25), 0 8px 32px rgba(251,191,36,.18);
 }
+
+/* ============================================================
+   Base
+============================================================ */
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  background: var(--color-ink-950);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
+  background: var(--color-ink-950);
+  color: var(--color-bone-50);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  letter-spacing: -0.005em;
+  position: relative;
+  min-height: 100vh;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* Subtle film-grain texture overlaid on the entire app */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Soft warm vignette in the corner */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 800px 600px at top right, rgba(251,191,36,.04), transparent 70%),
+    radial-gradient(ellipse 1000px 800px at bottom left, rgba(180,83,9,.03), transparent 70%);
+}
+
+main, nav, .gt-content { position: relative; z-index: 2; }
+
+/* ============================================================
+   Typography utilities
+============================================================ */
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-feature-settings: 'ss01', 'ss02';
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum', 'zero';
+  letter-spacing: -0.01em;
+}
+
+/* Editorial display headlines */
+.headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+/* All-caps small labels — editorial style */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-bone-400);
+}
+
+/* ============================================================
+   Selection + scrollbars
+============================================================ */
+
+::selection {
+  background: var(--color-amber-400);
+  color: var(--color-amber-ink);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #374151; }
+::-webkit-scrollbar-thumb { background: var(--color-ink-700); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-600); }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-/* Shimmer skeleton */
+/* ============================================================
+   Focus rings — distinctive amber halo
+============================================================ */
+
+:where(button, a, input, textarea, select, [role="button"], [tabindex]):focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-ink-950),
+    0 0 0 4px var(--color-amber-400);
+  border-radius: inherit;
+}
+
+/* ============================================================
+   Animations
+============================================================ */
+
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0%   { background-position: -1000px 0; }
+  100% { background-position:  1000px 0; }
 }
 .shimmer {
-  animation: shimmer 2s infinite linear;
-  background: linear-gradient(to right, #1f2937 4%, #2d3748 25%, #1f2937 36%);
+  animation: shimmer 2.4s infinite linear;
+  background: linear-gradient(to right, var(--color-ink-800) 4%, var(--color-ink-750) 25%, var(--color-ink-800) 36%);
   background-size: 1000px 100%;
 }
 
-/* Glass morphism */
-.glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-/* Urgency pulse */
 @keyframes urgentPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.01); }
+  50% { opacity: .82; transform: scale(1.012); }
 }
-.urgent-pulse {
-  animation: urgentPulse 1.8s ease-in-out infinite;
+.urgent-pulse { animation: urgentPulse 1.8s ease-in-out infinite; }
+
+@keyframes fadeRise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-rise { animation: fadeRise .6s var(--ease-soft) both; }
+
+/* ============================================================
+   Reusable component-ish utilities
+============================================================ */
+
+/* Refined glass — used very sparingly */
+.glass {
+  background: rgba(255,255,255,.025);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255,255,255,.06);
 }
 
-/* Card glow on hover */
-.card-glow:hover {
-  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.2), 0 20px 40px -12px rgba(20, 184, 166, 0.12);
+/* Card hover halo — subtle warm glow instead of teal */
+.card-halo {
+  transition: transform .35s var(--ease-snap), box-shadow .35s var(--ease-snap), border-color .35s var(--ease-snap);
+}
+.card-halo:hover {
+  transform: translateY(-2px);
+  border-color: rgba(251,191,36,.22);
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 24px 60px -20px rgba(251,191,36,.08), 0 0 0 1px rgba(251,191,36,.08);
 }
 
-/* Input focus ring */
-.input-focus {
-  transition: border-color 0.15s, box-shadow 0.15s;
+/* Crosshair / passport-stamp decorative corner accent */
+.corner-marks {
+  position: relative;
 }
-.input-focus:focus {
-  border-color: rgba(20, 184, 166, 0.5);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.08);
+.corner-marks::before,
+.corner-marks::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border-color: var(--color-amber-400);
+  border-style: solid;
+  opacity: .55;
+  pointer-events: none;
+}
+.corner-marks::before {
+  top: -1px; left: -1px;
+  border-width: 1px 0 0 1px;
+}
+.corner-marks::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 1px 1px 0;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #2dd4bf, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Animated underline — for nav links / inline buttons */
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform .35s var(--ease-snap);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
+/* Marquee-style ticker animation (used for last-minute warnings, optional) */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker { animation: ticker 22s linear infinite; }
 
+/* RTL-aware tweaks */
+[dir="rtl"] .link-underline::after { transform-origin: left center; }
+[dir="rtl"] .link-underline:hover::after { transform-origin: right center; }
