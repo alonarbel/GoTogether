@@ -3,7 +3,7 @@ import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Calendar, AlertTriangle } from 'lucide-react'
+import { MapPin, Users, Calendar, AlertTriangle, ArrowUpRight } from 'lucide-react'
 import { isLastDayForMinimum } from '@/lib/utils'
 import { getCardTypeIcon, getParticipantStatus, cn } from '@/lib/utils'
 import { ParticipantBar } from './ParticipantBar'
@@ -34,113 +34,115 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.045, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.05, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => router.push(`/${locale}/cards/${card.id}`)}
-      className="card-halo group relative cursor-pointer overflow-hidden rounded-md
-                 bg-[--color-ink-850] border border-[rgba(255,255,255,.05)]
-                 flex flex-col"
+      className="card-vivid group relative cursor-pointer overflow-hidden rounded-2xl flex flex-col"
     >
       {/* ── Image / hero ── */}
-      <div className="relative aspect-[5/3] overflow-hidden bg-[--color-ink-800]">
+      <div className="relative aspect-[5/3] overflow-hidden bg-[--color-night-800]">
         {card.images[0] ? (
           <img
             src={card.images[0]}
             alt={card.title}
-            className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+            className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
           />
         ) : (
-          <div className="w-full h-full grid place-items-center text-6xl text-[--color-bone-600] font-display select-none">
-            {getCardTypeIcon(card.type)}
+          <div className="w-full h-full grid place-items-center text-7xl select-none
+                          bg-gradient-to-br from-[--color-coral-500]/20 via-[--color-violet-500]/15 to-[--color-cyan-400]/15">
+            <span className="font-display">{getCardTypeIcon(card.type)}</span>
           </div>
         )}
 
-        {/* darkening gradient at the bottom of the image for text legibility on overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[--color-ink-850] via-[--color-ink-850]/30 to-transparent" />
+        {/* gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[--color-night-900] via-[--color-night-900]/30 to-transparent" />
 
-        {/* Type label — top-left, eyebrow-style */}
-        <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm
-                        bg-[--color-ink-950]/70 backdrop-blur-sm text-[--color-bone-200]
-                        font-mono text-[10px] tracking-[0.2em] uppercase">
+        {/* Type pill — top-left, glassy */}
+        <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                        bg-black/40 backdrop-blur-md border border-white/10
+                        text-[10px] font-semibold text-white tracking-wide">
           <span aria-hidden>{getCardTypeIcon(card.type)}</span>
           <span>{tFilters(card.type as Parameters<typeof tFilters>[0])}</span>
         </div>
 
-        {/* Status badge — top-right */}
+        {/* Status — top-right */}
         {isFull ? (
-          <div className="absolute top-3 end-3 px-2 py-1 rounded-sm font-mono text-[10px] tracking-[0.2em] uppercase
-                          bg-[--color-coral-500]/15 text-[--color-coral-400] border border-[--color-coral-500]/30 backdrop-blur-sm">
+          <div className="absolute top-3 end-3 px-2.5 py-1 rounded-full text-[10px] font-semibold
+                          bg-[--color-rose-500] text-white border border-white/15
+                          shadow-[0_0_16px_rgba(244,63,94,.45)]">
             {t('full')}
           </div>
         ) : hasMinimum ? (
-          <div className="absolute top-3 end-3 px-2 py-1 rounded-sm font-mono text-[10px] tracking-[0.2em] uppercase
-                          bg-[--color-emerald-500]/15 text-[--color-emerald-400] border border-[--color-emerald-500]/30 backdrop-blur-sm">
+          <div className="absolute top-3 end-3 px-2.5 py-1 rounded-full text-[10px] font-semibold
+                          bg-[--color-emerald-500] text-white border border-white/15
+                          shadow-[0_0_16px_rgba(16,185,129,.45)] live-dot">
             {t('spotsLeftCount', { count: spotsLeft })}
           </div>
         ) : null}
 
         {/* Last-day urgent ribbon */}
         {lastDay && !hasMinimum && (
-          <div className="absolute bottom-0 inset-x-0 px-3 py-1.5
-                          bg-[--color-amber-400] text-[--color-amber-ink] flex items-center gap-1.5 urgent-pulse">
+          <div className="absolute bottom-0 inset-x-0 px-3 py-1.5 flex items-center gap-1.5 urgent-pulse
+                          bg-gradient-to-r from-[--color-rose-500] to-[--color-coral-500] text-white">
             <AlertTriangle className="w-3 h-3 flex-shrink-0" strokeWidth={2.5} />
-            <span className="font-mono text-[10px] tracking-[0.18em] uppercase font-semibold truncate">
-              {t('lastDayWarning')}
-            </span>
+            <span className="text-[11px] font-semibold truncate">{t('lastDayWarning')}</span>
           </div>
         )}
+
+        {/* Hover arrow */}
+        <div className="absolute bottom-3 end-3 w-8 h-8 rounded-full
+                        bg-white/10 backdrop-blur-md border border-white/15
+                        grid place-items-center
+                        opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0
+                        transition-all duration-500">
+          <ArrowUpRight className="w-4 h-4 text-white" strokeWidth={2.5} />
+        </div>
       </div>
 
       {/* ── Body ── */}
-      <div className="p-4 sm:p-5 space-y-3.5 flex flex-col flex-1">
+      <div className="p-5 space-y-3.5 flex flex-col flex-1">
         {/* Date · Location row */}
-        <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-[0.14em] text-[--color-bone-400]">
+        <div className="flex items-center gap-2.5 text-[11px] font-mono text-[--color-mist-400]">
           {dateStr && (
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-3 h-3" strokeWidth={2} />
-              {dateStr}
-              {card.eventTime && <span className="text-[--color-bone-600]">·</span>}
+              <Calendar className="w-3 h-3 text-[--color-coral-400]" strokeWidth={2} />
+              <span className="text-[--color-mist-200]">{dateStr}</span>
+              {card.eventTime && <span className="text-[--color-mist-500]">·</span>}
               {card.eventTime && <span>{card.eventTime}</span>}
             </span>
           )}
-          {dateStr && <span className="w-px h-3 bg-[--color-ink-700]" />}
+          {dateStr && <span className="w-px h-3 bg-[--color-night-700]" />}
           <span className="flex items-center gap-1.5 truncate">
-            <MapPin className="w-3 h-3" strokeWidth={2} />
+            <MapPin className="w-3 h-3 text-[--color-cyan-400]" strokeWidth={2} />
             <span className="truncate">{card.location.city}</span>
           </span>
         </div>
 
-        {/* Editorial title */}
-        <h3 className="headline text-[--color-bone-50] text-xl leading-[1.1] line-clamp-2
-                       transition-colors duration-300 group-hover:text-[--color-amber-400]">
+        {/* Headline title — Bricolage display */}
+        <h3 className="headline text-[--color-mist-50] text-[20px] line-clamp-2
+                       transition-colors duration-300 group-hover:text-[--color-coral-300]">
           {card.title}
         </h3>
 
         {/* Description */}
-        <p className="text-[13px] leading-relaxed text-[--color-bone-400] line-clamp-2 flex-1">
+        <p className="text-[13px] leading-relaxed text-[--color-mist-300] line-clamp-2 flex-1">
           {card.description}
         </p>
 
-        {/* Footer — participants */}
-        <div className="space-y-2 pt-2 border-t border-[--color-ink-800]">
-          <div className="flex items-center justify-between text-[11px] font-mono">
+        {/* Footer */}
+        <div className="space-y-2 pt-3 border-t border-white/[0.04]">
+          <div className="flex items-center justify-between text-[11px]">
             <span className={cn(
-              'flex items-center gap-1.5 tracking-[0.1em]',
-              hasMinimum ? 'text-[--color-emerald-400]' : 'text-[--color-bone-400]'
+              'flex items-center gap-1.5 font-mono',
+              hasMinimum ? 'text-[--color-emerald-400]' : 'text-[--color-mist-300]'
             )}>
               <Users className="w-3 h-3" strokeWidth={2} />
-              <span className="tabular-nums">{card.currentParticipants}/{card.maxParticipants}</span>
+              <span className="tabular-nums font-semibold">{card.currentParticipants}/{card.maxParticipants}</span>
             </span>
             {!hasMinimum && neededForMin > 0 && (
-              <span className="text-[--color-amber-400] tracking-[0.08em]">
+              <span className="font-mono text-[--color-amber-400]">
                 {t('needMore', { count: neededForMin })}
-              </span>
-            )}
-            {hasMinimum && !isFull && (
-              <span className="text-[--color-bone-400] tracking-[0.18em] uppercase
-                               opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {t('viewDetails')} →
               </span>
             )}
           </div>

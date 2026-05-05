@@ -5,7 +5,7 @@ import { TravelCard } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar, FilterType } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from 'lucide-react'
+import { Search, MapPin, Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon, Sparkles } from 'lucide-react'
 import { CardSkeletonGrid } from './ui/CardSkeleton'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -124,65 +124,71 @@ export function ExplorePage() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Editorial Hero ── */}
-      <div className="relative overflow-hidden pt-28 sm:pt-32 pb-16 px-4 sm:px-8">
-        {/* decorative number marker */}
-        <div className="absolute top-24 end-8 hidden md:block font-mono text-[--color-ink-700] text-[11px] tracking-[0.3em]">
-          № 001 — EXPLORE
-        </div>
-
-        <div className="relative max-w-5xl mx-auto">
+      {/* ── Hero ── */}
+      <section className="relative pt-32 pb-20 px-4 sm:px-8">
+        <div className="relative max-w-6xl mx-auto">
+          {/* Live badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 mb-7 rounded-full
+                       bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                       text-[11px] font-mono text-[--color-mist-200] tracking-wide"
+          >
+            <span className="live-dot" />
+            <span><span className="text-[--color-emerald-400] font-semibold">{cards.length}</span> active adventures</span>
+            <span className="text-[--color-mist-500]">·</span>
+            <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
+            <span>fresh today</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-7"
+            className="space-y-6 max-w-4xl"
           >
-            <div className="flex items-center gap-3">
-              <span className="w-8 h-px bg-[--color-amber-400]" />
-              <span className="eyebrow text-[--color-amber-400]">issue · {new Date().getFullYear()}</span>
-            </div>
-
-            <h1 className="headline text-[--color-bone-50] text-5xl sm:text-7xl md:text-8xl
-                           max-w-4xl">
-              {t('title')}
+            <h1 className="headline-xl text-[--color-mist-50] text-6xl sm:text-7xl md:text-8xl">
+              {t('title').split(' ').slice(0, -1).join(' ')}{' '}
+              <span className="text-gradient">{t('title').split(' ').slice(-1)[0]}</span>
             </h1>
 
-            <p className="text-[--color-bone-200] text-base sm:text-lg max-w-xl leading-relaxed">
+            <p className="text-[--color-mist-300] text-lg sm:text-xl max-w-2xl leading-relaxed">
               {t('subtitle')}
             </p>
           </motion.div>
 
-          {/* Search row */}
+          {/* Search bar */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.18, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
             className="mt-10 flex gap-2.5 max-w-2xl"
           >
             <div className="flex-1 relative group">
-              <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+              <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('searchPlaceholder')}
-                className="w-full ps-11 pe-4 py-3.5 bg-[--color-ink-900] border border-[rgba(255,255,255,.06)] rounded-sm
-                           text-[--color-bone-50] text-sm
-                           placeholder:text-[--color-bone-600]
-                           focus:outline-none focus:border-[--color-amber-400]/40 focus:bg-[--color-ink-850]
+                className="w-full ps-11 pe-4 py-4 rounded-xl
+                           bg-[--color-night-900]/70 backdrop-blur-md border border-white/[0.06]
+                           text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500]
+                           focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-[--color-night-800]
+                           focus:shadow-[0_0_28px_rgba(255,84,112,.18)]
                            transition-all duration-300"
               />
             </div>
             <button
               onClick={handleUseLocation}
               disabled={locating}
-              className={`flex items-center gap-2 px-4 py-3.5 rounded-sm transition-all
-                          font-mono text-[11px] tracking-[0.16em] uppercase whitespace-nowrap
-                          disabled:opacity-60 ${
+              className={`flex items-center gap-2 px-4 py-4 rounded-xl transition-all
+                          text-[12px] font-semibold whitespace-nowrap disabled:opacity-60 ${
                 userLocation
-                  ? 'bg-[--color-amber-400]/15 border border-[--color-amber-400]/40 text-[--color-amber-400]'
-                  : 'bg-[--color-ink-900] border border-[rgba(255,255,255,.06)] text-[--color-bone-400] hover:border-[rgba(255,255,255,.12)] hover:text-[--color-bone-50]'
+                  ? 'bg-gradient-to-r from-[--color-coral-500]/20 to-[--color-violet-500]/20 border border-[--color-coral-500]/40 text-[--color-coral-300] shadow-[0_0_20px_rgba(255,84,112,.18)]'
+                  : 'bg-[--color-night-900]/70 backdrop-blur-md border border-white/[0.06] text-[--color-mist-200] hover:border-white/[0.14] hover:text-[--color-mist-50]'
               }`}
             >
               <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2} />
@@ -192,13 +198,10 @@ export function ExplorePage() {
             </button>
           </motion.div>
         </div>
-
-        {/* bottom horizontal rule */}
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[--color-ink-700] to-transparent" />
-      </div>
+      </section>
 
       {/* ── Filters + content ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 pb-20 pt-10 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 pb-24 space-y-7">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -220,21 +223,17 @@ export function ExplorePage() {
         ) : (
           <>
             {/* Count + view toggle */}
-            <div className="flex items-end justify-between gap-4 pb-4 border-b border-[--color-ink-800]">
-              <div>
-                <div className="eyebrow mb-1">{filter === 'all' ? 'All experiences' : filter}</div>
-                <div className="font-mono text-[11px] tracking-[0.14em] uppercase text-[--color-bone-400] tabular-nums">
-                  {t('cardsFound', { count: filtered.length })}
-                </div>
+            <div className="flex items-end justify-between gap-4 pt-2">
+              <div className="text-[12px] font-mono text-[--color-mist-300] tabular-nums">
+                <span className="text-[--color-coral-400] font-semibold">{filtered.length}</span> {filtered.length === 1 ? 'experience' : 'experiences'} found
               </div>
-              <div className="flex items-center gap-0.5 p-0.5 rounded-sm border border-[rgba(255,255,255,.06)] bg-[--color-ink-900]">
+              <div className="glass flex items-center gap-0.5 p-1 rounded-full">
                 <button
                   onClick={() => setView('grid')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm transition-colors
-                              font-mono text-[10px] tracking-[0.18em] uppercase ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
                     view === 'grid'
-                      ? 'bg-[--color-amber-400] text-[--color-amber-ink]'
-                      : 'text-[--color-bone-400] hover:text-[--color-bone-50]'
+                      ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(255,84,112,.4)]'
+                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   }`}
                 >
                   <LayoutGrid className="w-3 h-3" strokeWidth={2.5} />
@@ -242,11 +241,10 @@ export function ExplorePage() {
                 </button>
                 <button
                   onClick={() => setView('map')}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm transition-colors
-                              font-mono text-[10px] tracking-[0.18em] uppercase ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-semibold ${
                     view === 'map'
-                      ? 'bg-[--color-amber-400] text-[--color-amber-ink]'
-                      : 'text-[--color-bone-400] hover:text-[--color-bone-50]'
+                      ? 'bg-gradient-to-r from-[--color-cyan-400] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(34,211,238,.4)]'
+                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   }`}
                 >
                   <MapIcon className="w-3 h-3" strokeWidth={2.5} />
@@ -283,12 +281,12 @@ export function ExplorePage() {
                     </motion.div>
 
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-1 pt-8">
+                      <div className="flex items-center justify-center gap-1.5 pt-8">
                         <button
                           onClick={() => setPage(p => Math.max(1, p - 1))}
                           disabled={page === 1}
-                          className="p-2 rounded-sm border border-[rgba(255,255,255,.06)]
-                                     text-[--color-bone-400] hover:text-[--color-amber-400] hover:border-[--color-amber-400]/30
+                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                                     text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
                                      disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -298,21 +296,21 @@ export function ExplorePage() {
                           <button
                             key={n}
                             onClick={() => setPage(n)}
-                            className={`w-9 h-9 rounded-sm font-mono text-[11px] tabular-nums tracking-[0.05em] transition-all ${
+                            className={`w-9 h-9 rounded-lg text-[12px] font-mono font-semibold tabular-nums transition-all ${
                               n === page
-                                ? 'bg-[--color-amber-400] text-[--color-amber-ink]'
-                                : 'border border-[rgba(255,255,255,.06)] text-[--color-bone-400] hover:text-[--color-bone-50] hover:border-[rgba(255,255,255,.16)]'
+                                ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_16px_rgba(255,84,112,.4)]'
+                                : 'border border-white/[0.06] bg-white/[0.02] text-[--color-mist-300] hover:text-[--color-mist-50] hover:border-white/[0.16]'
                             }`}
                           >
-                            {String(n).padStart(2, '0')}
+                            {n}
                           </button>
                         ))}
 
                         <button
                           onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                           disabled={page === totalPages}
-                          className="p-2 rounded-sm border border-[rgba(255,255,255,.06)]
-                                     text-[--color-bone-400] hover:text-[--color-amber-400] hover:border-[--color-amber-400]/30
+                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                                     text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
                                      disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -327,19 +325,16 @@ export function ExplorePage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center py-32 space-y-5"
                 >
-                  <div className="font-display text-7xl text-[--color-bone-600]">∅</div>
-                  <h3 className="font-display text-[--color-bone-50] text-2xl">{tEmpty('title')}</h3>
-                  <p className="text-[--color-bone-400] text-sm">{tEmpty('subtitle')}</p>
+                  <div className="text-7xl mb-4 float">🌍</div>
+                  <h3 className="font-display text-[--color-mist-50] text-3xl font-semibold">{tEmpty('title')}</h3>
+                  <p className="text-[--color-mist-300] text-base max-w-sm mx-auto">{tEmpty('subtitle')}</p>
                   <Link
                     href={`/${locale}/create`}
-                    className="inline-flex items-center gap-2 px-5 py-3 mt-2 rounded-sm
-                               font-mono text-[11px] tracking-[0.18em] uppercase font-semibold
-                               bg-[--color-amber-400] text-[--color-amber-ink]
-                               hover:bg-[--color-amber-500] transition-all
-                               shadow-[0_8px_28px_rgba(251,191,36,.2)]"
+                    className="btn-primary inline-flex items-center gap-2 px-6 py-3 mt-2 rounded-full
+                               text-[13px] font-semibold"
                   >
-                    <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-                    {tEmpty('cta')}
+                    <Plus className="w-4 h-4 relative z-[1]" strokeWidth={2.5} />
+                    <span className="relative z-[1]">{tEmpty('cta')}</span>
                   </Link>
                 </motion.div>
               )}

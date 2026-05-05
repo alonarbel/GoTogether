@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
-import { Geist, Geist_Mono, Fraunces, Heebo, Frank_Ruhl_Libre } from 'next/font/google'
+import { Geist, Geist_Mono, Fraunces, Heebo, Frank_Ruhl_Libre, Bricolage_Grotesque, JetBrains_Mono } from 'next/font/google'
 import '../globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthProvider } from '@/lib/auth-context'
@@ -35,6 +35,17 @@ const frankRuhl = Frank_Ruhl_Libre({
   variable: '--font-frank-ruhl',
   display: 'swap',
 })
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  variable: '--font-bricolage',
+  display: 'swap',
+  axes: ['opsz', 'wdth'],
+})
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'GoTogether — Find Your Travel Crew',
@@ -53,7 +64,7 @@ export default async function LocaleLayout({
   const messages = await getMessages()
   const isRTL = locale === 'he'
 
-  const fontVars = `${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${heebo.variable} ${frankRuhl.variable}`
+  const fontVars = `${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${heebo.variable} ${frankRuhl.variable} ${bricolage.variable} ${jetbrainsMono.variable}`
 
   return (
     <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className={`dark ${fontVars}`}>
