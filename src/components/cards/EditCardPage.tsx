@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { TravelCard, CardType, OrganizerRole } from '@/types'
 import { updateCard } from '@/lib/cards'
+import { geocodeAddress } from '@/lib/locationCoords'
 import { getCardTypeIcon, cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
@@ -73,6 +74,16 @@ export function EditCardPage({ card }: { card: TravelCard }) {
   const handleSave = async () => {
     setLoading(true)
     try {
+      // Re-geocode if location changed so the map pin moves to the new address
+      const locationChanged =
+        form.address !== card.location.address ||
+        form.city !== card.location.city ||
+        form.country !== card.location.country
+      let coords: [number, number] | null | undefined = undefined
+      if (locationChanged) {
+        coords = await geocodeAddress(form.address, form.city, form.country)
+      }
+
       const ok = await updateCard(card.id, {
         title: form.title,
         description: form.description,
@@ -81,6 +92,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         address: form.address,
         city: form.city,
         country: form.country,
+        ...(locationChanged && { lat: coords?.[0] ?? null, lng: coords?.[1] ?? null }),
         min_participants: form.min_participants,
         max_participants: form.max_participants,
         event_date: form.event_date || undefined,

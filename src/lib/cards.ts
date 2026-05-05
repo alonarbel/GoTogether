@@ -136,6 +136,7 @@ export async function createCard(data: {
 export async function updateCard(id: string, data: Partial<{
   title: string; description: string; type: string; organizer_role: string
   address: string; city: string; country: string
+  lat: number | null; lng: number | null
   min_participants: number; max_participants: number
   event_date: string; event_time: string; min_deadline: string
   contact_info: string; phone: string; whatsapp_link: string; telegram_link: string; tags: string[]
