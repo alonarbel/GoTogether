@@ -24,13 +24,13 @@ const PHOTO_POSITIONS: Array<{
   depth: number
   delay: number
 }> = [
-  { topPct: 8,  leftPct: 6,  rotate: -10, size: 168, depth: 0.55, delay: 0.10 },
-  { topPct: 18, leftPct: 82, rotate:  9,  size: 192, depth: 0.40, delay: 0.20 },
-  { topPct: 60, leftPct: 4,  rotate:  6,  size: 180, depth: 0.65, delay: 0.30 },
-  { topPct: 70, leftPct: 86, rotate: -8,  size: 156, depth: 0.50, delay: 0.40 },
-  { topPct: 38, leftPct: 90, rotate: -14, size: 132, depth: 0.30, delay: 0.50 },
-  { topPct: 80, leftPct: 38, rotate:  4,  size: 144, depth: 0.45, delay: 0.60 },
-  { topPct: 4,  leftPct: 46, rotate: -6,  size: 128, depth: 0.35, delay: 0.70 },
+  { topPct: 12, leftPct: 8,  rotate: -10, size: 260, depth: 0.55, delay: 0.10 },
+  { topPct: 20, leftPct: 86, rotate:  9,  size: 296, depth: 0.40, delay: 0.20 },
+  { topPct: 70, leftPct: 6,  rotate:  6,  size: 280, depth: 0.65, delay: 0.30 },
+  { topPct: 75, leftPct: 88, rotate: -8,  size: 240, depth: 0.50, delay: 0.40 },
+  { topPct: 42, leftPct: 94, rotate: -14, size: 208, depth: 0.30, delay: 0.50 },
+  { topPct: 88, leftPct: 42, rotate:  4,  size: 224, depth: 0.45, delay: 0.60 },
+  { topPct: 6,  leftPct: 50, rotate: -6,  size: 196, depth: 0.35, delay: 0.70 },
 ]
 
 interface PhotoTileProps {
@@ -166,18 +166,18 @@ export function HeroCinematic({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full
-                       bg-white/[0.10] border border-white/[0.18] backdrop-blur-md
-                       text-[13px] font-bold text-[--color-mist-100] shadow-[0_8px_32px_rgba(0,0,0,.25)]"
+                       bg-white/[0.05] border border-white/[0.10] backdrop-blur-md
+                       text-[13px] font-semibold text-[--color-mist-200]"
           >
             <span className="live-dot" />
             <span>
-              <span className="text-[--color-emerald-400] font-bold tabular-nums">
+              <span className="text-[--color-mist-50] font-bold tabular-nums">
                 <AnimatedCounter to={cards.length} />
               </span>{' '}
               active adventures
             </span>
             <span className="text-[--color-mist-400]">·</span>
-            <Sparkles className="w-3.5 h-3.5 text-[--color-amber-400] pulse-glow" strokeWidth={2.5} />
+            <Sparkles className="w-3.5 h-3.5 text-[--color-coral-400]" strokeWidth={2.25} />
             <span>fresh today</span>
           </motion.div>
 
@@ -227,8 +227,7 @@ export function HeroCinematic({
             }}
             className="mt-12 flex gap-3 max-w-2xl"
           >
-            <div className="flex-1 relative group">
-              <div className="absolute inset-0 rounded-2xl pointer-events-none search-aura" />
+            <div className="flex-1 relative">
               <Search
                 className="absolute start-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[--color-mist-300] pointer-events-none z-10"
                 strokeWidth={2.25}
@@ -238,22 +237,20 @@ export function HeroCinematic({
                 value={search}
                 onChange={e => onSearchChange(e.target.value)}
                 placeholder={t('searchPlaceholder')}
-                className="relative w-full ps-14 pe-5 py-5 rounded-2xl
-                           bg-white/[0.08] backdrop-blur-md border border-white/[0.18]
+                className="hero-search-input relative w-full ps-14 pe-5 py-5 rounded-2xl
+                           bg-white/[0.05] backdrop-blur-md border border-white/[0.10]
                            text-[--color-mist-50] text-[16px] font-semibold placeholder:text-[--color-mist-400] placeholder:font-medium
-                           focus:outline-none focus:border-[--color-coral-500]/70 focus:bg-white/[0.12]
-                           focus:shadow-[0_0_48px_rgba(255,84,112,.40)]
-                           transition-all duration-300"
+                           transition-colors duration-200"
               />
             </div>
             <button
               onClick={onUseLocation}
               disabled={locating}
-              className={`flex items-center gap-2 px-5 py-5 rounded-2xl transition-all
+              className={`flex items-center gap-2 px-5 py-5 rounded-2xl transition-colors
                           text-[14px] font-bold whitespace-nowrap disabled:opacity-60 ${
                 userLocation
-                  ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] border border-white/20 text-white shadow-[0_0_28px_rgba(255,84,112,.45)]'
-                  : 'bg-white/[0.08] backdrop-blur-md border border-white/[0.18] text-[--color-mist-100] hover:border-white/[0.28] hover:bg-white/[0.12]'
+                  ? 'bg-[--color-coral-500] border border-black/20 text-[--color-night-1000]'
+                  : 'bg-white/[0.05] backdrop-blur-md border border-white/[0.10] text-[--color-mist-100] hover:border-white/[0.18] hover:bg-white/[0.08]'
               }`}
             >
               <MapPin className={`w-5 h-5 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
