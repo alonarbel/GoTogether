@@ -1,12 +1,13 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { TravelCard } from '@/types'
 import { TravelCardComponent } from './cards/TravelCardComponent'
 import { FilterBar, FilterType } from './cards/FilterBar'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon, Sparkles } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from 'lucide-react'
 import { CardSkeletonGrid } from './ui/CardSkeleton'
+import { HeroCinematic } from './HeroCinematic'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { fetchCards } from '@/lib/cards'
@@ -33,6 +34,11 @@ export function ExplorePage() {
   const params = useParams()
   const locale = params.locale as string
   const { toast } = useToast()
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  const scrollToGrid = () => {
+    gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const handleUseLocation = () => {
     if (userLocation) {
@@ -124,85 +130,18 @@ export function ExplorePage() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero ── */}
-      <section className="relative pt-32 pb-24 px-4 sm:px-8">
-        <div className="relative max-w-6xl mx-auto">
-          {/* Live badge — brighter, bigger */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full
-                       bg-white/[0.08] border border-white/[0.16] backdrop-blur-md
-                       text-[13px] font-bold text-[--color-mist-100]"
-          >
-            <span className="live-dot" />
-            <span><span className="text-[--color-emerald-400] font-bold tabular-nums">{cards.length}</span> active adventures</span>
-            <span className="text-[--color-mist-400]">·</span>
-            <Sparkles className="w-3.5 h-3.5 text-[--color-amber-400] pulse-glow" strokeWidth={2.5} />
-            <span>fresh today</span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-6 max-w-4xl"
-          >
-            <h1 className="headline-xl text-[--color-mist-50] text-7xl sm:text-8xl md:text-9xl"
-                style={{ fontVariationSettings: "'wdth' 115" }}>
-              {t('title').split(' ').slice(0, -1).join(' ')}{' '}
-              <span className="text-gradient">{t('title').split(' ').slice(-1)[0]}</span>
-            </h1>
-
-            <p className="text-[--color-mist-200] text-xl sm:text-2xl max-w-2xl leading-relaxed font-medium">
-              {t('subtitle')}
-            </p>
-          </motion.div>
-
-          {/* Search bar — bigger, brighter */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-12 flex gap-3 max-w-2xl"
-          >
-            <div className="flex-1 relative group">
-              <Search className="absolute start-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[--color-mist-300] pointer-events-none" strokeWidth={2.25} />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                className="w-full ps-14 pe-5 py-5 rounded-2xl
-                           bg-white/[0.06] backdrop-blur-md border border-white/[0.14]
-                           text-[--color-mist-50] text-[16px] font-semibold placeholder:text-[--color-mist-400] placeholder:font-medium
-                           focus:outline-none focus:border-[--color-coral-500]/60 focus:bg-white/[0.10]
-                           focus:shadow-[0_0_36px_rgba(255,84,112,.30)]
-                           transition-all duration-300"
-              />
-            </div>
-            <button
-              onClick={handleUseLocation}
-              disabled={locating}
-              className={`flex items-center gap-2 px-5 py-5 rounded-2xl transition-all
-                          text-[14px] font-bold whitespace-nowrap disabled:opacity-60 ${
-                userLocation
-                  ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] border border-white/20 text-white shadow-[0_0_28px_rgba(255,84,112,.45)]'
-                  : 'bg-white/[0.06] backdrop-blur-md border border-white/[0.14] text-[--color-mist-100] hover:border-white/[0.24] hover:bg-white/[0.10]'
-              }`}
-            >
-              <MapPin className={`w-5 h-5 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
-              <span className="hidden sm:block">
-                {userLocation ? t('locationActive') : t('useLocation')}
-              </span>
-            </button>
-          </motion.div>
-        </div>
-      </section>
+      <HeroCinematic
+        cards={cards}
+        search={search}
+        onSearchChange={setSearch}
+        onUseLocation={handleUseLocation}
+        userLocation={userLocation}
+        locating={locating}
+        onScrollCue={scrollToGrid}
+      />
 
       {/* ── Filters + content ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 pb-24 space-y-7">
+      <div ref={gridRef} className="max-w-7xl mx-auto px-4 sm:px-8 pb-24 pt-12 space-y-7 scroll-mt-24">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
