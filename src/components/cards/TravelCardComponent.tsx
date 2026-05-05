@@ -20,7 +20,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
   const params = useParams()
   const locale = params.locale as string
   const lastDay = isLastDayForMinimum(card.minDeadline)
-  const { isFull, hasMinimum, neededForMin } = getParticipantStatus(
+  const { isFull, hasMinimum, neededForMin, spotsLeft } = getParticipantStatus(
     card.currentParticipants,
     card.minParticipants,
     card.maxParticipants
@@ -67,7 +67,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
           </div>
         ) : hasMinimum ? (
           <div className="absolute top-3 end-3 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-sm">
-            ✓ {t('spotsLeft')}
+            ✓ {t('spotsLeftCount', { count: spotsLeft })}
           </div>
         ) : null}
 

@@ -49,7 +49,7 @@ export function ExplorePage() {
     let result = cards.filter((card) => {
       const matchesFilter =
         filter === 'all' ? true :
-        filter === 'almost_full' ? (card.minParticipants - card.currentParticipants === 1) :
+        filter === 'almost_full' ? (card.maxParticipants - card.currentParticipants === 1) :
         card.type === filter
 
       const matchesSearch =
