@@ -4,7 +4,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Phone, ChevronDown, Compass, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -27,10 +27,12 @@ const COUNTRY_CODES = [
 ]
 
 const inputClass =
-  'w-full ps-10 pe-4 py-3 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm ' +
-  'text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600] ' +
-  'focus:outline-none focus:border-[--color-amber-400]/40 focus:bg-[--color-ink-800] ' +
-  'transition-all duration-200'
+  'w-full ps-11 pe-4 py-3 rounded-xl ' +
+  'bg-white/[0.03] border border-white/[0.08] ' +
+  'text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500] ' +
+  'focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-white/[0.05] ' +
+  'focus:shadow-[0_0_20px_rgba(255,84,112,.18)] ' +
+  'transition-all duration-300'
 
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login')
@@ -102,105 +104,123 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-5">
-      {/* ── Left: editorial side panel (desktop only) ── */}
-      <div className="hidden lg:flex lg:col-span-2 relative overflow-hidden bg-[--color-ink-900] border-e border-[rgba(255,255,255,.04)]">
-        {/* decorative ticket-stub edge */}
-        <div className="absolute end-0 inset-y-0 flex flex-col items-center justify-around w-px"
-             style={{ backgroundImage: 'repeating-linear-gradient(to bottom, rgba(255,255,255,.08) 0 6px, transparent 6px 12px)' }} />
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* ── Left: Vivid hero panel (desktop) ── */}
+      <div className="hidden lg:flex relative overflow-hidden">
+        {/* Layered gradient orbs */}
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full
+                        bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] blur-[120px] opacity-50" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full
+                        bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] blur-[120px] opacity-40" />
 
-        <div className="relative w-full p-12 xl:p-16 flex flex-col justify-between">
-          <div className="space-y-8">
-            <Link href={`/${locale}`}>
-              <div className="flex items-center gap-2.5 group cursor-pointer">
-                <div className="w-10 h-10 grid place-items-center
-                                rounded-sm border border-[--color-amber-400]/40 bg-[--color-amber-400]/5 corner-marks">
-                  <span className="font-display text-[--color-amber-400] text-base translate-y-[1px]">G</span>
-                </div>
-                <div className="leading-none">
-                  <div className="font-display text-[--color-bone-50] text-base tracking-tight">GoTogether</div>
-                  <div className="eyebrow mt-1 text-[8.5px]">find your crew</div>
-                </div>
-              </div>
-            </Link>
+        <div className="relative w-full p-12 xl:p-16 flex flex-col justify-between z-10">
+          <Link href={`/${locale}`} className="flex items-center gap-2.5 group w-fit">
+            <div className="w-10 h-10 grid place-items-center rounded-xl
+                            bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                            shadow-[0_0_20px_rgba(255,84,112,.4)]
+                            transition-transform duration-500 group-hover:rotate-[-8deg]">
+              <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
+            </div>
+            <div className="leading-none">
+              <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>
+              <div className="font-mono text-[9px] text-[--color-mist-400] tracking-[0.18em] uppercase mt-0.5">find your crew</div>
+            </div>
+          </Link>
 
-            <div className="space-y-5 mt-16">
-              <div className="eyebrow text-[--color-amber-400]">— №1 issue · vol. {new Date().getFullYear()}</div>
-              <h2 className="headline text-[--color-bone-50] text-5xl xl:text-6xl">
-                Travel<br />
-                <span className="text-[--color-amber-400]">together.</span>
-              </h2>
-              <p className="text-[--color-bone-200] text-base leading-relaxed max-w-sm">
-                Find your crew for the next adventure. Hike, eat, explore — but never alone.
-              </p>
+          <div className="space-y-7 max-w-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            text-[11px] font-mono text-[--color-mist-200] tracking-wide">
+              <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
+              <span>built for adventurers</span>
+            </div>
+
+            <h2 className="headline-xl text-[--color-mist-50] text-6xl xl:text-7xl">
+              Travel<br />
+              <span className="text-gradient">together.</span>
+            </h2>
+            <p className="text-[--color-mist-300] text-lg leading-relaxed max-w-sm">
+              Find your crew for the next trip. Hike, eat, ride — but never alone.
+            </p>
+
+            {/* feature dots */}
+            <div className="space-y-3 pt-4">
+              {[
+                { c: 'coral', l: 'Discover events near you' },
+                { c: 'violet', l: 'Join travelers worldwide' },
+                { c: 'cyan', l: 'Photos, reviews, real connections' },
+              ].map((f, i) => (
+                <div key={i} className="flex items-center gap-3 text-[13px] text-[--color-mist-200]">
+                  <span className={cn(
+                    'w-1.5 h-1.5 rounded-full',
+                    f.c === 'coral'  && 'bg-[--color-coral-500] shadow-[0_0_8px_rgba(255,84,112,.6)]',
+                    f.c === 'violet' && 'bg-[--color-violet-400] shadow-[0_0_8px_rgba(167,139,250,.6)]',
+                    f.c === 'cyan'   && 'bg-[--color-cyan-400] shadow-[0_0_8px_rgba(34,211,238,.6)]',
+                  )} />
+                  {f.l}
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="h-px bg-gradient-to-r from-[--color-ink-700] via-[--color-amber-400]/40 to-transparent" />
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[--color-bone-400]">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </div>
+          <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[--color-mist-400]">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
           </div>
         </div>
       </div>
 
       {/* ── Right: form ── */}
-      <div className="lg:col-span-3 flex items-center justify-center px-4 sm:px-8 py-16 sm:py-24">
+      <div className="flex items-center justify-center px-4 sm:px-12 py-16 sm:py-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-sm"
         >
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-10">
-            <div className="inline-flex items-center gap-2.5 mb-3">
-              <div className="w-10 h-10 grid place-items-center
-                              rounded-sm border border-[--color-amber-400]/40 bg-[--color-amber-400]/5 corner-marks">
-                <span className="font-display text-[--color-amber-400] text-base translate-y-[1px]">G</span>
+            <div className="inline-flex items-center gap-2.5">
+              <div className="w-10 h-10 grid place-items-center rounded-xl
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                              shadow-[0_0_20px_rgba(255,84,112,.4)]">
+                <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
-              <div className="font-display text-[--color-bone-50] text-base tracking-tight">GoTogether</div>
+              <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>
             </div>
           </div>
 
-          {/* Heading */}
           <div className="space-y-2 mb-8">
-            <div className="eyebrow text-[--color-amber-400]">— {mode === 'reset' ? 'recovery' : mode === 'login' ? 'sign in' : 'create account'}</div>
             <AnimatePresence mode="wait">
               <motion.h1
                 key={mode}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="headline text-[--color-bone-50] text-3xl"
+                className="headline text-[--color-mist-50] text-4xl"
               >
                 {mode === 'reset' ? t('resetPassword') : mode === 'login' ? t('welcomeBack') : t('joinCommunity')}
               </motion.h1>
             </AnimatePresence>
+            <p className="text-[--color-mist-400] text-[13px]">
+              {mode === 'reset' ? 'we will send you a magic link' : mode === 'login' ? 'sign in to continue your journey' : 'create your account in seconds'}
+            </p>
           </div>
 
-          {/* Tab switcher — login/register only */}
+          {/* Tabs */}
           {mode !== 'reset' && (
-            <div className="flex border-b border-[--color-ink-800] mb-6">
+            <div className="flex gap-1 p-1 mb-6 rounded-xl bg-white/[0.03] border border-white/[0.06]">
               {(['login', 'register'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError('') }}
                   className={cn(
-                    'flex-1 pb-3 -mb-px font-mono text-[11px] tracking-[0.18em] uppercase transition-colors relative',
+                    'flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all relative',
                     mode === m
-                      ? 'text-[--color-amber-400]'
-                      : 'text-[--color-bone-400] hover:text-[--color-bone-50]'
+                      ? 'bg-gradient-to-r from-[--color-coral-500] to-[--color-violet-500] text-white shadow-[0_0_18px_rgba(255,84,112,.32)]'
+                      : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   )}
                 >
                   {m === 'login' ? t('loginTab') : t('registerTab')}
-                  {mode === m && (
-                    <motion.div
-                      layoutId="auth-tab"
-                      className="absolute inset-x-0 bottom-0 h-px bg-[--color-amber-400]"
-                    />
-                  )}
                 </button>
               ))}
             </div>
@@ -214,13 +234,13 @@ export function AuthPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.22 }}
                   className="space-y-4 overflow-hidden"
                 >
                   <div className="space-y-1.5">
                     <label className="eyebrow">{t('fullNameLabel')}</label>
                     <div className="relative">
-                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                      <User className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
                       <input value={fullName} onChange={(e) => setFullName(e.target.value)}
                         placeholder={t('fullNamePlaceholder')} required className={inputClass} />
                     </div>
@@ -231,19 +251,19 @@ export function AuthPage() {
                     <div className="flex gap-2">
                       <div className="relative">
                         <select value={phoneCode} onChange={(e) => setPhoneCode(e.target.value)}
-                          className="appearance-none ps-3 pe-7 py-3 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
-                                     text-[--color-bone-50] text-[13px] font-mono focus:outline-none focus:border-[--color-amber-400]/40 cursor-pointer"
+                          className="appearance-none ps-3 pe-7 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                                     text-[--color-mist-50] text-[13px] font-mono focus:outline-none focus:border-[--color-coral-500]/50 cursor-pointer"
                           dir="ltr">
                           {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code} className="bg-[--color-ink-850]">
+                            <option key={c.code} value={c.code} className="bg-[--color-night-900]">
                               {c.flag} {c.code}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[--color-bone-400] pointer-events-none" />
+                        <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[--color-mist-400] pointer-events-none" />
                       </div>
                       <div className="relative flex-1">
-                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                        <Phone className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
                         <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
                           placeholder={t('phonePlaceholder')} required dir="ltr" className={inputClass} />
                       </div>
@@ -257,7 +277,7 @@ export function AuthPage() {
               <div className="space-y-1.5">
                 <label className="eyebrow">{t('emailLabel')}</label>
                 <div className="relative">
-                  <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('emailPlaceholder')} required dir="ltr" className={inputClass} />
                 </div>
@@ -268,14 +288,14 @@ export function AuthPage() {
               <div className="space-y-1.5">
                 <label className="eyebrow">{t('passwordLabel')}</label>
                 <div className="relative">
-                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
                   <input type={showPass ? 'text' : 'password'} value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t('passwordPlaceholder')} required minLength={6} dir="ltr"
-                    className={`${inputClass} pe-11`} />
+                    className={`${inputClass} pe-12`} />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-bone-400] hover:text-[--color-bone-50] transition-colors p-0.5">
-                    {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors">
+                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -289,7 +309,7 @@ export function AuthPage() {
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-3 rounded-sm bg-[--color-coral-500]/10 border border-[--color-coral-500]/20 text-[--color-coral-400] text-[12px] font-mono">
+                  <div className="p-3 rounded-xl bg-[--color-rose-500]/10 border border-[--color-rose-500]/20 text-[--color-rose-400] text-[13px]">
                     {error}
                   </div>
                 </motion.div>
@@ -299,8 +319,7 @@ export function AuthPage() {
             {mode === 'login' && (
               <div className="text-center">
                 <button type="button" onClick={() => { setMode('reset'); setError('') }}
-                  className="font-mono text-[10px] tracking-[0.16em] uppercase
-                             text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline">
+                  className="text-[12px] text-[--color-mist-400] hover:text-[--color-coral-400] transition-colors link-underline">
                   {t('forgotPassword')}
                 </button>
               </div>
@@ -310,14 +329,14 @@ export function AuthPage() {
               <div className="space-y-1.5">
                 <label className="eyebrow">סיסמה חדשה</label>
                 <div className="relative">
-                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[--color-bone-400] pointer-events-none" strokeWidth={2} />
+                  <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-400] pointer-events-none" strokeWidth={2} />
                   <input type={showPass ? 'text' : 'password'} value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
                     placeholder="לפחות 6 תווים" required minLength={6} dir="ltr"
-                    className={`${inputClass} pe-11`} />
+                    className={`${inputClass} pe-12`} />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-bone-400] hover:text-[--color-bone-50] transition-colors p-0.5">
-                    {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors">
+                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -325,14 +344,14 @@ export function AuthPage() {
 
             {passwordUpdated && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="p-4 rounded-sm bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[12px] font-mono text-center">
+                className="p-4 rounded-xl bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[13px] text-center font-medium">
                 ✓ הסיסמה עודכנה — מעביר אותך
               </motion.div>
             )}
 
             {mode === 'reset' && !isRecovery && resetSent && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="p-4 rounded-sm bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[12px] font-mono text-center">
+                className="p-4 rounded-xl bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400] text-[13px] text-center font-medium">
                 ✉ {t('resetSent')}
               </motion.div>
             )}
@@ -341,23 +360,20 @@ export function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 mt-2 rounded-sm
-                           font-mono text-[11px] tracking-[0.2em] uppercase font-semibold
-                           bg-[--color-amber-400] text-[--color-amber-ink]
-                           hover:bg-[--color-amber-500] active:scale-[0.99]
-                           transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)]
+                className="btn-primary w-full py-3.5 mt-2 rounded-xl text-[13px] font-semibold
                            disabled:opacity-50 disabled:cursor-not-allowed
                            flex items-center justify-center gap-2"
               >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
+                {loading && <Loader2 className="w-4 h-4 animate-spin relative z-[1]" />}
+                <span className="relative z-[1]">
+                  {mode === 'login' ? t('signInBtn') : mode === 'reset' ? t('resetBtn') : t('createAccountBtn')}
+                </span>
               </button>
             )}
 
             {mode === 'reset' && (
               <button type="button" onClick={() => { setMode('login'); setResetSent(false); setError('') }}
-                className="w-full text-center font-mono text-[10px] tracking-[0.16em] uppercase
-                           text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors">
+                className="w-full text-center text-[12px] text-[--color-mist-400] hover:text-[--color-coral-400] transition-colors">
                 ← {t('backToLogin')}
               </button>
             )}
