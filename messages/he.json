@@ -43,7 +43,7 @@
     "min": "מינימום",
     "max": "מקסימום",
     "spotsLeft": "מקומות פנויים",
-    "spotsLeftCount": "{count} מקומות פנויים",
+    "spotsLeftCount": "{count, plural, one {מקום פנוי אחד} other {# מקומות פנויים}}",
     "needMore": "נדרשים עוד {count}",
     "full": "מלא",
     "joinBtn": "הצטרף",

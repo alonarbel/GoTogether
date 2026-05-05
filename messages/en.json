@@ -43,7 +43,7 @@
     "min": "Minimum",
     "max": "Maximum",
     "spotsLeft": "Spots left",
-    "spotsLeftCount": "{count} spots left",
+    "spotsLeftCount": "{count, plural, one {# spot left} other {# spots left}}",
     "needMore": "{count} more needed",
     "full": "Full",
     "joinBtn": "Join",
