@@ -182,26 +182,38 @@ export function Navbar({ locale }: NavbarProps) {
               <div className="px-3.5 py-2 border-b border-white/[0.06] eyebrow">
                 {t('searchUsers')}
               </div>
-              {searchResults.map((r, i) => (
-                <button
-                  key={r.id}
-                  onClick={() => handleSelectProfile(r.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 transition-all text-start ${
-                    i === selectedIndex
-                      ? 'bg-gradient-to-r from-[--color-coral-500]/12 to-[--color-violet-500]/8 text-[--color-coral-300]'
-                      : 'hover:bg-white/[0.04]'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono shrink-0
-                                  bg-gradient-to-br from-[--color-violet-500]/20 to-[--color-cyan-400]/20
-                                  text-[--color-mist-100] border border-white/[0.06]">
-                    {r.avatar_url
-                      ? <img src={r.avatar_url} alt={r.full_name} className="w-full h-full object-cover" />
-                      : r.full_name[0]?.toUpperCase()}
-                  </div>
-                  <span className="text-[13px] text-[--color-mist-50] truncate">{r.full_name}</span>
-                </button>
-              ))}
+              {searchResults.map((r, i) => {
+                const active = i === selectedIndex
+                return (
+                  <button
+                    key={r.id}
+                    onClick={() => handleSelectProfile(r.id)}
+                    onMouseEnter={() => setSelectedIndex(i)}
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 transition-colors text-start relative"
+                    style={{
+                      backgroundColor: active ? 'rgba(34,211,238,0.10)' : 'transparent',
+                    }}
+                  >
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute inset-y-1 start-0 w-[3px] rounded-full"
+                        style={{ background: 'linear-gradient(180deg, #22d3ee, #a78bfa)' }}
+                      />
+                    )}
+                    <div className="w-8 h-8 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono shrink-0
+                                    text-[--color-mist-100] border border-white/[0.06]"
+                         style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.20), rgba(34,211,238,0.20))' }}>
+                      {r.avatar_url
+                        ? <img src={r.avatar_url} alt={r.full_name} className="w-full h-full object-cover" />
+                        : r.full_name[0]?.toUpperCase()}
+                    </div>
+                    <span className={`text-[13px] truncate ${active ? 'text-[--color-coral-300] font-semibold' : 'text-[--color-mist-50]'}`}>
+                      {r.full_name}
+                    </span>
+                  </button>
+                )
+              })}
             </motion.div>
           )}
         </AnimatePresence>
