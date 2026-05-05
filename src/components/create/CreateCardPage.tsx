@@ -36,6 +36,11 @@ interface FormData {
 const cardTypes: CardType[] = ['trip', 'attraction', 'workshop', 'sport', 'food', 'other']
 const organizerRoles: OrganizerRole[] = ['traveler', 'guide', 'coach', 'driver', 'organizer']
 
+const inputClass =
+  'w-full px-3.5 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm ' +
+  'text-[--color-bone-50] text-[13px] placeholder:text-[--color-bone-600] ' +
+  'focus:outline-none focus:border-[--color-amber-400]/40 transition-all'
+
 export function CreateCardPage() {
   const t = useTranslations('create')
   const tFilters = useTranslations('filters')
@@ -71,8 +76,6 @@ export function CreateCardPage() {
     if (!user) return
     setLoading(true)
     try {
-      // Auto-geocode the address via Nominatim so the card shows up on the map
-      // and in distance-based sorting. Fails silently — card still saves without coords.
       const coords = await geocodeAddress(form.address, form.city, form.country)
       const result = await createCard({
         userId: user.id,
@@ -98,7 +101,6 @@ export function CreateCardPage() {
       })
       if (!result) throw new Error('Failed to create card')
 
-      // Upload images if any
       if (imageFiles.length > 0) {
         await Promise.all(imageFiles.map(async (file, i) => {
           const ext = file.name.split('.').pop()
@@ -130,16 +132,17 @@ export function CreateCardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4 max-w-sm">
-          <div className="text-5xl">🔒</div>
-          <h2 className="text-xl font-bold text-white">{t('loginRequired')}</h2>
-          <Link
-            href={`/${locale}/auth`}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-medium"
-          >
-            <LogIn className="w-4 h-4" />
-            כניסה / הרשמה
+      <div className="min-h-screen grid place-items-center px-4">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-5 max-w-sm">
+          <div className="font-display text-7xl text-[--color-bone-600]">⛓</div>
+          <h2 className="font-display text-[--color-bone-50] text-2xl">{t('loginRequired')}</h2>
+          <Link href={`/${locale}/auth`}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-sm
+                       font-mono text-[11px] tracking-[0.18em] uppercase font-semibold
+                       bg-[--color-amber-400] text-[--color-amber-ink] hover:bg-[--color-amber-500]
+                       transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)]">
+            <LogIn className="w-3.5 h-3.5" strokeWidth={2.5} /> sign in / register
           </Link>
         </motion.div>
       </div>
@@ -148,213 +151,220 @@ export function CreateCardPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center space-y-4">
+      <div className="min-h-screen grid place-items-center px-4">
+        <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          className="text-center space-y-5">
           <motion.div
-            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.2 }}
-            className="w-20 h-20 rounded-full bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mx-auto"
-          >
-            <CheckCircle2 className="w-10 h-10 text-teal-400" />
+            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.15 }}
+            className="w-20 h-20 mx-auto rounded-full grid place-items-center
+                       bg-[--color-amber-400]/10 border border-[--color-amber-400]/30 corner-marks">
+            <CheckCircle2 className="w-9 h-9 text-[--color-amber-400]" strokeWidth={1.6} />
           </motion.div>
-          <h2 className="text-2xl font-bold text-white">{t('success')}</h2>
-          <p className="text-gray-400">Redirecting...</p>
+          <h2 className="font-display text-[--color-bone-50] text-3xl">{t('success')}</h2>
+          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[--color-bone-400]">redirecting…</p>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-28 pb-20 px-4">
       <div className="max-w-2xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-white">{t('title')}</h1>
-          <p className="text-gray-400 mt-2">{t('subtitle')}</p>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-12 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-px bg-[--color-amber-400]" />
+            <span className="eyebrow text-[--color-amber-400]">— new dispatch · step {step}/{TOTAL_STEPS}</span>
+          </div>
+          <h1 className="headline text-[--color-bone-50] text-4xl sm:text-5xl">{t('title')}</h1>
+          <p className="text-[--color-bone-400] text-sm">{t('subtitle')}</p>
         </motion.div>
 
         {/* Step indicator */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-12 gap-1">
           {stepLabels.map((label, i) => {
             const num = i + 1
             const isDone = num < step
             const isActive = num === step
             return (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                <div className="relative w-full flex items-center">
-                  {i > 0 && <div className={cn('flex-1 h-0.5 -me-2 transition-colors', isDone ? 'bg-teal-500' : 'bg-gray-800')} />}
-                  <button
-                    onClick={() => num < step && setStep(num)}
-                    className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all z-10 flex-shrink-0',
-                      isDone ? 'bg-teal-500 text-white cursor-pointer' :
-                      isActive ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30' :
-                      'bg-gray-800 text-gray-500'
-                    )}
-                  >
-                    {isDone ? <Check className="w-4 h-4" /> : num}
-                  </button>
-                  {i < TOTAL_STEPS - 1 && <div className={cn('flex-1 h-0.5 -ms-2 transition-colors', isDone ? 'bg-teal-500' : 'bg-gray-800')} />}
+              <div key={i} className="flex-1 flex flex-col items-stretch gap-2 min-w-0">
+                <button
+                  onClick={() => num < step && setStep(num)}
+                  disabled={num >= step}
+                  className={cn(
+                    'h-1 rounded-full transition-colors',
+                    isActive ? 'bg-[--color-amber-400]' :
+                    isDone   ? 'bg-[--color-amber-400]/40 cursor-pointer' :
+                               'bg-[--color-ink-800]'
+                  )}
+                />
+                <div className={cn(
+                  'flex items-center gap-1.5 font-mono text-[10px] tracking-[0.14em] uppercase truncate',
+                  isActive ? 'text-[--color-amber-400]' : isDone ? 'text-[--color-bone-200]' : 'text-[--color-bone-600]'
+                )}>
+                  <span className="tabular-nums">{String(num).padStart(2, '0')}</span>
+                  {isDone && <Check className="w-3 h-3" strokeWidth={2.5} />}
+                  <span className="hidden sm:inline truncate">{label}</span>
                 </div>
-                <span className={cn('text-xs hidden sm:block transition-colors', isActive ? 'text-teal-400' : 'text-gray-600')}>{label}</span>
               </div>
             )
           })}
         </div>
 
-        <motion.div className="bg-gray-900 rounded-2xl border border-white/5 p-6 sm:p-8">
+        {/* Form panel */}
+        <motion.div className="border border-[rgba(255,255,255,.06)] rounded-sm p-6 sm:p-8 bg-[--color-ink-900] corner-marks">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
               className="space-y-5"
             >
               {step === 1 && (
                 <>
-                  {/* Organizer role toggle */}
+                  {/* Organizer role */}
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-400">{t('organizerRoleLabel')}</label>
+                    <label className="eyebrow">{t('organizerRoleLabel')}</label>
                     <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => set('organizerRole', 'traveler')}
-                        className={cn('p-3 rounded-xl border text-sm transition-all text-start',
-                          form.organizerRole === 'traveler' ? 'border-teal-500/50 bg-teal-500/10 text-teal-300' : 'border-white/10 bg-gray-800 text-gray-400 hover:border-white/20'
-                        )}
-                      >
+                      <button onClick={() => set('organizerRole', 'traveler')}
+                        className={cn('p-3 rounded-sm border text-[12px] transition-all text-start',
+                          form.organizerRole === 'traveler'
+                            ? 'border-[--color-amber-400]/50 bg-[--color-amber-400]/5 text-[--color-amber-400]'
+                            : 'border-[--color-ink-700] text-[--color-bone-400] hover:border-[--color-ink-600]'
+                        )}>
                         🧳 {t('iAmTraveler')}
                       </button>
-                      <button
-                        onClick={() => set('organizerRole', 'guide')}
-                        className={cn('p-3 rounded-xl border text-sm transition-all text-start',
-                          form.organizerRole !== 'traveler' ? 'border-purple-500/50 bg-purple-500/10 text-purple-300' : 'border-white/10 bg-gray-800 text-gray-400 hover:border-white/20'
-                        )}
-                      >
+                      <button onClick={() => set('organizerRole', 'guide')}
+                        className={cn('p-3 rounded-sm border text-[12px] transition-all text-start',
+                          form.organizerRole !== 'traveler'
+                            ? 'border-[--color-amber-400]/50 bg-[--color-amber-400]/5 text-[--color-amber-400]'
+                            : 'border-[--color-ink-700] text-[--color-bone-400] hover:border-[--color-ink-600]'
+                        )}>
                         🎯 {t('iAmOrganizer')}
                       </button>
                     </div>
                     {form.organizerRole !== 'traveler' && (
-                      <div className="grid grid-cols-4 gap-2 mt-2">
+                      <div className="grid grid-cols-4 gap-1.5 mt-2">
                         {organizerRoles.filter(r => r !== 'traveler').map(role => (
-                          <button
-                            key={role}
-                            onClick={() => set('organizerRole', role)}
-                            className={cn('py-2 rounded-lg border text-xs transition-all',
-                              form.organizerRole === role ? 'border-purple-500/50 bg-purple-500/10 text-purple-300' : 'border-white/10 bg-gray-800 text-gray-400'
-                            )}
-                          >
+                          <button key={role} onClick={() => set('organizerRole', role)}
+                            className={cn('py-2 rounded-sm border font-mono text-[10px] tracking-[0.14em] uppercase transition-all',
+                              form.organizerRole === role
+                                ? 'border-[--color-amber-400]/50 bg-[--color-amber-400]/10 text-[--color-amber-400]'
+                                : 'border-[--color-ink-700] text-[--color-bone-400]'
+                            )}>
                             {tRoles(role)}
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  {/* Title */}
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('titleLabel')}</label>
-                    <input value={form.title} onChange={e => set('title', e.target.value)} placeholder={t('titlePlaceholder')}
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all" />
-                  </div>
-                  {/* Description */}
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('descLabel')}</label>
-                    <textarea value={form.description} onChange={e => set('description', e.target.value)} placeholder={t('descPlaceholder')} rows={4}
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all resize-none" />
-                  </div>
-                  {/* Type */}
+
+                  <Field label={t('titleLabel')}>
+                    <input value={form.title} onChange={e => set('title', e.target.value)}
+                      placeholder={t('titlePlaceholder')} className={inputClass} />
+                  </Field>
+
+                  <Field label={t('descLabel')}>
+                    <textarea value={form.description} onChange={e => set('description', e.target.value)}
+                      placeholder={t('descPlaceholder')} rows={4}
+                      className={`${inputClass} resize-none`} />
+                  </Field>
+
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-400">{t('typeLabel')}</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <label className="eyebrow">{t('typeLabel')}</label>
+                    <div className="grid grid-cols-3 gap-1.5">
                       {cardTypes.map(type => (
                         <button key={type} onClick={() => set('type', type)}
-                          className={cn('p-3 rounded-xl border text-sm transition-all flex flex-col items-center gap-1',
-                            form.type === type ? 'border-teal-500/50 bg-teal-500/10 text-teal-300' : 'border-white/10 bg-gray-800 text-gray-400 hover:border-white/20'
-                          )}
-                        >
+                          className={cn('p-3 rounded-sm border transition-all flex flex-col items-center gap-1',
+                            form.type === type
+                              ? 'border-[--color-amber-400]/50 bg-[--color-amber-400]/5'
+                              : 'border-[--color-ink-700] hover:border-[--color-ink-600]'
+                          )}>
                           <span className="text-xl">{getCardTypeIcon(type)}</span>
-                          <span>{tFilters(type)}</span>
+                          <span className={cn('font-mono text-[10px] tracking-[0.12em] uppercase',
+                            form.type === type ? 'text-[--color-amber-400]' : 'text-[--color-bone-400]'
+                          )}>{tFilters(type)}</span>
                         </button>
                       ))}
                     </div>
                   </div>
-                  {/* Tags */}
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">תגיות (מופרדות בפסיק)</label>
-                    <input value={form.tags} onChange={e => set('tags', e.target.value)} placeholder="hiking, sunrise, adventure"
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all" />
-                  </div>
+
+                  <Field label="תגיות (מופרדות בפסיק)">
+                    <input value={form.tags} onChange={e => set('tags', e.target.value)}
+                      placeholder="hiking, sunrise, adventure" className={inputClass} />
+                  </Field>
                 </>
               )}
 
               {step === 2 && (
                 <>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('addressLabel')}</label>
-                    <input value={form.address} onChange={e => set('address', e.target.value)} placeholder={t('addressPlaceholder')}
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all" />
+                  <Field label={t('addressLabel')}>
+                    <input value={form.address} onChange={e => set('address', e.target.value)}
+                      placeholder={t('addressPlaceholder')} className={inputClass} />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label={t('cityLabel')}>
+                      <input value={form.city} onChange={e => set('city', e.target.value)} className={inputClass} />
+                    </Field>
+                    <Field label={t('countryLabel')}>
+                      <input value={form.country} onChange={e => set('country', e.target.value)} className={inputClass} />
+                    </Field>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('cityLabel')}</label>
-                      <input value={form.city} onChange={e => set('city', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('countryLabel')}</label>
-                      <input value={form.country} onChange={e => set('country', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
-                  </div>
-                  <div className="h-48 rounded-xl bg-gray-800 border border-white/5 flex items-center justify-center text-gray-600 text-sm">
-                    🗺️ Map picker — coming soon
+                  <div className="h-40 rounded-sm border border-dashed border-[--color-ink-700] grid place-items-center
+                                  font-mono text-[10px] tracking-[0.18em] uppercase text-[--color-bone-600]">
+                    🗺 map picker — coming soon
                   </div>
                 </>
               )}
 
               {step === 3 && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('minLabel')}</label>
-                      <input type="number" value={form.minParticipants} onChange={e => set('minParticipants', Number(e.target.value))} min={2}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('maxLabel')}</label>
-                      <input type="number" value={form.maxParticipants} onChange={e => set('maxParticipants', Number(e.target.value))} min={form.minParticipants}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label={t('minLabel')}>
+                      <input type="number" min={2} value={form.minParticipants}
+                        onChange={e => set('minParticipants', Number(e.target.value))}
+                        className={inputClass} />
+                    </Field>
+                    <Field label={t('maxLabel')}>
+                      <input type="number" min={form.minParticipants} value={form.maxParticipants}
+                        onChange={e => set('maxParticipants', Number(e.target.value))}
+                        className={inputClass} />
+                    </Field>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('eventDateLabel')}</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label={t('eventDateLabel')}>
                       <input type="date" value={form.eventDate} onChange={e => set('eventDate', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-sm text-gray-400">{t('eventTimeLabel')}</label>
+                        className={inputClass} style={{ colorScheme: 'dark' }} />
+                    </Field>
+                    <Field label={t('eventTimeLabel')}>
                       <input type="time" value={form.eventTime} onChange={e => set('eventTime', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                    </div>
+                        className={inputClass} style={{ colorScheme: 'dark' }} />
+                    </Field>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('minDeadlineLabel')}</label>
+                  <Field label={t('minDeadlineLabel')}>
                     <input type="date" value={form.minDeadline} onChange={e => set('minDeadline', e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 transition-all" />
-                  </div>
+                      className={inputClass} style={{ colorScheme: 'dark' }} />
+                  </Field>
+
                   {/* Preview */}
-                  <div className="bg-gray-800 rounded-xl p-4 space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Preview</span>
-                      <span className="text-teal-400">0 / {form.maxParticipants}</span>
+                  <div className="rounded-sm border border-[--color-ink-700] p-4 space-y-3 bg-[--color-ink-850]">
+                    <div className="flex justify-between items-center">
+                      <span className="eyebrow">— preview</span>
+                      <span className="font-mono text-[11px] text-[--color-bone-400] tabular-nums">
+                        00 / {String(form.maxParticipants).padStart(2, '0')}
+                      </span>
                     </div>
-                    <div className="relative h-3 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="absolute top-0 bottom-0 w-0.5 bg-amber-500"
-                        style={{ left: `${(form.minParticipants / form.maxParticipants) * 100}%` }} />
+                    <div className="relative h-1 bg-[--color-ink-800] rounded-full overflow-visible">
+                      <div className="absolute top-1/2 -translate-y-1/2 w-px h-2.5 bg-[--color-amber-400]"
+                        style={{ insetInlineStart: `${(form.minParticipants / form.maxParticipants) * 100}%` }} />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span className="text-amber-500">min: {form.minParticipants}</span>
-                      <span className="text-teal-500">max: {form.maxParticipants}</span>
+                    <div className="flex justify-between font-mono text-[10px] tracking-[0.14em] uppercase">
+                      <span className="text-[--color-amber-400]">min · {form.minParticipants}</span>
+                      <span className="text-[--color-bone-400]">max · {form.maxParticipants}</span>
                     </div>
                   </div>
                 </>
@@ -362,119 +372,118 @@ export function CreateCardPage() {
 
               {step === 4 && (
                 <>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('contactLabel')}</label>
-                    <input value={form.contactInfo} onChange={e => set('contactInfo', e.target.value)} placeholder={user?.email || ''}
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-teal-500/50 transition-all" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400">{t('phoneLabel')}</label>
+                  <Field label={t('contactLabel')}>
+                    <input value={form.contactInfo} onChange={e => set('contactInfo', e.target.value)}
+                      placeholder={user?.email || ''} className={inputClass} />
+                  </Field>
+                  <Field label={t('phoneLabel')}>
                     <div className="flex gap-2">
                       <select value={form.phoneCode} onChange={e => set('phoneCode', e.target.value)}
-                        className="px-3 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-teal-500/50 text-sm">
+                        className="px-2.5 py-2.5 bg-[--color-ink-850] border border-[rgba(255,255,255,.06)] rounded-sm
+                                   text-[--color-bone-50] text-[12px] font-mono focus:outline-none focus:border-[--color-amber-400]/40">
                         {COUNTRY_CODES.map(c => (
-                          <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                          <option key={c.code} value={c.code} className="bg-[--color-ink-850]">{c.flag} {c.code}</option>
                         ))}
                       </select>
-                      <input value={form.phoneNumber} onChange={e => set('phoneNumber', e.target.value)} placeholder="050-000-0000"
-                        className="flex-1 px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-teal-500/50 transition-all" />
+                      <input value={form.phoneNumber} onChange={e => set('phoneNumber', e.target.value)}
+                        placeholder="050-000-0000" className={`${inputClass} flex-1`} />
                     </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400 flex items-center gap-2"><span className="text-green-400">💬</span> {t('whatsappLabel')}</label>
-                    <input value={form.whatsappLink} onChange={e => set('whatsappLink', e.target.value)} placeholder="https://chat.whatsapp.com/..."
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-green-500/50 transition-all" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm text-gray-400 flex items-center gap-2"><span className="text-blue-400">✈️</span> {t('telegramLabel')}</label>
-                    <input value={form.telegramLink} onChange={e => set('telegramLink', e.target.value)} placeholder="https://t.me/..."
-                      className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/50 transition-all" />
-                  </div>
+                  </Field>
+                  <Field label={`💬 ${t('whatsappLabel')}`}>
+                    <input value={form.whatsappLink} onChange={e => set('whatsappLink', e.target.value)}
+                      placeholder="https://chat.whatsapp.com/..." className={inputClass} />
+                  </Field>
+                  <Field label={`✈ ${t('telegramLabel')}`}>
+                    <input value={form.telegramLink} onChange={e => set('telegramLink', e.target.value)}
+                      placeholder="https://t.me/..." className={inputClass} />
+                  </Field>
                 </>
               )}
 
               {step === 5 && (
                 <div className="space-y-4">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
+                  <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
                     onChange={e => {
                       const files = Array.from(e.target.files || []).slice(0, 5)
                       setImageFiles(files)
                       setImagePreviews(files.map(f => URL.createObjectURL(f)))
-                    }}
-                  />
+                    }} />
                   {imagePreviews.length === 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-teal-500/30 transition-colors group"
-                    >
-                      <Upload className="w-10 h-10 text-gray-600 group-hover:text-teal-500 mx-auto mb-3 transition-colors" />
-                      <p className="text-gray-400 font-medium">{t('uploadImages')}</p>
-                      <p className="text-sm text-gray-600 mt-1">{t('uploadHint')}</p>
+                    <button type="button" onClick={() => fileInputRef.current?.click()}
+                      className="w-full border border-dashed border-[--color-ink-700] rounded-sm p-12 text-center
+                                 hover:border-[--color-amber-400]/40 transition-colors group">
+                      <Upload className="w-9 h-9 text-[--color-bone-600] group-hover:text-[--color-amber-400] mx-auto mb-3 transition-colors" strokeWidth={1.5} />
+                      <p className="font-display text-[--color-bone-200] text-base">{t('uploadImages')}</p>
+                      <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-[--color-bone-600] mt-2">{t('uploadHint')}</p>
                     </button>
                   ) : (
                     <div className="space-y-3">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {imagePreviews.map((src, i) => (
-                          <div key={i} className="relative aspect-video rounded-xl overflow-hidden group">
+                          <div key={i} className="relative aspect-video rounded-sm overflow-hidden group">
                             <img src={src} alt="" className="w-full h-full object-cover" />
-                            <button
-                              type="button"
+                            <button type="button"
                               onClick={() => {
                                 setImageFiles(f => f.filter((_, j) => j !== i))
                                 setImagePreviews(p => p.filter((_, j) => j !== i))
                               }}
-                              className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            >✕</button>
+                              className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-[--color-ink-950]/80 text-[--color-bone-50]
+                                         text-xs grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
                           </div>
                         ))}
                         {imagePreviews.length < 5 && (
-                          <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="aspect-video rounded-xl border-2 border-dashed border-white/10 hover:border-teal-500/30 flex items-center justify-center transition-colors"
-                          >
-                            <Upload className="w-6 h-6 text-gray-600" />
+                          <button type="button" onClick={() => fileInputRef.current?.click()}
+                            className="aspect-video rounded-sm border border-dashed border-[--color-ink-700]
+                                       hover:border-[--color-amber-400]/40 grid place-items-center transition-colors">
+                            <Upload className="w-5 h-5 text-[--color-bone-600]" strokeWidth={1.5} />
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 text-center">{imagePreviews.length}/5 תמונות</p>
+                      <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-[--color-bone-600] text-center tabular-nums">
+                        {imagePreviews.length}/5 images
+                      </p>
                     </div>
                   )}
-                  <p className="text-xs text-gray-600 text-center">ניתן לפרסם ללא תמונה</p>
+                  <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-[--color-bone-600] text-center">
+                    optional — you can publish without images
+                  </p>
                 </div>
               )}
             </motion.div>
           </AnimatePresence>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-white/5">
-            <button
-              onClick={() => step > 1 ? setStep(s => s - 1) : router.back()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm"
-            >
-              <ArrowLeft className="w-4 h-4" />
+          <div className="flex justify-between mt-8 pt-6 border-t border-[--color-ink-800]">
+            <button onClick={() => step > 1 ? setStep(s => s - 1) : router.back()}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-sm
+                         font-mono text-[11px] tracking-[0.18em] uppercase
+                         text-[--color-bone-400] hover:text-[--color-amber-400] transition-colors link-underline">
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
               {t('back')}
             </button>
             <button
               onClick={() => step < TOTAL_STEPS ? setStep(s => s + 1) : handleSubmit()}
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 
-                         text-white text-sm font-medium hover:from-teal-400 hover:to-cyan-400 transition-all 
-                         shadow-lg shadow-teal-500/25 disabled:opacity-50"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-sm
+                         font-mono text-[11px] tracking-[0.18em] uppercase font-semibold
+                         bg-[--color-amber-400] text-[--color-amber-ink] hover:bg-[--color-amber-500]
+                         transition-all shadow-[0_8px_28px_rgba(251,191,36,.18)] disabled:opacity-50">
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {step < TOTAL_STEPS ? t('next') : t('submit')}
-              {step < TOTAL_STEPS && <ArrowRight className="w-4 h-4" />}
+              {step < TOTAL_STEPS && <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />}
             </button>
           </div>
         </motion.div>
       </div>
+    </div>
+  )
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="eyebrow">{label}</label>
+      {children}
     </div>
   )
 }
