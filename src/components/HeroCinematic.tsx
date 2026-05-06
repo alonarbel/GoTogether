@@ -1,9 +1,17 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring, useTransform, animate, type MotionValue } from 'framer-motion'
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useScroll,
+  animate,
+  type MotionValue,
+} from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { Search, MapPin, ArrowRight, ArrowDown } from 'lucide-react'
+import { Search, MapPin, ArrowRight, ArrowDown, Compass, Sparkles } from 'lucide-react'
 import { TravelCard } from '@/types'
 
 interface HeroCinematicProps {
@@ -30,14 +38,12 @@ interface PhotoSpec {
   primary?: boolean
 }
 
-// One anchor photo + two supporting tiles. Anchored to the right column on desktop.
 const PHOTO_SPECS: PhotoSpec[] = [
-  // Primary anchor — large, slight tilt, right-center
-  { rightPct: 6,  topPct: 50, rotate:  4,   width: 380, ratio: 1.32, depth: 0.20, delay: 0.10, zIndex: 3, primary: true },
-  // Secondary upper-right
-  { rightPct: 26, topPct: 14, rotate: -7,   width: 200, ratio: 1.18, depth: 0.45, delay: 0.30, zIndex: 2 },
-  // Secondary lower-left of cluster
-  { rightPct: 28, topPct: 78, rotate:  9,   width: 180, ratio: 1.20, depth: 0.55, delay: 0.50, zIndex: 1 },
+  { rightPct: 4,  topPct: 46, rotate:  4,   width: 360, ratio: 1.30, depth: 0.20, delay: 0.10, zIndex: 4, primary: true },
+  { rightPct: 24, topPct: 12, rotate: -7,   width: 200, ratio: 1.18, depth: 0.45, delay: 0.30, zIndex: 3 },
+  { rightPct: 28, topPct: 80, rotate:  9,   width: 178, ratio: 1.20, depth: 0.55, delay: 0.50, zIndex: 2 },
+  { rightPct: 1,  topPct: 8,  rotate: -3,   width: 120, ratio: 1.30, depth: 0.62, delay: 0.65, zIndex: 1 },
+  { rightPct: 2,  topPct: 92, rotate:  6,   width: 140, ratio: 1.10, depth: 0.70, delay: 0.78, zIndex: 1 },
 ]
 
 interface PhotoTileProps {
@@ -53,9 +59,9 @@ function PhotoTile({ url, spec, smx, smy }: PhotoTileProps) {
   const height = spec.width * spec.ratio
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.92, y: 20, rotate: spec.rotate * 0.4 }}
+      initial={{ opacity: 0, scale: 0.92, y: 28, rotate: spec.rotate * 0.4 }}
       animate={{ opacity: 1, scale: 1, y: 0, rotate: spec.rotate }}
-      transition={{ delay: 0.95 + spec.delay, duration: 1.1, ease: EASE_ENTRY }}
+      transition={{ delay: 0.95 + spec.delay, duration: 1.15, ease: EASE_ENTRY }}
       style={{
         right: `${spec.rightPct}%`,
         top: `${spec.topPct}%`,
@@ -78,10 +84,11 @@ function PhotoTile({ url, spec, smx, smy }: PhotoTileProps) {
         <div
           className="w-full h-full"
           style={{
-            background: 'linear-gradient(135deg, rgba(242,167,143,0.55), rgba(224,191,182,0.55))',
+            background: 'linear-gradient(135deg, rgba(242,167,143,0.55), rgba(199,154,141,0.55))',
           }}
         />
       )}
+      {spec.primary && <span className="specular" />}
     </motion.div>
   )
 }
@@ -99,6 +106,55 @@ function AnimatedCounter({ to }: { to: number }) {
   return <span className="tabular-nums">{display}</span>
 }
 
+interface MagneticBtnProps {
+  children: React.ReactNode
+  onClick?: () => void
+  className?: string
+  primary?: boolean
+}
+
+function MagneticButton({ children, onClick, className, primary }: MagneticBtnProps) {
+  const ref = useRef<HTMLButtonElement>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useSpring(mx, { stiffness: 220, damping: 20, mass: 0.5 })
+  const sy = useSpring(my, { stiffness: 220, damping: 20, mass: 0.5 })
+
+  const handleMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const dx = e.clientX - (r.left + r.width / 2)
+    const dy = e.clientY - (r.top + r.height / 2)
+    const strength = primary ? 0.32 : 0.22
+    mx.set(dx * strength)
+    my.set(dy * strength)
+  }
+  const handleLeave = () => {
+    mx.set(0)
+    my.set(0)
+  }
+
+  return (
+    <motion.button
+      ref={ref}
+      onClick={onClick}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{ x: sx, y: sy }}
+      whileTap={{ scale: 0.97 }}
+      className={className}
+    >
+      {children}
+    </motion.button>
+  )
+}
+
+const TICKER_WORDS = [
+  'Lisbon', 'Tel Aviv', 'Tokyo', 'Reykjavík', 'Bali', 'Marrakesh', 'Patagonia',
+  'Kyoto', 'Cape Town', 'Seoul', 'Athens', 'Mexico City', 'Tbilisi', 'Lagos', 'Hanoi',
+]
+
 export function HeroCinematic({
   cards,
   search,
@@ -109,21 +165,38 @@ export function HeroCinematic({
   onScrollCue,
 }: HeroCinematicProps) {
   const t = useTranslations('hero')
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
 
   const photoUrls = useMemo(() => {
     const urls: string[] = []
+    const seen = new Set<string>()
     for (const c of cards) {
-      if (c.images?.[0]) urls.push(c.images[0])
+      const u = c.images?.[0]
+      if (u && !seen.has(u)) {
+        urls.push(u)
+        seen.add(u)
+      }
       if (urls.length >= PHOTO_SPECS.length) break
     }
     return urls
   }, [cards])
 
+  // Cursor parallax
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
   const smx = useSpring(mx, { stiffness: 50, damping: 20, mass: 0.6 })
   const smy = useSpring(my, { stiffness: 50, damping: 20, mass: 0.6 })
+
+  // Scroll-driven hero exit
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end start'],
+  })
+  const photoScrollY = useTransform(scrollYProgress, [0, 1], [0, -180])
+  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 1.18])
+  const photoBlur = useTransform(scrollYProgress, [0, 0.5, 1], ['blur(0px)', 'blur(2px)', 'blur(8px)'])
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -60])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   useEffect(() => {
     const el = containerRef.current
@@ -143,60 +216,89 @@ export function HeroCinematic({
 
   const titleWords = t('title').split(' ')
   const lastIdx = titleWords.length - 1
-  const subheadDelay = 0.30 + titleWords.length * 0.08 + 0.05
+  const subheadDelay = 0.30 + titleWords.length * 0.10 + 0.05
+
+  const cities = useMemo(() => {
+    const set = new Set<string>()
+    for (const c of cards) if (c.location?.city) set.add(c.location.city)
+    return Array.from(set).slice(0, 12)
+  }, [cards])
+  const tickerWords = cities.length >= 6 ? cities : TICKER_WORDS
 
   return (
     <section
       ref={containerRef}
       className="relative min-h-[100svh] overflow-hidden hero-cinematic flex items-center"
     >
-      {/* Mouse-tracking warm spotlight */}
+      {/* Layer 0 — aurora drift */}
+      <div className="hero-aurora" />
+
+      {/* Layer 0 — conic compass rings */}
+      <div className="hero-conic-faint hidden md:block" />
+      <div className="hero-conic hidden md:block" />
+
+      {/* Layer 1 — mouse spotlight */}
       <div className="hero-spotlight" />
 
-      {/* Photo collage — only on desktop, doesn't compete with content on mobile */}
-      <div className="absolute inset-0 pointer-events-none hidden lg:block">
+      {/* Layer 2 — photo wall (desktop) */}
+      <motion.div
+        style={{ y: photoScrollY, scale: photoScale, filter: photoBlur }}
+        className="absolute inset-0 pointer-events-none hidden lg:block z-[2] origin-center"
+      >
         {PHOTO_SPECS.map((spec, i) => (
-          <PhotoTile key={i} spec={spec} url={photoUrls[i]} smx={smx} smy={smy} />
+          <PhotoTile
+            key={i}
+            spec={spec}
+            url={photoUrls[i]}
+            smx={smx}
+            smy={smy}
+          />
         ))}
-      </div>
+      </motion.div>
 
-      {/* Soft fade-out vignette for legibility */}
+      {/* Layer 5 — vignette */}
       <div className="absolute inset-0 pointer-events-none hero-vignette" />
 
+      {/* Layer 6 — grain */}
+      <div className="hero-grain" />
+
       {/* Content */}
-      <div className="relative z-10 w-full px-5 sm:px-8 lg:px-12 py-24">
+      <motion.div
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative z-10 w-full px-5 sm:px-8 lg:px-12 py-24"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
-            {/* LEFT — type + CTA (7 cols) */}
+            {/* LEFT — type + CTA */}
             <div className="lg:col-span-7">
-              {/* Eyebrow */}
+              {/* Eyebrow with live indicator */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.7, ease: EASE_ENTRY }}
-                className="mb-7 flex items-center gap-3"
+                className="mb-8 flex items-center gap-3"
               >
-                <span className="eyebrow">— go together</span>
-                <span className="h-px flex-1 max-w-[120px] bg-[--color-mist-500]" />
+                <span className="eyebrow-marker">
+                  <span className="live-dot" />
+                  <span>est · 2026 — go together</span>
+                </span>
               </motion.div>
 
-              {/* Headline — word-by-word reveal, last word gets sumac gradient */}
-              <h1
-                className="headline-xl text-[clamp(3rem,8vw,7.5rem)] max-w-[18ch]"
-              >
+              {/* Headline — kinetic split-letter reveal */}
+              <h1 className="headline-display text-[clamp(3rem,8.5vw,8rem)] max-w-[16ch]">
                 {titleWords.map((word, i) => (
                   <span
                     key={i}
-                    className="inline-block overflow-hidden align-baseline mr-[0.22em] rtl:mr-0 rtl:ml-[0.22em]"
-                    style={{ paddingBottom: '0.12em' }}
+                    className="reveal-mask align-baseline mr-[0.22em] rtl:mr-0 rtl:ml-[0.22em]"
+                    style={{ paddingBottom: '0.16em' }}
                   >
                     <motion.span
-                      className={`inline-block ${i === lastIdx ? 'text-gradient' : ''}`}
+                      className={`inline-block ${i === lastIdx ? 'text-iridescent headline-italic breathe-axis' : ''}`}
                       initial={{ y: '110%' }}
                       animate={{ y: 0 }}
                       transition={{
-                        delay: 0.30 + i * 0.08,
-                        duration: 0.9,
+                        delay: 0.30 + i * 0.10,
+                        duration: 0.95,
                         ease: EASE_ENTRY,
                       }}
                     >
@@ -211,7 +313,8 @@ export function HeroCinematic({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: subheadDelay, duration: 0.7, ease: EASE_ENTRY }}
-                className="mt-8 text-[--color-mist-200] text-lg sm:text-xl lg:text-2xl max-w-[44ch] leading-[1.45] font-normal"
+                className="mt-9 text-[--color-mist-200] text-lg sm:text-xl lg:text-[22px] max-w-[42ch] leading-[1.45] font-normal"
+                style={{ letterSpacing: '-0.012em' }}
               >
                 {t('subtitle')}
               </motion.p>
@@ -221,30 +324,31 @@ export function HeroCinematic({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: subheadDelay + 0.15, duration: 0.7, ease: EASE_ENTRY }}
-                className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
+                className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-4"
               >
-                <button
+                <MagneticButton
+                  primary
                   onClick={onScrollCue}
-                  className="btn-primary group inline-flex items-center gap-2.5 ps-7 pe-6 h-14 rounded-full text-[15px]"
+                  className="btn-primary magnet-pulse group inline-flex items-center gap-2.5 ps-7 pe-6 h-14 rounded-full text-[14px]"
                 >
-                  <span className="relative z-[1]">{t('cta')}</span>
+                  <Compass className="w-4 h-4 relative z-[1] slow-spin-rev" strokeWidth={2.5} />
+                  <span className="relative z-[1] tracking-tight">{t('cta')}</span>
                   <ArrowRight
                     className="w-4 h-4 relative z-[1] transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
                     strokeWidth={2.5}
                   />
-                </button>
+                </MagneticButton>
 
-                <button
+                <MagneticButton
                   onClick={onUseLocation}
-                  disabled={locating}
-                  className="link-underline inline-flex items-center gap-2 h-14 px-2 text-[14px] font-semibold text-[--color-mist-100] hover:text-[--color-coral-600] transition-colors disabled:opacity-60"
+                  className="link-underline inline-flex items-center gap-2 h-14 px-2 text-[13px] font-semibold text-[--color-mist-100] hover:text-[--color-coral-700] transition-colors disabled:opacity-60"
                 >
                   <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
                   <span>{userLocation ? t('locationActive') : t('useLocation')}</span>
-                </button>
+                </MagneticButton>
               </motion.div>
 
-              {/* Search input — secondary affordance below CTAs */}
+              {/* Search input */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -265,30 +369,67 @@ export function HeroCinematic({
                 />
               </motion.div>
 
-              {/* Social proof line */}
+              {/* Holographic stat chips */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: subheadDelay + 0.4, duration: 0.7 }}
-                className="mt-7 flex items-center gap-3 text-[12px] text-[--color-mist-300]"
+                className="mt-9 flex flex-wrap gap-2.5"
               >
-                <span className="live-dot" />
-                <span className="font-medium">
-                  <span className="text-[--color-mist-100] font-semibold tabular-nums">
+                <div className="stat-chip flex items-center gap-2 px-4 py-2 text-[12px]">
+                  <span className="live-dot" />
+                  <span className="font-semibold text-[--color-mist-50] tabular-nums">
                     <AnimatedCounter to={cards.length} />
-                  </span>{' '}
-                  active adventures
-                </span>
-                <span className="text-[--color-mist-400]">·</span>
-                <span className="font-mono uppercase tracking-[0.16em] text-[10px]">fresh today</span>
+                  </span>
+                  <span className="font-mono uppercase tracking-[0.18em] text-[10px] text-[--color-mist-300]">
+                    live adventures
+                  </span>
+                </div>
+                <div className="stat-chip flex items-center gap-2 px-4 py-2 text-[12px]">
+                  <Sparkles className="w-3 h-3 text-[--color-coral-500]" strokeWidth={2.5} />
+                  <span className="font-semibold text-[--color-mist-50] tabular-nums">
+                    <AnimatedCounter to={cities.length || 24} />
+                  </span>
+                  <span className="font-mono uppercase tracking-[0.18em] text-[10px] text-[--color-mist-300]">
+                    cities
+                  </span>
+                </div>
+                <div className="stat-chip flex items-center gap-2 px-4 py-2 text-[12px]">
+                  <span className="font-mono uppercase tracking-[0.18em] text-[10px] text-[--color-mist-300]">
+                    fresh today
+                  </span>
+                  <span className="font-display italic text-[--color-coral-700] text-[13px]">
+                    {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
               </motion.div>
             </div>
 
-            {/* RIGHT — left empty, photo collage absolutely-positioned over the col area */}
+            {/* RIGHT — empty col, photo wall sits over this area */}
             <div className="hidden lg:block lg:col-span-5 min-h-[640px]" aria-hidden />
           </div>
+
+          {/* City ticker — subtle bottom marquee */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: subheadDelay + 0.6, duration: 0.9 }}
+            className="mt-16 ticker-rail overflow-hidden"
+          >
+            <div className="ticker-track gap-12">
+              {[...tickerWords, ...tickerWords].map((w, i) => (
+                <span
+                  key={i}
+                  className="font-display italic text-[--color-mist-300] text-[28px] sm:text-[36px] whitespace-nowrap"
+                  style={{ letterSpacing: '-0.03em', fontVariationSettings: "'opsz' 72, 'SOFT' 80" }}
+                >
+                  {w} <span className="text-[--color-coral-500] mx-6 not-italic">✦</span>
+                </span>
+              ))}
+            </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Scroll cue */}
       <motion.button
@@ -297,17 +438,19 @@ export function HeroCinematic({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.7, duration: 0.7, ease: EASE_ENTRY }}
         aria-label="Scroll to discover"
+        style={{ opacity: contentOpacity }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10
                    flex flex-col items-center gap-2 group"
       >
-        <span className="eyebrow group-hover:text-[--color-coral-600] transition-colors">
+        <span className="eyebrow group-hover:text-[--color-coral-700] transition-colors">
           {t('scrollDiscover')}
         </span>
         <span
           className="flex items-center justify-center w-10 h-10 rounded-full
                      bg-white border border-[--color-mist-500]
-                     text-[--color-mist-100] group-hover:border-[--color-coral-500] group-hover:text-[--color-coral-600]
+                     text-[--color-mist-100] group-hover:border-[--color-coral-500] group-hover:text-[--color-coral-700]
                      scroll-cue-bounce transition-colors"
+          style={{ boxShadow: '0 8px 24px -8px rgba(15,12,8,0.18)' }}
         >
           <ArrowDown className="w-4 h-4" strokeWidth={2.25} />
         </span>

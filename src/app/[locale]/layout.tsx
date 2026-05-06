@@ -67,7 +67,7 @@ export default async function LocaleLayout({
   const fontVars = `${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${heebo.variable} ${frankRuhl.variable} ${bricolage.variable} ${jetbrainsMono.variable}`
 
   return (
-    <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className={`dark ${fontVars}`}>
+    <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className={fontVars}>
       <body className="min-h-screen">
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>

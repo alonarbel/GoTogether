@@ -128,7 +128,8 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={closeLightbox}
-            className="fixed inset-0 z-[300] bg-[--color-night-1000]/95 backdrop-blur-xl flex items-center justify-center p-4"
+            className="fixed inset-0 z-[300] backdrop-blur-xl flex items-center justify-center p-4"
+            style={{ background: 'rgba(15,12,8,0.92)' }}
           >
             <button
               onClick={e => { e.stopPropagation(); closeLightbox() }}

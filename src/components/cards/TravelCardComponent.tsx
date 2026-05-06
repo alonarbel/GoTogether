@@ -67,12 +67,26 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[--color-night-950] via-[--color-night-900]/30 to-transparent" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(15,12,8,0.62) 0%, rgba(15,12,8,0.18) 40%, transparent 70%)',
+          }}
+        />
 
-        {/* Type pill — top-left, brighter */}
-        <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                        bg-[--color-night-1000]/70 backdrop-blur-md border border-white/20
-                        text-[12px] font-bold text-white">
+        {/* Type pill — top-left, opaque white print */}
+        <div
+          className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                     text-[11px] font-semibold tracking-tight"
+          style={{
+            background: 'rgba(255,255,255,0.94)',
+            color: 'var(--color-mist-50)',
+            border: '1px solid rgba(255,255,255,0.6)',
+            boxShadow: '0 4px 12px -4px rgba(15,12,8,0.35)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
           <span aria-hidden>{getCardTypeIcon(card.type)}</span>
           <span>{tFilters(card.type as Parameters<typeof tFilters>[0])}</span>
         </div>
@@ -112,32 +126,32 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
       </div>
 
       {/* ── Body ── */}
-      <div className="p-5 sm:p-6 space-y-4 flex flex-col flex-1 relative z-[2]">
+      <div className="p-5 sm:p-6 space-y-3.5 flex flex-col flex-1 relative z-[2]">
         {/* Date · Location row */}
-        <div className="flex items-center gap-3 text-[12px] font-medium text-[--color-mist-200]">
+        <div className="flex items-center gap-2.5 text-[11px] font-medium text-[--color-mist-200] uppercase tracking-[0.08em]">
           {dateStr && (
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[--color-coral-400]" strokeWidth={2.5} />
+              <Calendar className="w-3 h-3 text-[--color-coral-500]" strokeWidth={2.5} />
               <span className="font-semibold">{dateStr}</span>
-              {card.eventTime && <span className="text-[--color-mist-400]">·</span>}
-              {card.eventTime && <span className="font-mono text-[11px]">{card.eventTime}</span>}
+              {card.eventTime && <span className="text-[--color-mist-400] normal-case">·</span>}
+              {card.eventTime && <span className="font-mono text-[10px] tracking-normal">{card.eventTime}</span>}
             </span>
           )}
           {dateStr && <span className="w-1 h-1 rounded-full bg-[--color-mist-400]" />}
           <span className="flex items-center gap-1.5 truncate">
-            <MapPin className="w-3.5 h-3.5 text-[--color-cyan-400]" strokeWidth={2.5} />
+            <MapPin className="w-3 h-3 text-[--color-cyan-500]" strokeWidth={2.5} />
             <span className="truncate font-semibold">{card.location.city}</span>
           </span>
         </div>
 
-        {/* HEADLINE — bigger, bolder */}
-        <h3 className="headline text-[--color-mist-50] text-[24px] line-clamp-2
-                       transition-colors duration-300 group-hover:text-[--color-coral-300]">
+        {/* HEADLINE — premium serif, optical-sized */}
+        <h3 className="card-title text-[26px] sm:text-[28px] line-clamp-2
+                       transition-colors duration-300 group-hover:text-[--color-coral-600]">
           {card.title}
         </h3>
 
         {/* Description */}
-        <p className="text-[14px] leading-relaxed text-[--color-mist-300] line-clamp-2 flex-1">
+        <p className="card-body text-[14px] line-clamp-2 flex-1">
           {card.description}
         </p>
 

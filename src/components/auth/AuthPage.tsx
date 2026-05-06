@@ -109,14 +109,14 @@ export function AuthPage() {
       <div className="hidden lg:flex relative overflow-hidden">
         {/* Layered gradient orbs */}
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full
-                        bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] blur-[120px] opacity-50" />
+                        bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] blur-[120px] opacity-30" />
         <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full
-                        bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] blur-[120px] opacity-40" />
+                        bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-500] blur-[120px] opacity-25" />
 
         <div className="relative w-full p-12 xl:p-16 flex flex-col justify-between z-10">
           <Link href={`/${locale}`} className="flex items-center gap-2.5 group w-fit">
             <div className="w-10 h-10 grid place-items-center rounded-xl
-                            bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                            bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-600] to-[--color-cyan-600]
                             transition-transform duration-500 group-hover:rotate-[-8deg]">
               <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
             </div>
@@ -180,7 +180,7 @@ export function AuthPage() {
           <div className="lg:hidden text-center mb-10">
             <div className="inline-flex items-center gap-2.5">
               <div className="w-10 h-10 grid place-items-center rounded-xl
-                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]">
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-600] to-[--color-cyan-600]">
                 <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
               <div className="font-display text-[--color-mist-50] text-base font-semibold tracking-tight">GoTogether</div>

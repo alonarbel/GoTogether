@@ -119,13 +119,15 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                       <button
                         onClick={() => setImgIndex(i => (i - 1 + card.images.length) % card.images.length)}
                         className="absolute start-4 top-1/2 -translate-y-1/2 w-10 h-10 grid place-items-center
-                                   glass rounded-full text-white hover:bg-gradient-to-br hover:from-[--color-coral-500] hover:to-[--color-violet-500] transition-all">
+                                   rounded-full text-white hover:bg-[--color-coral-500] transition-all"
+                        style={{ background: 'rgba(15,12,8,0.55)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.2)' }}>
                         <ChevronLeft className="w-5 h-5" strokeWidth={2} />
                       </button>
                       <button
                         onClick={() => setImgIndex(i => (i + 1) % card.images.length)}
                         className="absolute end-4 top-1/2 -translate-y-1/2 w-10 h-10 grid place-items-center
-                                   glass rounded-full text-white hover:bg-gradient-to-br hover:from-[--color-coral-500] hover:to-[--color-violet-500] transition-all">
+                                   rounded-full text-white hover:bg-[--color-coral-500] transition-all"
+                        style={{ background: 'rgba(15,12,8,0.55)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.2)' }}>
                         <ChevronRight className="w-5 h-5" strokeWidth={2} />
                       </button>
                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
@@ -151,8 +153,9 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               {isOwner && (
                 <button
                   onClick={() => router.push(`/${locale}/cards/${card.id}/edit`)}
-                  className="glass absolute top-4 end-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                             text-[11px] font-semibold text-white hover:text-[--color-coral-300] transition-colors">
+                  className="absolute top-4 end-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                             text-[11px] font-semibold text-white hover:bg-[--color-coral-500] transition-colors"
+                  style={{ background: 'rgba(15,12,8,0.55)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.2)' }}>
                   <Pencil className="w-3 h-3" strokeWidth={2.5} />
                   {t('editCard')}
                 </button>
@@ -167,44 +170,43 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
-                                 bg-gradient-to-r from-[--color-coral-500]/15 to-[--color-violet-500]/15
-                                 border border-[--color-coral-500]/30
-                                 text-[11px] font-semibold text-[--color-coral-300]">
+                                 bg-[--color-coral-500]/12 border border-[--color-coral-500]/35
+                                 text-[11px] font-semibold text-[--color-coral-700]">
                   {getCardTypeIcon(card.type)} {tFilters(card.type)}
                 </span>
                 {card.organizer_role !== 'traveler' && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full
-                                   bg-[--color-violet-500]/15 border border-[--color-violet-500]/30
-                                   text-[11px] font-semibold text-[--color-violet-300]">
+                                   bg-[--color-violet-500]/12 border border-[--color-violet-500]/35
+                                   text-[11px] font-semibold text-[--color-violet-600]">
                     <Sparkles className="w-3 h-3" strokeWidth={2.5} /> {tRoles(card.organizer_role)}
                   </span>
                 )}
               </div>
 
-              <h1 className="headline-xl text-[--color-mist-50] text-4xl sm:text-6xl">
+              <h1 className="headline-display text-4xl sm:text-6xl">
                 {card.title}
               </h1>
 
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 pt-2 border-t border-[--color-mist-500]
                               text-[12px] font-medium text-[--color-mist-300]">
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[--color-cyan-400]" strokeWidth={2.5} />
+                  <MapPin className="w-3.5 h-3.5 text-[--color-cyan-500]" strokeWidth={2.5} />
                   {card.location.address && <>{card.location.address} ·</>} {card.location.city}, {card.location.country}
                 </span>
                 {formattedDate && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[--color-coral-400]" strokeWidth={2.5} />
+                    <Calendar className="w-3.5 h-3.5 text-[--color-coral-500]" strokeWidth={2.5} />
                     {formattedDate}
                   </span>
                 )}
                 {card.eventTime && (
                   <span className="flex items-center gap-1.5 tabular-nums font-mono">
-                    <Clock className="w-3.5 h-3.5 text-[--color-violet-400]" strokeWidth={2.5} />
+                    <Clock className="w-3.5 h-3.5 text-[--color-violet-500]" strokeWidth={2.5} />
                     {card.eventTime}
                   </span>
                 )}
                 {card.minDeadline && (
-                  <span className={cn('flex items-center gap-1.5 font-mono', lastDay && 'text-[--color-rose-400]')}>
+                  <span className={cn('flex items-center gap-1.5 font-mono', lastDay && 'text-[--color-rose-500]')}>
                     <AlertTriangle className="w-3.5 h-3.5 text-[--color-amber-400]" strokeWidth={2.5} />
                     {t('minDeadline')}: {new Date(card.minDeadline).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-US', { month: 'short', day: 'numeric' })}
                   </span>
@@ -218,7 +220,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               transition={{ delay: 0.14, duration: 0.6 }}
               className="space-y-4"
             >
-              <p className="font-display text-[--color-mist-100] text-[18px] leading-relaxed">
+              <p className="card-body text-[18px] leading-[1.6]">
                 {card.description}
               </p>
 
@@ -227,8 +229,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   {card.tags.map(tag => (
                     <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] font-medium
                                               bg-[--color-night-950] border border-[--color-mist-500]
-                                              text-[--color-mist-300]
-                                              hover:border-[--color-coral-500]/30 hover:text-[--color-coral-300]
+                                              text-[--color-mist-200]
+                                              hover:border-[--color-coral-500]/30 hover:text-[--color-coral-700]
                                               transition-colors">
                       #{tag}
                     </span>
@@ -268,13 +270,13 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                                  transition-all group"
                     >
                       <div className="w-9 h-9 rounded-full overflow-hidden grid place-items-center
-                                      bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white text-sm font-semibold shrink-0">
+                                      bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-600] text-white text-sm font-semibold shrink-0">
                         {p.avatar
                           ? <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
                           : p.name[0]?.toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[13px] font-medium text-[--color-mist-50] truncate group-hover:text-[--color-coral-300] transition-colors">
+                        <div className="text-[13px] font-medium text-[--color-mist-50] truncate group-hover:text-[--color-coral-700] transition-colors">
                           {p.name}
                         </div>
                         {p.phone && (
@@ -323,17 +325,17 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                       </div>
                       <div className="text-[10px] font-mono font-bold text-[--color-mist-300] mt-2 tracking-widest uppercase">{t('participants')}</div>
                     </div>
-                    <div className="p-4 rounded-2xl bg-[--color-amber-400]/15 border border-[--color-amber-400]/35 text-center">
-                      <div className="font-display text-4xl font-bold text-[--color-amber-400] tabular-nums leading-none">
+                    <div className="p-4 rounded-2xl bg-[--color-amber-400]/15 border border-[--color-amber-400]/40 text-center">
+                      <div className="font-display text-4xl font-bold text-[--color-amber-500] tabular-nums leading-none">
                         {card.minParticipants}
                       </div>
-                      <div className="text-[10px] font-mono font-bold text-[--color-amber-300] mt-2 tracking-widest uppercase">{t('min')}</div>
+                      <div className="text-[10px] font-mono font-bold text-[--color-amber-500] mt-2 tracking-widest uppercase">{t('min')}</div>
                     </div>
-                    <div className="p-4 rounded-2xl bg-[--color-cyan-400]/15 border border-[--color-cyan-400]/35 text-center">
-                      <div className="font-display text-4xl font-bold text-[--color-cyan-400] tabular-nums leading-none">
+                    <div className="p-4 rounded-2xl bg-[--color-cyan-500]/12 border border-[--color-cyan-500]/35 text-center">
+                      <div className="font-display text-4xl font-bold text-[--color-cyan-600] tabular-nums leading-none">
                         {card.maxParticipants}
                       </div>
-                      <div className="text-[10px] font-mono font-bold text-[--color-cyan-300] mt-2 tracking-widest uppercase">{t('max')}</div>
+                      <div className="text-[10px] font-mono font-bold text-[--color-cyan-600] mt-2 tracking-widest uppercase">{t('max')}</div>
                     </div>
                   </div>
                   <div className="pt-3">
@@ -345,8 +347,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   <div className={cn(
                     'flex items-start gap-2 px-3 py-2.5 rounded-xl text-[12px] leading-relaxed',
                     lastDay
-                      ? 'bg-[--color-rose-500]/10 text-[--color-rose-400] border border-[--color-rose-500]/20'
-                      : 'bg-[--color-amber-400]/10 text-[--color-amber-400] border border-[--color-amber-400]/20'
+                      ? 'bg-[--color-rose-500]/10 text-[--color-rose-500] border border-[--color-rose-500]/30'
+                      : 'bg-[--color-amber-400]/15 text-[--color-amber-500] border border-[--color-amber-400]/35'
                   )}>
                     <span className="shrink-0 mt-px">{lastDay ? '⚠' : '◇'}</span>
                     <span className="font-medium">{lastDay ? t('lastDayWarning') : t('needMore', { count: neededForMin })}</span>
@@ -362,9 +364,9 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                     className={cn(
                       'w-full py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-[15px] font-bold',
                       joined
-                        ? 'bg-[--color-emerald-500]/20 text-[--color-emerald-400] border border-[--color-emerald-500]/40 hover:bg-[--color-rose-500]/15 hover:text-[--color-rose-400] hover:border-[--color-rose-500]/40'
+                        ? 'bg-[--color-emerald-400]/15 text-[--color-emerald-500] border border-[--color-emerald-400]/45 hover:bg-[--color-rose-500]/10 hover:text-[--color-rose-500] hover:border-[--color-rose-500]/40'
                         : isFull
-                        ? 'bg-[--color-night-900] text-[--color-mist-500] cursor-not-allowed border border-[--color-mist-500]'
+                        ? 'bg-[--color-night-900] text-[--color-mist-300] cursor-not-allowed border border-[--color-mist-500]'
                         : 'btn-primary'
                     )}
                   >
@@ -385,16 +387,16 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 <Link href={`/${locale}/profile/${card.createdByUserId}`}
                   className="flex items-center gap-3 group">
                   <div className="w-12 h-12 rounded-full overflow-hidden grid place-items-center
-                                  bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white text-base font-display font-semibold">
+                                  bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-600] text-white text-base font-display font-semibold">
                     {card.createdBy[0]?.toUpperCase()}
                   </div>
                   <div>
                     <div className="font-display text-[--color-mist-50] text-base font-semibold
-                                    group-hover:text-[--color-coral-300] transition-colors">
+                                    group-hover:text-[--color-coral-700] transition-colors">
                       {card.createdBy}
                     </div>
                     {card.organizer_role !== 'traveler' && (
-                      <div className="text-[11px] font-medium text-[--color-violet-400] mt-0.5">
+                      <div className="text-[11px] font-medium text-[--color-violet-500] mt-0.5">
                         {tRoles(card.organizer_role)}
                       </div>
                     )}
@@ -404,8 +406,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   <a href={`tel:${card.phone}`}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl
                                bg-[--color-night-950] border border-[--color-mist-500]
-                               text-[12px] font-mono text-[--color-mist-200]
-                               hover:text-[--color-coral-300] hover:border-[--color-coral-500]/30 transition-colors">
+                               text-[12px] font-mono text-[--color-mist-100]
+                               hover:text-[--color-coral-700] hover:border-[--color-coral-500]/30 transition-colors">
                     <Phone className="w-3.5 h-3.5" strokeWidth={2} />
                     {card.phone}
                   </a>
@@ -427,7 +429,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   {card.whatsappLink && (
                     <a href={card.whatsappLink} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl
-                                 bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/20 text-[--color-emerald-400]
+                                 bg-[--color-emerald-500]/10 border border-[--color-emerald-500]/30 text-[--color-emerald-500]
                                  hover:bg-[--color-emerald-500]/15 transition-all
                                  text-[12px] font-semibold">
                       <MessageCircle className="w-4 h-4" strokeWidth={2} /> {t('whatsapp')}
@@ -436,8 +438,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   {card.telegramLink && (
                     <a href={card.telegramLink} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl
-                                 bg-[--color-cyan-400]/10 border border-[--color-cyan-400]/20 text-[--color-cyan-300]
-                                 hover:bg-[--color-cyan-400]/15 transition-all
+                                 bg-[--color-cyan-500]/10 border border-[--color-cyan-500]/30 text-[--color-cyan-600]
+                                 hover:bg-[--color-cyan-500]/15 transition-all
                                  text-[12px] font-semibold">
                       <MessageCircle className="w-4 h-4" strokeWidth={2} /> {t('telegram')}
                     </a>

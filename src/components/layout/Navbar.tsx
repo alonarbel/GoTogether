@@ -300,7 +300,7 @@ export function Navbar({ locale }: NavbarProps) {
                   >
                     <div className="p-4 border-b border-[--color-mist-500] flex items-center gap-3">
                       <div className="w-11 h-11 rounded-full overflow-hidden grid place-items-center text-[14px] font-display font-semibold
-                                      bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white">
+                                      bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-600] text-white">
                         {profile?.avatar_url
                           ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                           : (profile?.full_name?.[0]?.toUpperCase() || '?')

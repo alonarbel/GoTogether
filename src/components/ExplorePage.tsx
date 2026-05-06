@@ -165,7 +165,7 @@ export function ExplorePage() {
             {/* Count + view toggle */}
             <div className="flex items-end justify-between gap-4 pt-2">
               <div className="text-[12px] font-mono text-[--color-mist-300] tabular-nums">
-                <span className="text-[--color-coral-400] font-semibold">{filtered.length}</span> {filtered.length === 1 ? 'experience' : 'experiences'} found
+                <span className="text-[--color-coral-600] font-semibold">{filtered.length}</span> {filtered.length === 1 ? 'experience' : 'experiences'} found
               </div>
               <div className="glass flex items-center gap-0.5 p-1 rounded-full">
                 <button

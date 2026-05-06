@@ -26,8 +26,8 @@ function StarRating({ value, onChange, readOnly }: { value: number; onChange?: (
           <Star
             className="w-4 h-4 transition-colors"
             style={{
-              color: (hover || value) >= n ? '#fbbf24' : 'rgba(255,255,255,0.22)',
-              fill: (hover || value) >= n ? '#fbbf24' : 'transparent',
+              color: (hover || value) >= n ? '#d9a24f' : 'rgba(26,23,20,0.22)',
+              fill: (hover || value) >= n ? '#d9a24f' : 'transparent',
             }}
           />
         </button>
@@ -143,15 +143,15 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
         </div>
         <div className="flex gap-4 text-[12px] font-medium">
           {avgCardRating && (
-            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
-              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
+            <span className="flex items-center gap-1" style={{ color: '#b27e2c' }}>
+              <Star className="w-3 h-3" style={{ fill: '#d9a24f', color: '#d9a24f' }} />
               <span className="font-semibold">{avgCardRating}</span>
               <span className="text-[--color-mist-400] text-[10px] uppercase">{t('cardRating')}</span>
             </span>
           )}
           {avgOrgRating && isOrganizer && (
-            <span className="flex items-center gap-1" style={{ color: '#fbbf24' }}>
-              <Star className="w-3 h-3" style={{ fill: '#fbbf24', color: '#fbbf24' }} />
+            <span className="flex items-center gap-1" style={{ color: '#b27e2c' }}>
+              <Star className="w-3 h-3" style={{ fill: '#d9a24f', color: '#d9a24f' }} />
               <span className="font-semibold">{avgOrgRating}</span>
               <span className="text-[--color-mist-400] text-[10px] uppercase">{t('organizerRating')}</span>
             </span>
@@ -161,7 +161,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
 
       {canReview && (
         <div className="glass rounded-2xl p-5 space-y-4">
-          <h3 className="font-display text-[--color-coral-300] text-base font-semibold">
+          <h3 className="font-display text-[--color-coral-700] text-base font-semibold">
             {myReview ? t('editReview') : t('writeReview')}
           </h3>
 
@@ -240,7 +240,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center
-                                  bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400]
+                                  bg-gradient-to-br from-[--color-violet-600] to-[--color-cyan-600]
                                   text-white font-mono text-[11px] font-semibold">
                     {r.reviewer_avatar
                       ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />

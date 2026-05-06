@@ -131,7 +131,7 @@ export function ProfilePage() {
         <button onClick={() => router.back()}
           className="flex items-center gap-2 mb-10 group
                      text-[12px] font-medium
-                     text-[--color-mist-300] hover:text-[--color-coral-400] transition-colors link-underline">
+                     text-[--color-mist-300] hover:text-[--color-coral-500] transition-colors link-underline">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" strokeWidth={2} />
           back
         </button>
@@ -146,7 +146,7 @@ export function ProfilePage() {
           <div className="flex items-start gap-5">
             <div className="relative glow-ring rounded-full">
               <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
-                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-600] to-[--color-cyan-600]
                               text-white font-display text-3xl font-semibold">
                 {displayAvatar
                   ? <img src={displayAvatar} alt={name} className="w-full h-full object-cover" />
@@ -224,7 +224,7 @@ export function ProfilePage() {
               <header className="flex items-center gap-3">
                 <span className="w-8 h-px bg-gradient-to-r from-[--color-emerald-400] to-transparent" />
                 <h2 className="eyebrow">
-                  — active events <span className="text-[--color-emerald-400] tabular-nums">{activeEvents.length}</span>
+                  — active events <span className="text-[--color-emerald-500] tabular-nums">{activeEvents.length}</span>
                 </h2>
               </header>
               <div className="space-y-1.5">
@@ -253,7 +253,7 @@ export function ProfilePage() {
                   <h2 className="eyebrow">— reviews as organizer</h2>
                 </div>
                 {orgAvg && (
-                  <span className="font-mono text-[12px] text-[--color-amber-400] tabular-nums font-semibold">
+                  <span className="font-mono text-[12px] text-[--color-amber-500] tabular-nums font-semibold">
                     ★ {orgAvg.toFixed(1)}
                   </span>
                 )}
@@ -271,8 +271,8 @@ export function ProfilePage() {
                               key={i}
                               className="w-3 h-3"
                               style={{
-                                color: filled ? '#fbbf24' : 'rgba(255,255,255,0.18)',
-                                fill: filled ? '#fbbf24' : 'transparent',
+                                color: filled ? '#d9a24f' : 'rgba(26,23,20,0.20)',
+                                fill: filled ? '#d9a24f' : 'transparent',
                               }}
                             />
                           )
@@ -280,7 +280,7 @@ export function ProfilePage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] text-white text-[10px] font-mono">
+                      <div className="w-6 h-6 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-[--color-violet-600] to-[--color-cyan-600] text-white text-[10px] font-mono">
                         {r.reviewer_avatar
                           ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
                           : r.reviewer_name[0]?.toUpperCase()}
@@ -301,7 +301,7 @@ export function ProfilePage() {
           <button onClick={handleSignOut}
             className="w-full py-2.5 rounded-xl border border-[--color-rose-500]/20
                        text-[12px] font-semibold
-                       text-[--color-rose-400] hover:bg-[--color-rose-500]/10 hover:border-[--color-rose-500]/40
+                       text-[--color-rose-500] hover:bg-[--color-rose-500]/10 hover:border-[--color-rose-500]/40
                        transition-all flex items-center justify-center gap-2">
             <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
             sign out
@@ -316,7 +316,7 @@ function Field({ icon, label, children }: { icon: React.ReactNode; label: string
   return (
     <div className="space-y-1.5">
       <label className="eyebrow flex items-center gap-1.5">
-        <span className="text-[--color-coral-400]">{icon}</span>
+        <span className="text-[--color-coral-500]">{icon}</span>
         {label}
       </label>
       {children}
@@ -338,7 +338,7 @@ function ProfileEventRow({ card, locale, muted = false }: { card: TravelCard; lo
     >
       <div className="flex items-center gap-2 text-[13px]">
         <span className="text-base" aria-hidden>{getCardTypeIcon(card.type)}</span>
-        <span className="font-display font-semibold text-[--color-mist-50] truncate group-hover:text-[--color-coral-300] transition-colors">
+        <span className="font-display font-semibold text-[--color-mist-50] truncate group-hover:text-[--color-coral-700] transition-colors">
           {card.title}
         </span>
       </div>

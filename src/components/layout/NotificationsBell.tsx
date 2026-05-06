@@ -144,7 +144,7 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
                 <button
                   onClick={handleMarkAll}
                   className="flex items-center gap-1 text-[11px] font-semibold
-                             text-[--color-coral-400] hover:text-[--color-coral-300] transition-colors"
+                             text-[--color-coral-600] hover:text-[--color-coral-500] transition-colors"
                 >
                   <Check className="w-3 h-3" strokeWidth={2.5} />
                   {t('markAllRead')}

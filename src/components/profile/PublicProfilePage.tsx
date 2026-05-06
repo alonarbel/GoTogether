@@ -93,7 +93,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           <div className="flex items-center gap-5">
             <div className="glow-ring rounded-full">
               <div className="w-24 h-24 rounded-full overflow-hidden grid place-items-center
-                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
+                              bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-600] to-[--color-cyan-600]
                               text-white font-display text-3xl font-semibold shrink-0">
                 {profile.avatar_url
                   ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
@@ -103,7 +103,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             <div className="space-y-1.5 min-w-0">
               <h1 className="headline text-[--color-mist-50] text-4xl sm:text-5xl">{profile.full_name}</h1>
               {profile.title && (
-                <p className="flex items-center gap-1.5 text-[12px] font-semibold text-[--color-violet-300]">
+                <p className="flex items-center gap-1.5 text-[12px] font-semibold text-[--color-violet-600]">
                   <Briefcase className="w-3 h-3" strokeWidth={2} />
                   {profile.title}
                 </p>
@@ -134,7 +134,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
           {orgAvg && (
             <div className="grid grid-cols-3 gap-3 max-w-md">
               <div className="glass rounded-xl p-4 text-center">
-                <div className="font-display text-3xl font-semibold text-[--color-amber-400] tabular-nums leading-none">
+                <div className="font-display text-3xl font-semibold text-[--color-amber-500] tabular-nums leading-none">
                   {orgAvg.toFixed(1)}
                 </div>
                 <div className="flex justify-center gap-0.5 mt-2">
@@ -145,8 +145,8 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
                         key={i}
                         className="w-2.5 h-2.5"
                         style={{
-                          color: filled ? '#fbbf24' : 'rgba(255,255,255,0.18)',
-                          fill: filled ? '#fbbf24' : 'transparent',
+                          color: filled ? '#d9a24f' : 'rgba(26,23,20,0.20)',
+                          fill: filled ? '#d9a24f' : 'transparent',
                         }}
                       />
                     )
@@ -155,13 +155,13 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
                 <div className="eyebrow mt-2 text-[8px]">avg rating</div>
               </div>
               <div className="glass rounded-xl p-4 text-center">
-                <div className="font-display text-3xl font-semibold text-[--color-cyan-400] tabular-nums leading-none">
+                <div className="font-display text-3xl font-semibold text-[--color-cyan-600] tabular-nums leading-none">
                   {orgReviews.length}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">reviews</div>
               </div>
               <div className="glass rounded-xl p-4 text-center">
-                <div className="font-display text-3xl font-semibold text-[--color-violet-400] tabular-nums leading-none">
+                <div className="font-display text-3xl font-semibold text-[--color-violet-500] tabular-nums leading-none">
                   {totalEventsOrganized}
                 </div>
                 <div className="eyebrow mt-2 text-[8px]">organized</div>
@@ -209,7 +209,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             className="mt-10 space-y-4"
           >
             <header className="flex items-center gap-3">
-              <Star className="w-3.5 h-3.5" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+              <Star className="w-3.5 h-3.5" style={{ color: '#d9a24f', fill: '#d9a24f' }} />
               <h2 className="eyebrow">— {t('reviewsReceived')}</h2>
             </header>
             <div className="space-y-3">
@@ -217,7 +217,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
                 <div key={r.id} className="glass rounded-xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-[--color-violet-500] to-[--color-cyan-400] text-white text-[11px] font-mono">
+                      <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center bg-gradient-to-br from-[--color-violet-600] to-[--color-cyan-600] text-white text-[11px] font-mono">
                         {r.reviewer_avatar
                           ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-full h-full object-cover" />
                           : r.reviewer_name[0]?.toUpperCase()}
@@ -273,7 +273,7 @@ function PublicEventRow({ card, locale, muted = false }: { card: TravelCard; loc
     >
       <div className="flex items-center gap-2 text-[13px]">
         <span className="text-base" aria-hidden>{getCardTypeIcon(card.type)}</span>
-        <span className="font-display font-semibold text-[--color-mist-50] truncate group-hover:text-[--color-coral-300] transition-colors">
+        <span className="font-display font-semibold text-[--color-mist-50] truncate group-hover:text-[--color-coral-700] transition-colors">
           {card.title}
         </span>
       </div>

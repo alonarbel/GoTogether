@@ -69,7 +69,7 @@ export function FilterBar({ active, onChange, dateFrom, dateTo, onDateFromChange
           <label className="eyebrow">{t('dateFrom')}</label>
           <LocaleDatePicker value={dateFrom} onChange={onDateFromChange} locale={locale} />
         </div>
-        <div className="hidden sm:block w-px h-4 bg-[--color-night-900]" />
+        <div className="hidden sm:block w-px h-4 bg-[--color-mist-500]" />
         <div className="flex items-center gap-2.5">
           <label className="eyebrow">{t('dateTo')}</label>
           <LocaleDatePicker value={dateTo} onChange={onDateToChange} locale={locale} />
