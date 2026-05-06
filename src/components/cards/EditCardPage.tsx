@@ -25,7 +25,7 @@ const COUNTRY_CODES = [
 
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-xl ' +
-  'bg-white/[0.03] border border-white/[0.08] ' +
+  'bg-[--color-night-950] border border-[--color-mist-500] ' +
   'text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500] ' +
   'focus:outline-none focus:border-[--color-coral-500]/40 transition-all'
 
@@ -158,7 +158,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
         >
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            bg-[--color-night-900] border border-[--color-mist-500] backdrop-blur-md
                             text-[11px] font-mono text-[--color-mist-200] tracking-wide">
               <span>editing</span>
             </div>
@@ -182,7 +182,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
                   className={cn('flex flex-col items-center gap-1 py-3 rounded-xl border transition-all',
                     form.type === type
                       ? 'bg-[--color-coral-500]/10 border-[--color-coral-500]/50'
-                      : 'border-white/[0.06] hover:border-white/[0.14]'
+                      : 'border-[--color-mist-500] hover:border-[--color-mist-400]'
                   )}>
                   <span className="text-xl">{getCardTypeIcon(type)}</span>
                   <span className={cn('text-[10px] font-semibold',
@@ -200,7 +200,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
                   className={cn('py-2 px-2 rounded-lg border transition-all text-[11px] font-medium',
                     form.organizer_role === role
                       ? 'bg-[--color-violet-500]/10 border-[--color-violet-500]/50 text-[--color-violet-300]'
-                      : 'border-white/[0.06] text-[--color-mist-300]'
+                      : 'border-[--color-mist-500] text-[--color-mist-300]'
                   )}>
                   {tRoles(role as Parameters<typeof tRoles>[0])}
                 </button>
@@ -249,7 +249,7 @@ export function EditCardPage({ card }: { card: TravelCard }) {
           <Field label={t('phoneLabel')}>
             <div className="flex gap-2">
               <select value={form.phoneCode} onChange={e => set('phoneCode', e.target.value)}
-                className="w-28 flex-shrink-0 px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                className="w-28 flex-shrink-0 px-3 py-2.5 bg-[--color-night-950] border border-[--color-mist-500] rounded-xl
                            text-[--color-mist-50] text-[12px] font-mono focus:outline-none focus:border-[--color-coral-500]/40 transition-all"
                 dir="ltr">
                 {COUNTRY_CODES.map(c => (

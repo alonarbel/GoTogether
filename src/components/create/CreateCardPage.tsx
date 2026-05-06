@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
@@ -38,7 +38,7 @@ const organizerRoles: OrganizerRole[] = ['traveler', 'guide', 'coach', 'driver',
 
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-xl ' +
-  'bg-white/[0.03] border border-white/[0.08] ' +
+  'bg-[--color-night-950] border border-[--color-mist-500] ' +
   'text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500] ' +
   'focus:outline-none focus:border-[--color-coral-500]/40 transition-all'
 
@@ -162,7 +162,7 @@ export function CreateCardPage() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                          bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                          bg-[--color-night-900] border border-[--color-mist-500] backdrop-blur-md
                           text-[11px] font-mono text-[--color-mist-200] tracking-wide">
             <span className="text-[--color-coral-400] font-semibold">step {step}</span>
             <span className="text-[--color-mist-500]">/</span>
@@ -189,7 +189,7 @@ export function CreateCardPage() {
                     'h-1 rounded-full transition-all',
                     isActive ? 'bg-[--color-coral-500]' :
                     isDone   ? 'bg-[--color-violet-500]/40 cursor-pointer' :
-                               'bg-white/[0.06]'
+                               'bg-[--color-night-900]'
                   )}
                 />
                 <div className={cn(
@@ -227,7 +227,7 @@ export function CreateCardPage() {
                         className={cn('p-3 rounded-xl border transition-all text-start text-[12px] font-semibold',
                           form.organizerRole === 'traveler'
                             ? 'border-[--color-coral-500]/50 bg-[--color-coral-500]/10 text-[--color-coral-300]'
-                            : 'border-white/[0.06] text-[--color-mist-300] hover:border-white/[0.14]'
+                            : 'border-[--color-mist-500] text-[--color-mist-300] hover:border-[--color-mist-400]'
                         )}>
                         🧳 {t('iAmTraveler')}
                       </button>
@@ -235,7 +235,7 @@ export function CreateCardPage() {
                         className={cn('p-3 rounded-xl border transition-all text-start text-[12px] font-semibold',
                           form.organizerRole !== 'traveler'
                             ? 'border-[--color-violet-500]/50 bg-[--color-violet-500]/10 text-[--color-violet-300]'
-                            : 'border-white/[0.06] text-[--color-mist-300] hover:border-white/[0.14]'
+                            : 'border-[--color-mist-500] text-[--color-mist-300] hover:border-[--color-mist-400]'
                         )}>
                         🎯 {t('iAmOrganizer')}
                       </button>
@@ -247,7 +247,7 @@ export function CreateCardPage() {
                             className={cn('py-2 rounded-xl border text-[11px] font-medium transition-all',
                               form.organizerRole === role
                                 ? 'border-[--color-violet-500]/50 bg-[--color-violet-500]/10 text-[--color-violet-300]'
-                                : 'border-white/[0.06] text-[--color-mist-300]'
+                                : 'border-[--color-mist-500] text-[--color-mist-300]'
                             )}>
                             {tRoles(role)}
                           </button>
@@ -274,7 +274,7 @@ export function CreateCardPage() {
                           className={cn('p-3 rounded-xl border transition-all flex flex-col items-center gap-1',
                             form.type === type
                               ? 'border-[--color-coral-500]/50 bg-[--color-coral-500]/10'
-                              : 'border-white/[0.06] hover:border-white/[0.14]'
+                              : 'border-[--color-mist-500] hover:border-[--color-mist-400]'
                           )}>
                           <span className="text-2xl">{getCardTypeIcon(type)}</span>
                           <span className={cn('text-[11px] font-semibold',
@@ -306,7 +306,7 @@ export function CreateCardPage() {
                       <input value={form.country} onChange={e => set('country', e.target.value)} className={inputClass} />
                     </Field>
                   </div>
-                  <div className="h-40 rounded-xl border border-dashed border-white/[0.08]
+                  <div className="h-40 rounded-xl border border-dashed border-[--color-mist-500]
                                   bg-gradient-to-br from-[--color-coral-500]/[0.04] via-[--color-violet-500]/[0.04] to-[--color-cyan-400]/[0.04]
                                   grid place-items-center text-[12px] text-[--color-mist-400]">
                     🗺 map picker — coming soon
@@ -341,7 +341,7 @@ export function CreateCardPage() {
                       className={inputClass} style={{ colorScheme: 'dark' }} />
                   </Field>
 
-                  <div className="rounded-xl border border-white/[0.08] p-4 space-y-3 bg-white/[0.02]">
+                  <div className="rounded-xl border border-[--color-mist-500] p-4 space-y-3 bg-[--color-night-950]">
                     <div className="flex justify-between items-center">
                       <span className="eyebrow">— preview</span>
                       <span className="font-mono text-[11px] text-[--color-mist-300] tabular-nums">
@@ -369,7 +369,7 @@ export function CreateCardPage() {
                   <Field label={t('phoneLabel')}>
                     <div className="flex gap-2">
                       <select value={form.phoneCode} onChange={e => set('phoneCode', e.target.value)}
-                        className="px-2.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                        className="px-2.5 py-2.5 bg-[--color-night-950] border border-[--color-mist-500] rounded-xl
                                    text-[--color-mist-50] text-[12px] font-mono focus:outline-none focus:border-[--color-coral-500]/40">
                         {COUNTRY_CODES.map(c => (
                           <option key={c.code} value={c.code} className="bg-[--color-night-900]">{c.flag} {c.code}</option>
@@ -400,7 +400,7 @@ export function CreateCardPage() {
                     }} />
                   {imagePreviews.length === 0 ? (
                     <button type="button" onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-white/[0.08] rounded-2xl p-12 text-center
+                      className="w-full border-2 border-dashed border-[--color-mist-500] rounded-2xl p-12 text-center
                                  bg-gradient-to-br from-[--color-coral-500]/[0.03] via-transparent to-[--color-cyan-400]/[0.03]
                                  hover:border-[--color-coral-500]/40 transition-all group">
                       <Upload className="w-12 h-12 text-[--color-mist-500] group-hover:text-[--color-coral-400] mx-auto mb-3 transition-colors" strokeWidth={1.5} />
@@ -424,7 +424,7 @@ export function CreateCardPage() {
                         ))}
                         {imagePreviews.length < 5 && (
                           <button type="button" onClick={() => fileInputRef.current?.click()}
-                            className="aspect-video rounded-xl border-2 border-dashed border-white/[0.08]
+                            className="aspect-video rounded-xl border-2 border-dashed border-[--color-mist-500]
                                        hover:border-[--color-coral-500]/40 grid place-items-center transition-colors">
                             <Upload className="w-5 h-5 text-[--color-mist-500]" strokeWidth={1.5} />
                           </button>
@@ -440,7 +440,7 @@ export function CreateCardPage() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="flex justify-between mt-8 pt-6 border-t border-white/[0.06]">
+          <div className="flex justify-between mt-8 pt-6 border-t border-[--color-mist-500]">
             <button onClick={() => step > 1 ? setStep(s => s - 1) : router.back()}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl
                          text-[12px] font-medium

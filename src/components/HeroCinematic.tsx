@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring, useTransform, animate, type MotionValue } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { Search, MapPin, Sparkles, ArrowDown } from 'lucide-react'
+import { Search, MapPin, ArrowRight, ArrowDown } from 'lucide-react'
 import { TravelCard } from '@/types'
 
 interface HeroCinematicProps {
@@ -16,66 +16,71 @@ interface HeroCinematicProps {
   onScrollCue: () => void
 }
 
-const PHOTO_POSITIONS: Array<{
+const EASE_ENTRY: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
+interface PhotoSpec {
+  rightPct: number
   topPct: number
-  leftPct: number
   rotate: number
-  size: number
+  width: number
+  ratio: number
   depth: number
   delay: number
-}> = [
-  { topPct: 12, leftPct: 8,  rotate: -10, size: 260, depth: 0.55, delay: 0.10 },
-  { topPct: 20, leftPct: 86, rotate:  9,  size: 296, depth: 0.40, delay: 0.20 },
-  { topPct: 70, leftPct: 6,  rotate:  6,  size: 280, depth: 0.65, delay: 0.30 },
-  { topPct: 75, leftPct: 88, rotate: -8,  size: 240, depth: 0.50, delay: 0.40 },
-  { topPct: 42, leftPct: 94, rotate: -14, size: 208, depth: 0.30, delay: 0.50 },
-  { topPct: 88, leftPct: 42, rotate:  4,  size: 224, depth: 0.45, delay: 0.60 },
-  { topPct: 6,  leftPct: 50, rotate: -6,  size: 196, depth: 0.35, delay: 0.70 },
+  zIndex: number
+  primary?: boolean
+}
+
+// One anchor photo + two supporting tiles. Anchored to the right column on desktop.
+const PHOTO_SPECS: PhotoSpec[] = [
+  // Primary anchor — large, slight tilt, right-center
+  { rightPct: 6,  topPct: 50, rotate:  4,   width: 380, ratio: 1.32, depth: 0.20, delay: 0.10, zIndex: 3, primary: true },
+  // Secondary upper-right
+  { rightPct: 26, topPct: 14, rotate: -7,   width: 200, ratio: 1.18, depth: 0.45, delay: 0.30, zIndex: 2 },
+  // Secondary lower-left of cluster
+  { rightPct: 28, topPct: 78, rotate:  9,   width: 180, ratio: 1.20, depth: 0.55, delay: 0.50, zIndex: 1 },
 ]
 
 interface PhotoTileProps {
   url?: string
-  pos: typeof PHOTO_POSITIONS[number]
+  spec: PhotoSpec
   smx: MotionValue<number>
   smy: MotionValue<number>
 }
 
-function PhotoTile({ url, pos, smx, smy }: PhotoTileProps) {
-  const tx = useTransform(smx, v => v * 60 * pos.depth)
-  const ty = useTransform(smy, v => v * 60 * pos.depth)
+function PhotoTile({ url, spec, smx, smy }: PhotoTileProps) {
+  const tx = useTransform(smx, v => v * 50 * spec.depth)
+  const ty = useTransform(smy, v => v * 50 * spec.depth)
+  const height = spec.width * spec.ratio
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.4, y: 40, rotate: pos.rotate * 0.3 }}
-      animate={{
-        opacity: url ? 1 : 0.55,
-        scale: 1,
-        y: 0,
-        rotate: pos.rotate,
-      }}
-      transition={{
-        delay: 0.4 + pos.delay,
-        duration: 1.1,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+      initial={{ opacity: 0, scale: 0.92, y: 20, rotate: spec.rotate * 0.4 }}
+      animate={{ opacity: 1, scale: 1, y: 0, rotate: spec.rotate }}
+      transition={{ delay: 0.95 + spec.delay, duration: 1.1, ease: EASE_ENTRY }}
       style={{
-        top: `${pos.topPct}%`,
-        left: `${pos.leftPct}%`,
-        width: pos.size,
-        height: pos.size * 1.18,
+        right: `${spec.rightPct}%`,
+        top: `${spec.topPct}%`,
+        width: spec.width,
+        height,
         x: tx,
         y: ty,
+        zIndex: spec.zIndex,
       }}
-      className="absolute -translate-x-1/2 -translate-y-1/2 photo-tile float-slow"
+      className="absolute -translate-y-1/2 photo-tile float-slow"
     >
       {url ? (
         <img
           src={url}
           alt=""
-          loading="lazy"
-          className="w-full h-full object-cover rounded-2xl"
+          loading={spec.primary ? 'eager' : 'lazy'}
+          className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[--color-coral-500]/30 via-[--color-violet-500]/30 to-[--color-cyan-400]/30" />
+        <div
+          className="w-full h-full"
+          style={{
+            background: 'linear-gradient(135deg, rgba(242,167,143,0.55), rgba(224,191,182,0.55))',
+          }}
+        />
       )}
     </motion.div>
   )
@@ -86,7 +91,7 @@ function AnimatedCounter({ to }: { to: number }) {
   useEffect(() => {
     const controls = animate(0, to, {
       duration: 1.4,
-      ease: [0.16, 1, 0.3, 1],
+      ease: EASE_ENTRY,
       onUpdate: v => setDisplay(Math.round(v)),
     })
     return () => controls.stop()
@@ -110,7 +115,7 @@ export function HeroCinematic({
     const urls: string[] = []
     for (const c of cards) {
       if (c.images?.[0]) urls.push(c.images[0])
-      if (urls.length >= PHOTO_POSITIONS.length) break
+      if (urls.length >= PHOTO_SPECS.length) break
     }
     return urls
   }, [cards])
@@ -138,148 +143,173 @@ export function HeroCinematic({
 
   const titleWords = t('title').split(' ')
   const lastIdx = titleWords.length - 1
+  const subheadDelay = 0.30 + titleWords.length * 0.08 + 0.05
 
   return (
     <section
       ref={containerRef}
       className="relative min-h-[100svh] overflow-hidden hero-cinematic flex items-center"
     >
-      {/* Mouse-tracking spotlight */}
+      {/* Mouse-tracking warm spotlight */}
       <div className="hero-spotlight" />
 
-      {/* Floating photo collage */}
-      <div className="absolute inset-0 pointer-events-none">
-        {PHOTO_POSITIONS.map((pos, i) => (
-          <PhotoTile key={i} pos={pos} url={photoUrls[i]} smx={smx} smy={smy} />
+      {/* Photo collage — only on desktop, doesn't compete with content on mobile */}
+      <div className="absolute inset-0 pointer-events-none hidden lg:block">
+        {PHOTO_SPECS.map((spec, i) => (
+          <PhotoTile key={i} spec={spec} url={photoUrls[i]} smx={smx} smy={smy} />
         ))}
       </div>
 
-      {/* Soft vignette so text stays legible over photos */}
+      {/* Soft fade-out vignette for legibility */}
       <div className="absolute inset-0 pointer-events-none hero-vignette" />
 
       {/* Content */}
-      <div className="relative z-10 w-full px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Live badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 rounded-full
-                       bg-white/[0.05] border border-white/[0.10] backdrop-blur-md
-                       text-[13px] font-semibold text-[--color-mist-200]"
-          >
-            <span className="live-dot" />
-            <span>
-              <span className="text-[--color-mist-50] font-bold tabular-nums">
-                <AnimatedCounter to={cards.length} />
-              </span>{' '}
-              active adventures
-            </span>
-            <span className="text-[--color-mist-400]">·</span>
-            <Sparkles className="w-3.5 h-3.5 text-[--color-coral-400]" strokeWidth={2.25} />
-            <span>fresh today</span>
-          </motion.div>
-
-          {/* Headline — word-by-word reveal */}
-          <h1 className="headline-xl text-[--color-mist-50] text-6xl sm:text-7xl md:text-8xl lg:text-[7.5rem] leading-[0.92] max-w-5xl"
-              style={{ fontVariationSettings: "'wdth' 115" }}>
-            {titleWords.map((word, i) => (
-              <span
-                key={i}
-                className="inline-block overflow-hidden align-baseline mr-[0.22em] rtl:mr-0 rtl:ml-[0.22em]"
-                style={{ paddingBottom: '0.12em' }}
+      <div className="relative z-10 w-full px-5 sm:px-8 lg:px-12 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
+            {/* LEFT — type + CTA (7 cols) */}
+            <div className="lg:col-span-7">
+              {/* Eyebrow */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.7, ease: EASE_ENTRY }}
+                className="mb-7 flex items-center gap-3"
               >
-                <motion.span
-                  className={`inline-block ${i === lastIdx ? 'text-gradient' : ''}`}
-                  initial={{ y: '110%', opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{
-                    delay: 0.25 + i * 0.08,
-                    duration: 0.9,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
+                <span className="eyebrow">— go together</span>
+                <span className="h-px flex-1 max-w-[120px] bg-[--color-mist-500]" />
+              </motion.div>
+
+              {/* Headline — word-by-word reveal, last word gets sumac gradient */}
+              <h1
+                className="headline-xl text-[clamp(3rem,8vw,7.5rem)] max-w-[18ch]"
+              >
+                {titleWords.map((word, i) => (
+                  <span
+                    key={i}
+                    className="inline-block overflow-hidden align-baseline mr-[0.22em] rtl:mr-0 rtl:ml-[0.22em]"
+                    style={{ paddingBottom: '0.12em' }}
+                  >
+                    <motion.span
+                      className={`inline-block ${i === lastIdx ? 'text-gradient' : ''}`}
+                      initial={{ y: '110%' }}
+                      animate={{ y: 0 }}
+                      transition={{
+                        delay: 0.30 + i * 0.08,
+                        duration: 0.9,
+                        ease: EASE_ENTRY,
+                      }}
+                    >
+                      {word}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+
+              {/* Subhead */}
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: subheadDelay, duration: 0.7, ease: EASE_ENTRY }}
+                className="mt-8 text-[--color-mist-200] text-lg sm:text-xl lg:text-2xl max-w-[44ch] leading-[1.45] font-normal"
+              >
+                {t('subtitle')}
+              </motion.p>
+
+              {/* CTAs */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: subheadDelay + 0.15, duration: 0.7, ease: EASE_ENTRY }}
+                className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
+              >
+                <button
+                  onClick={onScrollCue}
+                  className="btn-primary group inline-flex items-center gap-2.5 ps-7 pe-6 h-14 rounded-full text-[15px]"
                 >
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
+                  <span className="relative z-[1]">{t('cta')}</span>
+                  <ArrowRight
+                    className="w-4 h-4 relative z-[1] transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+                    strokeWidth={2.5}
+                  />
+                </button>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 + titleWords.length * 0.08 + 0.1, duration: 0.7 }}
-            className="mt-7 text-[--color-mist-200] text-xl sm:text-2xl max-w-2xl leading-relaxed font-medium"
-          >
-            {t('subtitle')}
-          </motion.p>
+                <button
+                  onClick={onUseLocation}
+                  disabled={locating}
+                  className="link-underline inline-flex items-center gap-2 h-14 px-2 text-[14px] font-semibold text-[--color-mist-100] hover:text-[--color-coral-600] transition-colors disabled:opacity-60"
+                >
+                  <MapPin className={`w-4 h-4 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
+                  <span>{userLocation ? t('locationActive') : t('useLocation')}</span>
+                </button>
+              </motion.div>
 
-          {/* Search bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.25 + titleWords.length * 0.08 + 0.25,
-              duration: 0.7,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="mt-12 flex gap-3 max-w-2xl"
-          >
-            <div className="flex-1 relative">
-              <Search
-                className="absolute start-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[--color-mist-300] pointer-events-none z-10"
-                strokeWidth={2.25}
-              />
-              <input
-                type="text"
-                value={search}
-                onChange={e => onSearchChange(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                className="hero-search-input relative w-full ps-14 pe-5 py-5 rounded-2xl
-                           bg-white/[0.05] backdrop-blur-md border border-white/[0.10]
-                           text-[--color-mist-50] text-[16px] font-semibold placeholder:text-[--color-mist-400] placeholder:font-medium
-                           transition-colors duration-200"
-              />
+              {/* Search input — secondary affordance below CTAs */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: subheadDelay + 0.25, duration: 0.7, ease: EASE_ENTRY }}
+                className="mt-10 max-w-xl relative"
+              >
+                <Search
+                  className="absolute start-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-mist-300] pointer-events-none z-10"
+                  strokeWidth={2}
+                />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => onSearchChange(e.target.value)}
+                  placeholder={t('searchPlaceholder')}
+                  className="hero-search-input w-full ps-12 pe-5 h-12 rounded-full
+                             text-[14px] font-medium"
+                />
+              </motion.div>
+
+              {/* Social proof line */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: subheadDelay + 0.4, duration: 0.7 }}
+                className="mt-7 flex items-center gap-3 text-[12px] text-[--color-mist-300]"
+              >
+                <span className="live-dot" />
+                <span className="font-medium">
+                  <span className="text-[--color-mist-100] font-semibold tabular-nums">
+                    <AnimatedCounter to={cards.length} />
+                  </span>{' '}
+                  active adventures
+                </span>
+                <span className="text-[--color-mist-400]">·</span>
+                <span className="font-mono uppercase tracking-[0.16em] text-[10px]">fresh today</span>
+              </motion.div>
             </div>
-            <button
-              onClick={onUseLocation}
-              disabled={locating}
-              className={`flex items-center gap-2 px-5 py-5 rounded-2xl transition-colors
-                          text-[14px] font-bold whitespace-nowrap disabled:opacity-60 ${
-                userLocation
-                  ? 'bg-[--color-coral-500] border border-black/20 text-[--color-night-1000]'
-                  : 'bg-white/[0.05] backdrop-blur-md border border-white/[0.10] text-[--color-mist-100] hover:border-white/[0.18] hover:bg-white/[0.08]'
-              }`}
-            >
-              <MapPin className={`w-5 h-5 ${locating ? 'animate-pulse' : ''}`} strokeWidth={2.25} />
-              <span className="hidden sm:block">
-                {userLocation ? t('locationActive') : t('useLocation')}
-              </span>
-            </button>
-          </motion.div>
+
+            {/* RIGHT — left empty, photo collage absolutely-positioned over the col area */}
+            <div className="hidden lg:block lg:col-span-5 min-h-[640px]" aria-hidden />
+          </div>
         </div>
       </div>
 
       {/* Scroll cue */}
       <motion.button
         onClick={onScrollCue}
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.6, duration: 0.6 }}
+        transition={{ delay: 1.7, duration: 0.7, ease: EASE_ENTRY }}
         aria-label="Scroll to discover"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10
                    flex flex-col items-center gap-2 group"
       >
-        <span className="eyebrow text-[--color-mist-300] group-hover:text-[--color-mist-50] transition-colors">
+        <span className="eyebrow group-hover:text-[--color-coral-600] transition-colors">
           {t('scrollDiscover')}
         </span>
-        <span className="flex items-center justify-center w-10 h-10 rounded-full
-                         bg-white/[0.08] border border-white/[0.18] backdrop-blur-md
-                         text-[--color-mist-100] group-hover:border-[--color-coral-500]/60 group-hover:text-[--color-coral-300]
-                         scroll-cue-bounce">
-          <ArrowDown className="w-4 h-4" strokeWidth={2.5} />
+        <span
+          className="flex items-center justify-center w-10 h-10 rounded-full
+                     bg-white border border-[--color-mist-500]
+                     text-[--color-mist-100] group-hover:border-[--color-coral-500] group-hover:text-[--color-coral-600]
+                     scroll-cue-bounce transition-colors"
+        >
+          <ArrowDown className="w-4 h-4" strokeWidth={2.25} />
         </span>
       </motion.button>
     </section>

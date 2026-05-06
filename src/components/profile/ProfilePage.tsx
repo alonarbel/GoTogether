@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -21,7 +21,7 @@ const COUNTRY_CODES = [
 
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-xl ' +
-  'bg-white/[0.03] border border-white/[0.08] ' +
+  'bg-[--color-night-950] border border-[--color-mist-500] ' +
   'text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500] ' +
   'focus:outline-none focus:border-[--color-coral-500]/40 transition-all'
 
@@ -190,7 +190,7 @@ export function ProfilePage() {
             </Field>
 
             <Field icon={<Mail className="w-3 h-3" strokeWidth={2} />} label="אימייל">
-              <div className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]
+              <div className="w-full px-3.5 py-2.5 rounded-xl bg-[--color-night-950] border border-[--color-mist-500]
                               text-[--color-mist-400] font-mono text-[13px]" dir="ltr">
                 {user.email}
               </div>
@@ -199,7 +199,7 @@ export function ProfilePage() {
             <Field icon={<Phone className="w-3 h-3" strokeWidth={2} />} label="טלפון">
               <div className="flex gap-2">
                 <select value={phoneCode} onChange={e => setPhoneCode(e.target.value)}
-                  className="w-24 px-2.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                  className="w-24 px-2.5 py-2.5 bg-[--color-night-950] border border-[--color-mist-500] rounded-xl
                              text-[--color-mist-50] text-[12px] font-mono focus:outline-none focus:border-[--color-coral-500]/40 transition-all"
                   dir="ltr">
                   {COUNTRY_CODES.map(c => (
@@ -332,8 +332,8 @@ function ProfileEventRow({ card, locale, muted = false }: { card: TravelCard; lo
       className={cn(
         'w-full text-start px-4 py-3 rounded-xl border transition-all group',
         muted
-          ? 'border-white/[0.04] hover:border-white/[0.1] opacity-80 hover:opacity-100'
-          : 'border-white/[0.06] hover:border-[--color-coral-500]/30 hover:bg-white/[0.02]'
+          ? 'border-[--color-mist-500] hover:border-[--color-mist-400] opacity-80 hover:opacity-100'
+          : 'border-[--color-mist-500] hover:border-[--color-coral-500]/30 hover:bg-[--color-night-900]'
       )}
     >
       <div className="flex items-center gap-2 text-[13px]">

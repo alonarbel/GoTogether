@@ -39,8 +39,8 @@ export function ParticipantBar({ current, min, max, className, showLabels = fals
           className="absolute -top-1.5 -bottom-1.5 w-0.5 rounded-sm z-10"
           style={{
             insetInlineStart: `calc(${minPercentage}% - 1px)`,
-            background: 'rgba(255,255,255,0.85)',
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.35)',
+            background: '#1a1714',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.6)',
           }}
         />
       </div>

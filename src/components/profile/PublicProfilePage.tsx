@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -88,7 +88,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="space-y-7 pb-10 border-b border-white/[0.06]"
+          className="space-y-7 pb-10 border-b border-[--color-mist-500]"
         >
           <div className="flex items-center gap-5">
             <div className="glow-ring rounded-full">
@@ -124,7 +124,7 @@ export function PublicProfilePage({ userId, locale }: PublicProfilePageProps) {
             <div className="flex flex-wrap gap-1.5">
               {organizedTypes.map(type => (
                 <span key={type} className="px-3 py-1 rounded-full text-[11px] font-medium
-                                            bg-white/[0.03] border border-white/[0.08] text-[--color-mist-200]">
+                                            bg-[--color-night-950] border border-[--color-mist-500] text-[--color-mist-200]">
                   <span aria-hidden>{getCardTypeIcon(type)}</span> {type}
                 </span>
               ))}
@@ -267,8 +267,8 @@ function PublicEventRow({ card, locale, muted = false }: { card: TravelCard; loc
       className={cn(
         'text-start px-4 py-3 rounded-xl border transition-all group',
         muted
-          ? 'border-white/[0.04] hover:border-white/[0.1] opacity-75 hover:opacity-100'
-          : 'border-white/[0.06] hover:border-[--color-coral-500]/30 hover:bg-white/[0.02]'
+          ? 'border-[--color-mist-500] hover:border-[--color-mist-400] opacity-75 hover:opacity-100'
+          : 'border-[--color-mist-500] hover:border-[--color-coral-500]/30 hover:bg-[--color-night-900]'
       )}
     >
       <div className="flex items-center gap-2 text-[13px]">

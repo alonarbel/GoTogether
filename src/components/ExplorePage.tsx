@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { TravelCard } from '@/types'
@@ -175,9 +175,9 @@ export function ExplorePage() {
                   style={
                     view === 'grid'
                       ? {
-                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          background: 'linear-gradient(90deg, #d04a2d 0%, #b33a1f 100%)',
                           color: '#fff',
-                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(231,133,105,0.45)',
                         }
                       : { color: 'var(--color-mist-300)' }
                   }
@@ -192,9 +192,9 @@ export function ExplorePage() {
                   style={
                     view === 'map'
                       ? {
-                          background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                          background: 'linear-gradient(90deg, #d04a2d 0%, #b33a1f 100%)',
                           color: '#fff',
-                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(34,211,238,0.45)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px -4px rgba(231,133,105,0.45)',
                         }
                       : { color: 'var(--color-mist-300)' }
                   }
@@ -237,7 +237,7 @@ export function ExplorePage() {
                         <button
                           onClick={() => setPage(p => Math.max(1, p - 1))}
                           disabled={page === 1}
-                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                          className="p-2 rounded-lg border border-[--color-mist-500] bg-[--color-night-950]
                                      text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
                                      disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
@@ -248,10 +248,10 @@ export function ExplorePage() {
                           <button
                             key={n}
                             onClick={() => setPage(n)}
-                            className={`w-9 h-9 rounded-lg text-[12px] font-mono font-semibold tabular-nums transition-all ${
+                            className={`w-9 h-9 rounded-lg text-[12px] font-mono font-semibold tabular-nums transition-colors ${
                               n === page
-                                ? 'bg-[--color-coral-500] text-[--color-night-1000]'
-                                : 'border border-white/[0.06] bg-white/[0.02] text-[--color-mist-300] hover:text-[--color-mist-50] hover:border-white/[0.16]'
+                                ? 'bg-[--color-coral-500] text-white border border-[--color-coral-600]'
+                                : 'border border-[--color-mist-500] bg-transparent text-[--color-mist-200] hover:text-[--color-mist-50] hover:border-[--color-mist-400]'
                             }`}
                           >
                             {n}
@@ -261,7 +261,7 @@ export function ExplorePage() {
                         <button
                           onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                           disabled={page === totalPages}
-                          className="p-2 rounded-lg border border-white/[0.06] bg-white/[0.02]
+                          className="p-2 rounded-lg border border-[--color-mist-500] bg-[--color-night-950]
                                      text-[--color-mist-300] hover:text-[--color-coral-400] hover:border-[--color-coral-500]/30
                                      disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >

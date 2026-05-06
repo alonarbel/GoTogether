@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
@@ -185,7 +185,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 {card.title}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 pt-2 border-t border-white/[0.06]
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 pt-2 border-t border-[--color-mist-500]
                               text-[12px] font-medium text-[--color-mist-300]">
                 <span className="flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[--color-cyan-400]" strokeWidth={2.5} />
@@ -223,10 +223,10 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
               </p>
 
               {card.tags && card.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-white/[0.06]">
+                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-[--color-mist-500]">
                   {card.tags.map(tag => (
                     <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] font-medium
-                                              bg-white/[0.03] border border-white/[0.08]
+                                              bg-[--color-night-950] border border-[--color-mist-500]
                                               text-[--color-mist-300]
                                               hover:border-[--color-coral-500]/30 hover:text-[--color-coral-300]
                                               transition-colors">
@@ -263,8 +263,8 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                   >
                     <Link href={`/${locale}/profile/${p.user_id}`}
                       className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl
-                                 bg-white/[0.02] border border-white/[0.04]
-                                 hover:border-[--color-coral-500]/30 hover:bg-white/[0.04]
+                                 bg-[--color-night-950] border border-[--color-mist-500]
+                                 hover:border-[--color-coral-500]/30 hover:bg-[--color-night-900]
                                  transition-all group"
                     >
                       <div className="w-9 h-9 rounded-full overflow-hidden grid place-items-center
@@ -317,7 +317,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 <div className="space-y-4">
                   <div className="eyebrow">— capacity</div>
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/[0.10] text-center">
+                    <div className="p-4 rounded-2xl bg-[--color-night-900] border border-[--color-mist-500] text-center">
                       <div className="font-display text-4xl font-bold text-[--color-mist-50] tabular-nums leading-none">
                         {currentCount}
                       </div>
@@ -364,7 +364,7 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                       joined
                         ? 'bg-[--color-emerald-500]/20 text-[--color-emerald-400] border border-[--color-emerald-500]/40 hover:bg-[--color-rose-500]/15 hover:text-[--color-rose-400] hover:border-[--color-rose-500]/40'
                         : isFull
-                        ? 'bg-white/[0.04] text-[--color-mist-500] cursor-not-allowed border border-white/[0.06]'
+                        ? 'bg-[--color-night-900] text-[--color-mist-500] cursor-not-allowed border border-[--color-mist-500]'
                         : 'btn-primary'
                     )}
                   >
@@ -403,14 +403,14 @@ export function CardDetailPage({ card }: CardDetailPageProps) {
                 {card.phone && (
                   <a href={`tel:${card.phone}`}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl
-                               bg-white/[0.03] border border-white/[0.06]
+                               bg-[--color-night-950] border border-[--color-mist-500]
                                text-[12px] font-mono text-[--color-mist-200]
                                hover:text-[--color-coral-300] hover:border-[--color-coral-500]/30 transition-colors">
                     <Phone className="w-3.5 h-3.5" strokeWidth={2} />
                     {card.phone}
                   </a>
                 )}
-                <div className="px-3 py-2 rounded-xl bg-white/[0.02] text-[12px] text-[--color-mist-200]">
+                <div className="px-3 py-2 rounded-xl bg-[--color-night-950] text-[12px] text-[--color-mist-200]">
                   <div className="eyebrow mb-1">{t('contact')}</div>
                   {card.contactInfo}
                 </div>

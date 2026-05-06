@@ -64,7 +64,7 @@ export function EventPhotoGallery({ cardId, isParticipant }: EventPhotoGalleryPr
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
       className="space-y-5"
     >
-      <header className="flex items-end justify-between pb-4 border-b border-white/[0.06]">
+      <header className="flex items-end justify-between pb-4 border-b border-[--color-mist-500]">
         <div>
           <div className="eyebrow mb-1.5">— from the field</div>
           <h2 className="font-display text-[--color-mist-50] text-2xl font-semibold flex items-baseline gap-2">

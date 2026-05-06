@@ -52,7 +52,7 @@ export default function CardsMap({ cards }: CardsMapProps) {
       html: `<div style="
         width: 36px; height: 36px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, #14b8a6, #06b6d4);
+        background: linear-gradient(135deg, #14b8a6, #d04a2d);
         border: 2px solid white;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
@@ -99,7 +99,7 @@ export default function CardsMap({ cards }: CardsMapProps) {
                   onClick={() => router.push(`/${locale}/cards/${card.id}`)}
                   style={{
                     width: '100%', padding: '6px 12px',
-                    background: 'linear-gradient(90deg, #14b8a6, #06b6d4)',
+                    background: 'linear-gradient(90deg, #14b8a6, #d04a2d)',
                     color: 'white', border: 'none', borderRadius: 6,
                     fontSize: 12, fontWeight: 600, cursor: 'pointer',
                   }}

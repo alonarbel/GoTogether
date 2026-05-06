@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -108,7 +108,7 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
       <button
         onClick={handleToggle}
         className="relative flex items-center justify-center w-9 h-9 rounded-lg
-                   text-[--color-mist-300] hover:text-[--color-coral-400] hover:bg-white/[0.04]
+                   text-[--color-mist-300] hover:text-[--color-coral-400] hover:bg-[--color-night-900]
                    transition-all"
       >
         <Bell className="w-3.5 h-3.5" strokeWidth={2} />
@@ -138,7 +138,7 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
             transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
             className="glass-strong absolute end-0 top-full mt-2 w-80 z-[200] overflow-hidden rounded-xl"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[--color-mist-500]">
               <h3 className="font-display text-[--color-mist-50] text-sm font-semibold">{t('title')}</h3>
               {count > 0 && (
                 <button
@@ -166,13 +166,13 @@ export function NotificationsBell({ userId, locale }: NotificationsBellProps) {
                       key={n.id}
                       onClick={() => handleClick(n)}
                       className={`w-full flex items-start gap-3 px-4 py-3 transition-colors text-start
-                                  border-b border-white/[0.04] last:border-0 ${
-                        n.read ? 'hover:bg-white/[0.03]'
+                                  border-b border-[--color-mist-500] last:border-0 ${
+                        n.read ? 'hover:bg-[--color-night-900]'
                                : 'bg-gradient-to-r from-[--color-coral-500]/8 to-transparent hover:from-[--color-coral-500]/12'
                       }`}
                     >
                       <div className={`w-8 h-8 rounded-full grid place-items-center flex-shrink-0
-                                       bg-white/[0.05] border border-white/[0.06] ${color}`}>
+                                       bg-[--color-night-900] border border-[--color-mist-500] ${color}`}>
                         <Icon className="w-3.5 h-3.5" strokeWidth={2} />
                       </div>
                       <div className="min-w-0 flex-1">

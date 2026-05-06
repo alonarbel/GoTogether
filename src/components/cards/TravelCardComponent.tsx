@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { TravelCard } from '@/types'
 import { useTranslations } from 'next-intl'
 import { useRouter, useParams } from 'next/navigation'
@@ -71,7 +71,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
 
         {/* Type pill — top-left, brighter */}
         <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                        bg-black/50 backdrop-blur-md border border-white/20
+                        bg-[--color-night-1000]/70 backdrop-blur-md border border-white/20
                         text-[12px] font-bold text-white">
           <span aria-hidden>{getCardTypeIcon(card.type)}</span>
           <span>{tFilters(card.type as Parameters<typeof tFilters>[0])}</span>
@@ -142,7 +142,7 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
         </p>
 
         {/* Footer — participants */}
-        <div className="space-y-3 pt-3 border-t border-white/[0.08]">
+        <div className="space-y-3 pt-3 border-t border-[--color-mist-500]">
           <div className="flex items-center justify-between">
             <span className={cn(
               'flex items-center gap-2 font-mono text-[14px] font-bold',

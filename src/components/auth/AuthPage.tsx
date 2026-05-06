@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -28,9 +28,9 @@ const COUNTRY_CODES = [
 
 const inputClass =
   'w-full ps-11 pe-4 py-3 rounded-xl ' +
-  'bg-white/[0.03] border border-white/[0.08] ' +
+  'bg-[--color-night-950] border border-[--color-mist-500] ' +
   'text-[--color-mist-50] text-[14px] placeholder:text-[--color-mist-500] ' +
-  'focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-white/[0.05] ' +
+  'focus:outline-none focus:border-[--color-coral-500]/50 focus:bg-[--color-night-900] ' +
   'focus: ' +
   'transition-all duration-300'
 
@@ -128,7 +128,7 @@ export function AuthPage() {
 
           <div className="space-y-7 max-w-md">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            bg-[--color-night-900] border border-[--color-mist-500] backdrop-blur-md
                             text-[11px] font-mono text-[--color-mist-200] tracking-wide">
               <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
               <span>built for adventurers</span>
@@ -206,7 +206,7 @@ export function AuthPage() {
 
           {/* Tabs */}
           {mode !== 'reset' && (
-            <div className="flex gap-1 p-1 mb-6 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <div className="flex gap-1 p-1 mb-6 rounded-xl bg-[--color-night-950] border border-[--color-mist-500]">
               {(['login', 'register'] as const).map((m) => (
                 <button
                   key={m}
@@ -214,7 +214,7 @@ export function AuthPage() {
                   className={cn(
                     'flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all relative',
                     mode === m
-                      ? 'bg-[--color-coral-500] text-[--color-night-1000]'
+                      ? 'bg-[--color-coral-500] text-white'
                       : 'text-[--color-mist-300] hover:text-[--color-mist-50]'
                   )}
                 >
@@ -249,7 +249,7 @@ export function AuthPage() {
                     <div className="flex gap-2">
                       <div className="relative">
                         <select value={phoneCode} onChange={(e) => setPhoneCode(e.target.value)}
-                          className="appearance-none ps-3 pe-7 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl
+                          className="appearance-none ps-3 pe-7 py-3 bg-[--color-night-950] border border-[--color-mist-500] rounded-xl
                                      text-[--color-mist-50] text-[13px] font-mono focus:outline-none focus:border-[--color-coral-500]/50 cursor-pointer"
                           dir="ltr">
                           {COUNTRY_CODES.map((c) => (

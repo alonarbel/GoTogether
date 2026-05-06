@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
@@ -119,26 +119,28 @@ export function Navbar({ locale }: NavbarProps) {
         left: 0,
         right: 0,
         zIndex: 100,
-        backgroundColor: scrolled ? 'rgba(10,22,32,0.94)' : 'rgba(10,22,32,0.70)',
-        borderBottomColor: scrolled ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.06)',
-        boxShadow: scrolled ? '0 8px 24px -12px rgba(0,0,0,0.6)' : 'none',
+        backgroundColor: scrolled ? 'rgba(251,250,247,0.88)' : 'rgba(251,250,247,0.55)',
+        borderBottomColor: scrolled ? 'rgba(26,23,20,0.10)' : 'rgba(26,23,20,0.04)',
+        boxShadow: scrolled ? '0 1px 0 rgba(26,23,20,0.04), 0 8px 24px -12px rgba(26,23,20,0.18)' : 'none',
       }}
     >
-      {/* ── Logo with gradient orb ── */}
+      {/* ── Logo with sumac mark ── */}
       <Link href={`/${locale}`} className="flex items-center gap-2.5 group shrink-0">
-        <div className="relative w-10 h-10 grid place-items-center rounded-xl
-                        bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                        transition-all duration-500 group-hover:scale-105 group-hover:rotate-[-4deg]">
+        <div
+          className="relative w-10 h-10 grid place-items-center rounded-xl
+                     transition-transform duration-500 group-hover:scale-[1.04] group-hover:rotate-[-3deg]"
+          style={{ background: 'linear-gradient(135deg, #d04a2d 0%, #8e2b14 100%)' }}
+        >
           <Compass className="w-5 h-5 text-white" strokeWidth={2.5} />
-          <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-[--color-coral-500] via-[--color-violet-500] to-[--color-cyan-400]
-                          opacity-0 group-hover:opacity-50 blur-md transition-opacity duration-500 -z-10" />
         </div>
         <span className="hidden sm:flex flex-col leading-none">
-          <span className="font-display text-[--color-mist-50] text-[18px] font-bold tracking-tight"
-                style={{ fontVariationSettings: "'wdth' 110" }}>
+          <span
+            className="font-display text-[18px] font-semibold tracking-tight"
+            style={{ color: 'var(--color-mist-50)', fontVariationSettings: "'opsz' 24" }}
+          >
             {t('logo')}
           </span>
-          <span className="font-mono text-[10px] text-[--color-mist-300] tracking-[0.2em] uppercase mt-1 font-bold">
+          <span className="font-mono text-[10px] text-[--color-mist-300] tracking-[0.2em] uppercase mt-1 font-semibold">
             find your crew
           </span>
         </span>
@@ -146,11 +148,14 @@ export function Navbar({ locale }: NavbarProps) {
 
       {/* ── Search ── */}
       <div ref={searchRef} className="relative flex-1 max-w-sm mx-2">
-        <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all duration-300
-          ${searchOpen
-            ? 'bg-[--color-night-800]/80 border-[--color-coral-500]/40'
-            : 'bg-[--color-night-900]/60 border-white/[0.06] hover:border-white/[0.14]'}`}>
-          <Search className="w-3.5 h-3.5 text-[--color-mist-400] shrink-0" strokeWidth={2} />
+        <div
+          className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-colors duration-300"
+          style={{
+            backgroundColor: searchOpen ? '#ffffff' : 'rgba(255,255,255,0.65)',
+            borderColor: searchOpen ? 'var(--color-coral-500)' : 'var(--color-mist-500)',
+          }}
+        >
+          <Search className="w-3.5 h-3.5 text-[--color-mist-300] shrink-0" strokeWidth={2} />
           <input
             ref={inputRef}
             type="text"
@@ -161,11 +166,11 @@ export function Navbar({ locale }: NavbarProps) {
             autoComplete="off"
             placeholder={t('searchUsers')}
             className="flex-1 bg-transparent text-[--color-mist-50] text-[13px]
-                       placeholder:text-[--color-mist-500] focus:outline-none min-w-0"
+                       placeholder:text-[--color-mist-400] focus:outline-none min-w-0"
           />
           {searchQuery && (
             <button onClick={() => { setSearchQuery(''); setSearchResults([]) }} aria-label="Clear">
-              <X className="w-3.5 h-3.5 text-[--color-mist-400] hover:text-[--color-mist-50] transition-colors" />
+              <X className="w-3.5 h-3.5 text-[--color-mist-300] hover:text-[--color-mist-50] transition-colors" />
             </button>
           )}
         </div>
@@ -180,7 +185,10 @@ export function Navbar({ locale }: NavbarProps) {
               className="glass-strong absolute top-full mt-2 w-full overflow-hidden rounded-xl"
               style={{ zIndex: 9999 }}
             >
-              <div className="px-3.5 py-2 border-b border-white/[0.06] eyebrow">
+              <div
+                className="px-3.5 py-2 eyebrow"
+                style={{ borderBottom: '1px solid var(--color-mist-500)' }}
+              >
                 {t('searchUsers')}
               </div>
               {searchResults.map((r, i) => {
@@ -192,24 +200,29 @@ export function Navbar({ locale }: NavbarProps) {
                     onMouseEnter={() => setSelectedIndex(i)}
                     className="w-full flex items-center gap-3 px-3.5 py-2.5 transition-colors text-start relative"
                     style={{
-                      backgroundColor: active ? 'rgba(34,211,238,0.10)' : 'transparent',
+                      backgroundColor: active ? 'rgba(208,74,45,0.08)' : 'transparent',
                     }}
                   >
                     {active && (
                       <span
                         aria-hidden
                         className="absolute inset-y-1 start-0 w-[3px] rounded-full"
-                        style={{ background: 'linear-gradient(180deg, #22d3ee, #a78bfa)' }}
+                        style={{ background: 'var(--color-coral-500)' }}
                       />
                     )}
-                    <div className="w-8 h-8 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono shrink-0
-                                    text-[--color-mist-100] border border-white/[0.06]"
-                         style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.20), rgba(34,211,238,0.20))' }}>
+                    <div
+                      className="w-8 h-8 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono font-semibold shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(242,167,143,0.55), rgba(224,191,182,0.55))',
+                        color: 'var(--color-mist-50)',
+                        border: '1px solid var(--color-mist-500)',
+                      }}
+                    >
                       {r.avatar_url
                         ? <img src={r.avatar_url} alt={r.full_name} className="w-full h-full object-cover" />
                         : r.full_name[0]?.toUpperCase()}
                     </div>
-                    <span className={`text-[13px] truncate ${active ? 'text-[--color-coral-300] font-semibold' : 'text-[--color-mist-50]'}`}>
+                    <span className={`text-[13px] truncate ${active ? 'text-[--color-coral-600] font-semibold' : 'text-[--color-mist-50]'}`}>
                       {r.full_name}
                     </span>
                   </button>
@@ -226,7 +239,7 @@ export function Navbar({ locale }: NavbarProps) {
           onClick={toggleLocale}
           className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
                      text-[13px] font-bold
-                     text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
+                     text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-[--color-night-900]
                      transition-all"
         >
           <Globe className="w-4 h-4" strokeWidth={2.25} />
@@ -241,7 +254,7 @@ export function Navbar({ locale }: NavbarProps) {
               href={`/${locale}/my-events`}
               className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl
                          text-[13px] font-bold
-                         text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-white/[0.06]
+                         text-[--color-mist-200] hover:text-[--color-mist-50] hover:bg-[--color-night-900]
                          transition-all"
             >
               <CalendarDays className="w-4 h-4" strokeWidth={2.25} />
@@ -263,7 +276,7 @@ export function Navbar({ locale }: NavbarProps) {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="glow-ring flex items-center gap-2 p-1.5 rounded-full
-                           hover:bg-white/[0.04] transition-colors"
+                           hover:bg-[--color-night-900] transition-colors"
               >
                 <div className="w-7 h-7 rounded-full overflow-hidden grid place-items-center text-[11px] font-mono
                                 bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500]
@@ -285,7 +298,7 @@ export function Navbar({ locale }: NavbarProps) {
                     transition={{ duration: 0.18, ease: [0.32, 0.72, 0, 1] }}
                     className="glass-strong absolute end-0 top-full mt-2 w-64 z-50 overflow-hidden rounded-xl"
                   >
-                    <div className="p-4 border-b border-white/[0.06] flex items-center gap-3">
+                    <div className="p-4 border-b border-[--color-mist-500] flex items-center gap-3">
                       <div className="w-11 h-11 rounded-full overflow-hidden grid place-items-center text-[14px] font-display font-semibold
                                       bg-gradient-to-br from-[--color-coral-500] to-[--color-violet-500] text-white">
                         {profile?.avatar_url
@@ -307,14 +320,14 @@ export function Navbar({ locale }: NavbarProps) {
                       onClick={() => setMenuOpen(false)}
                       className="w-full flex items-center gap-2.5 px-4 py-3
                                  text-[13px] text-[--color-mist-200]
-                                 hover:bg-white/[0.04] hover:text-[--color-mist-50] transition-colors"
+                                 hover:bg-[--color-night-900] hover:text-[--color-mist-50] transition-colors"
                     >
                       <UserCircle className="w-3.5 h-3.5" strokeWidth={2} />
                       {t('profile')}
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center gap-2.5 px-4 py-3 border-t border-white/[0.06]
+                      className="w-full flex items-center gap-2.5 px-4 py-3 border-t border-[--color-mist-500]
                                  text-[13px] text-[--color-rose-400]
                                  hover:bg-[--color-rose-500]/10 transition-colors"
                     >

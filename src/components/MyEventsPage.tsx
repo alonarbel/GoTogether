@@ -75,7 +75,7 @@ export function MyEventsPage() {
         </div>
       ) : (
         <div className="py-12 text-center text-[12px] font-medium text-[--color-mist-500]
-                        rounded-xl border border-dashed border-white/[0.06]">
+                        rounded-xl border border-dashed border-[--color-mist-500]">
           {emptyMsg || t('empty')}
         </div>
       )}
@@ -90,7 +90,7 @@ export function MyEventsPage() {
           className="flex items-end justify-between gap-6 flex-wrap">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-                            bg-white/[0.04] border border-white/[0.08] backdrop-blur-md
+                            bg-[--color-night-900] border border-[--color-mist-500] backdrop-blur-md
                             text-[11px] font-mono text-[--color-mist-200] tracking-wide">
               <Sparkles className="w-3 h-3 text-[--color-amber-400]" strokeWidth={2.5} />
               <span>your dossier</span>
@@ -120,11 +120,11 @@ export function MyEventsPage() {
             {(pastCreated.length > 0 || pastJoined.length > 0) && (
               <div className="space-y-14 pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-white/[0.06]" />
+                  <div className="flex-1 h-px bg-[--color-night-900]" />
                   <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[--color-mist-500]">
                     archive · {t('past')}
                   </span>
-                  <div className="flex-1 h-px bg-white/[0.06]" />
+                  <div className="flex-1 h-px bg-[--color-night-900]" />
                 </div>
                 {pastCreated.length > 0 && <Section accent="mist" label={`${t('created')} · ${t('past')}`} cards={pastCreated} />}
                 {pastJoined.length > 0 && <Section accent="mist" label={`${t('joined')} · ${t('past')}`} cards={pastJoined} />}

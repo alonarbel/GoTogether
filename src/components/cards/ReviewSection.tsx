@@ -133,7 +133,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
       className="space-y-5"
     >
-      <header className="flex items-end justify-between pb-4 border-b border-white/[0.06]">
+      <header className="flex items-end justify-between pb-4 border-b border-[--color-mist-500]">
         <div>
           <div className="eyebrow mb-1.5">— guestbook</div>
           <h2 className="font-display text-[--color-mist-50] text-2xl font-semibold flex items-baseline gap-2">
@@ -183,7 +183,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
               onChange={e => setComment(e.target.value)}
               placeholder={t('commentPlaceholder')}
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl
+              className="w-full px-3.5 py-2.5 bg-[--color-night-950] border border-[--color-mist-500] rounded-xl
                          text-[--color-mist-50] text-[13px] placeholder:text-[--color-mist-500]
                          focus:outline-none focus:border-[--color-coral-500]/40 transition-all resize-none"
             />
@@ -235,7 +235,7 @@ export function ReviewSection({ cardId, cardOrganizerRole, cardCreatedByUserId, 
               'p-4 rounded-2xl border space-y-3',
               r.reviewer_id === user?.id
                 ? 'bg-gradient-to-br from-[--color-coral-500]/8 to-[--color-violet-500]/4 border-[--color-coral-500]/20'
-                : 'bg-white/[0.02] border-white/[0.06]'
+                : 'bg-[--color-night-950] border-[--color-mist-500]'
             )}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">

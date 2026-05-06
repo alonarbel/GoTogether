@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useTranslations } from 'next-intl'
 import { CardType } from '@/types'
 import { getCardTypeIcon, cn } from '@/lib/utils'
@@ -38,9 +38,9 @@ export function FilterBar({ active, onChange, dateFrom, dateTo, onDateFromChange
                 'text-[12px] font-semibold',
                 isActive
                   ? 'text-white'
-                  : 'text-[--color-mist-300] hover:text-[--color-mist-50] hover:bg-white/[0.04] border border-white/[0.06]'
+                  : 'text-[--color-mist-300] hover:text-[--color-mist-50] hover:bg-[--color-night-900] border border-[--color-mist-500]'
               )}
-              style={isActive ? { boxShadow: '0 6px 20px -6px rgba(34,211,238,0.45)' } : undefined}
+              style={isActive ? { boxShadow: '0 6px 20px -6px rgba(231,133,105,0.45)' } : undefined}
             >
               {isActive && (
                 <motion.div
@@ -48,7 +48,7 @@ export function FilterBar({ active, onChange, dateFrom, dateTo, onDateFromChange
                   className="absolute inset-0 rounded-full"
                   transition={{ type: 'spring', bounce: 0.18, duration: 0.5 }}
                   style={{
-                    background: 'linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%)',
+                    background: 'linear-gradient(90deg, #d04a2d 0%, #b33a1f 100%)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
                   }}
                 />
@@ -69,7 +69,7 @@ export function FilterBar({ active, onChange, dateFrom, dateTo, onDateFromChange
           <label className="eyebrow">{t('dateFrom')}</label>
           <LocaleDatePicker value={dateFrom} onChange={onDateFromChange} locale={locale} />
         </div>
-        <div className="hidden sm:block w-px h-4 bg-white/[0.08]" />
+        <div className="hidden sm:block w-px h-4 bg-[--color-night-900]" />
         <div className="flex items-center gap-2.5">
           <label className="eyebrow">{t('dateTo')}</label>
           <LocaleDatePicker value={dateTo} onChange={onDateToChange} locale={locale} />
