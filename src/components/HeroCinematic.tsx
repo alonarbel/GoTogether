@@ -184,33 +184,45 @@ export function HeroCinematic({
   const containerRef = useRef<HTMLElement>(null)
 
   const photoUrls = useMemo(() => {
-    const urls: string[] = []
+    const today = new Date().toISOString().split('T')[0]
+    // upcoming only — drop past events so hero never shows stale photos
+    const upcoming = cards.filter(c => !c.eventDate || c.eventDate >= today)
+
+    // gather every image from upcoming cards (dedup)
+    const pool: string[] = []
     const seen = new Set<string>()
-    const push = (u?: string) => {
-      if (!u || seen.has(u)) return
-      urls.push(u)
-      seen.add(u)
-    }
-    // pass 1: first image per card → max card variety
-    for (const c of cards) {
-      push(c.images?.[0])
-      if (urls.length >= PHOTO_SPECS.length) break
-    }
-    // pass 2: any remaining card images
-    if (urls.length < PHOTO_SPECS.length) {
-      for (const c of cards) {
-        if (!c.images) continue
-        for (let i = 1; i < c.images.length; i++) {
-          push(c.images[i])
-          if (urls.length >= PHOTO_SPECS.length) break
+    for (const c of upcoming) {
+      if (!c.images) continue
+      for (const u of c.images) {
+        if (u && !seen.has(u)) {
+          pool.push(u)
+          seen.add(u)
         }
-        if (urls.length >= PHOTO_SPECS.length) break
       }
     }
-    // pass 3: curated travel fallbacks when DB is sparse
-    for (const u of FALLBACK_PHOTOS) {
-      if (urls.length >= PHOTO_SPECS.length) break
-      push(u)
+
+    // Fisher-Yates shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    }
+
+    const urls = pool.slice(0, PHOTO_SPECS.length)
+
+    // top up with curated fallbacks if pool too small
+    if (urls.length < PHOTO_SPECS.length) {
+      const fallbacks = [...FALLBACK_PHOTOS]
+      for (let i = fallbacks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[fallbacks[i], fallbacks[j]] = [fallbacks[j], fallbacks[i]]
+      }
+      for (const u of fallbacks) {
+        if (urls.length >= PHOTO_SPECS.length) break
+        if (!seen.has(u)) {
+          urls.push(u)
+          seen.add(u)
+        }
+      }
     }
     return urls
   }, [cards])
