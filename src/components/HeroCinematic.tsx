@@ -69,14 +69,14 @@ function PhotoTile({ url, spec, smx, smy }: PhotoTileProps) {
       transition={{ delay: 0.95 + spec.delay, duration: 1.15, ease: EASE_ENTRY }}
       style={{
         right: `${spec.rightPct}%`,
-        top: `${spec.topPct}%`,
+        top: `calc(${spec.topPct}% - ${height / 2}px)`,
         width: spec.width,
         height,
         x: tx,
         y: ty,
         zIndex: spec.zIndex,
       }}
-      className="absolute -translate-y-1/2 photo-tile float-slow"
+      className="absolute photo-tile float-slow"
     >
       {url ? (
         <img
@@ -184,12 +184,11 @@ export function HeroCinematic({
   const t = useTranslations('hero')
   const containerRef = useRef<HTMLElement>(null)
 
-  const photoUrls = useMemo(() => {
+  const [photoUrls, setPhotoUrls] = useState<string[]>([])
+  useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
-    // upcoming only — drop past events so hero never shows stale photos
     const upcoming = cards.filter(c => !c.eventDate || c.eventDate >= today)
 
-    // gather every image from upcoming cards (dedup)
     const pool: string[] = []
     const seen = new Set<string>()
     for (const c of upcoming) {
@@ -202,7 +201,7 @@ export function HeroCinematic({
       }
     }
 
-    // Fisher-Yates shuffle
+    // Fisher-Yates — runs client-side only, no SSR/CSR mismatch
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[pool[i], pool[j]] = [pool[j], pool[i]]
@@ -210,7 +209,6 @@ export function HeroCinematic({
 
     const urls = pool.slice(0, PHOTO_SPECS.length)
 
-    // top up with curated fallbacks if pool too small
     if (urls.length < PHOTO_SPECS.length) {
       const fallbacks = [...FALLBACK_PHOTOS]
       for (let i = fallbacks.length - 1; i > 0; i--) {
@@ -225,7 +223,7 @@ export function HeroCinematic({
         }
       }
     }
-    return urls
+    setPhotoUrls(urls)
   }, [cards])
 
   // Cursor parallax
