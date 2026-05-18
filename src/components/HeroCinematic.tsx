@@ -38,16 +38,17 @@ interface PhotoSpec {
   primary?: boolean
 }
 
+// 9 tiles spread across right-hand third of hero, none overlapping primary
 const PHOTO_SPECS: PhotoSpec[] = [
-  { rightPct: 4,  topPct: 46, rotate:  4,   width: 360, ratio: 1.30, depth: 0.20, delay: 0.10, zIndex: 5, primary: true },
-  { rightPct: 24, topPct: 12, rotate: -7,   width: 200, ratio: 1.18, depth: 0.45, delay: 0.30, zIndex: 4 },
-  { rightPct: 28, topPct: 80, rotate:  9,   width: 178, ratio: 1.20, depth: 0.55, delay: 0.50, zIndex: 4 },
-  { rightPct: 1,  topPct: 8,  rotate: -3,   width: 120, ratio: 1.30, depth: 0.62, delay: 0.65, zIndex: 2 },
-  { rightPct: 2,  topPct: 92, rotate:  6,   width: 140, ratio: 1.10, depth: 0.70, delay: 0.78, zIndex: 2 },
-  { rightPct: 44, topPct: 22, rotate: -10,  width: 132, ratio: 1.22, depth: 0.50, delay: 0.42, zIndex: 3 },
-  { rightPct: 46, topPct: 72, rotate:  7,   width: 148, ratio: 1.14, depth: 0.58, delay: 0.58, zIndex: 3 },
-  { rightPct: 38, topPct: 48, rotate: -5,   width: 108, ratio: 1.32, depth: 0.68, delay: 0.72, zIndex: 1 },
-  { rightPct: 18, topPct: 36, rotate:  6,   width: 116, ratio: 1.25, depth: 0.40, delay: 0.86, zIndex: 1 },
+  { rightPct: 4,  topPct: 50, rotate:  4,   width: 320, ratio: 1.28, depth: 0.20, delay: 0.10, zIndex: 5, primary: true },
+  { rightPct: 24, topPct: 10, rotate: -7,   width: 180, ratio: 1.18, depth: 0.40, delay: 0.28, zIndex: 4 },
+  { rightPct: 32, topPct: 82, rotate:  9,   width: 180, ratio: 1.18, depth: 0.50, delay: 0.42, zIndex: 4 },
+  { rightPct: 1,  topPct: 7,  rotate: -4,   width: 130, ratio: 1.25, depth: 0.55, delay: 0.56, zIndex: 3 },
+  { rightPct: 0,  topPct: 93, rotate:  6,   width: 150, ratio: 1.10, depth: 0.62, delay: 0.70, zIndex: 3 },
+  { rightPct: 34, topPct: 30, rotate: -9,   width: 130, ratio: 1.30, depth: 0.50, delay: 0.32, zIndex: 3 },
+  { rightPct: 36, topPct: 60, rotate:  7,   width: 140, ratio: 1.20, depth: 0.55, delay: 0.48, zIndex: 3 },
+  { rightPct: 12, topPct: 16, rotate:  5,   width: 115, ratio: 1.20, depth: 0.65, delay: 0.62, zIndex: 2 },
+  { rightPct: 14, topPct: 90, rotate: -5,   width: 120, ratio: 1.15, depth: 0.70, delay: 0.78, zIndex: 2 },
 ]
 
 interface PhotoTileProps {
