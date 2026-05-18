@@ -154,6 +154,18 @@ function MagneticButton({ children, onClick, className, primary }: MagneticBtnPr
   )
 }
 
+const FALLBACK_PHOTOS = [
+  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=720&q=80',
+  'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=720&q=80',
+  'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=720&q=80',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&q=80',
+  'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=720&q=80',
+  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=720&q=80',
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=720&q=80',
+  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=720&q=80',
+  'https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?w=720&q=80',
+]
+
 const TICKER_WORDS = [
   'Lisbon', 'Tel Aviv', 'Tokyo', 'Reykjavík', 'Bali', 'Marrakesh', 'Patagonia',
   'Kyoto', 'Cape Town', 'Seoul', 'Athens', 'Mexico City', 'Tbilisi', 'Lagos', 'Hanoi',
@@ -174,29 +186,31 @@ export function HeroCinematic({
   const photoUrls = useMemo(() => {
     const urls: string[] = []
     const seen = new Set<string>()
-    // pass 1: first image per card for max variety
+    const push = (u?: string) => {
+      if (!u || seen.has(u)) return
+      urls.push(u)
+      seen.add(u)
+    }
+    // pass 1: first image per card → max card variety
     for (const c of cards) {
-      const u = c.images?.[0]
-      if (u && !seen.has(u)) {
-        urls.push(u)
-        seen.add(u)
-      }
+      push(c.images?.[0])
       if (urls.length >= PHOTO_SPECS.length) break
     }
-    // pass 2: fill remaining slots with secondary images
+    // pass 2: any remaining card images
     if (urls.length < PHOTO_SPECS.length) {
       for (const c of cards) {
         if (!c.images) continue
         for (let i = 1; i < c.images.length; i++) {
-          const u = c.images[i]
-          if (u && !seen.has(u)) {
-            urls.push(u)
-            seen.add(u)
-          }
+          push(c.images[i])
           if (urls.length >= PHOTO_SPECS.length) break
         }
         if (urls.length >= PHOTO_SPECS.length) break
       }
+    }
+    // pass 3: curated travel fallbacks when DB is sparse
+    for (const u of FALLBACK_PHOTOS) {
+      if (urls.length >= PHOTO_SPECS.length) break
+      push(u)
     }
     return urls
   }, [cards])
