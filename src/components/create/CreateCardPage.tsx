@@ -113,7 +113,7 @@ export function CreateCardPage() {
         // No photo uploaded — auto-pick an image that relates to the card.
         await supabase.from('card_images').insert({
           card_id: result.id,
-          url: autoImageForCard({ type: form.type, title: form.title, tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [] }),
+          url: autoImageForCard({ type: form.type, title: form.title, city: form.city, country: form.country, tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [] }),
           position: 0,
         })
       }
