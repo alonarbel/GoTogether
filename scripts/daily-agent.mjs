@@ -199,9 +199,8 @@ async function main() {
 
   for (let turn = 0; turn < 8; turn++) {
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-8',
+      model: 'claude-haiku-4-5',
       max_tokens: 2048,
-      thinking: { type: 'adaptive' },
       system: SYSTEM,
       tools,
       messages,
