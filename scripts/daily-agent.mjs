@@ -153,9 +153,12 @@ async function getCandidateCards() {
 // Demo default: email only yourself. Flip DEMO_MODE to false to email real users
 // (everyone who hasn't already joined that card).
 const DEMO_MODE = true
+// Extra demo recipients (comma-separated) on top of QA_EMAIL.
+const EXTRA_RECIPIENTS = (process.env.EXTRA_RECIPIENTS || '')
+  .split(',').map((s) => s.trim()).filter(Boolean)
 
 async function getRecipients(card) {
-  if (DEMO_MODE) return [QA_EMAIL]
+  if (DEMO_MODE) return [...new Set([QA_EMAIL, ...EXTRA_RECIPIENTS])]
 
   // Real version: all registered users who haven't joined this card.
   const joined = new Set(card.participantUserIds)
