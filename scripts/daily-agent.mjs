@@ -14,7 +14,6 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
-import nodemailer from 'nodemailer'
 import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -40,17 +39,15 @@ const {
   SUPABASE_SERVICE_ROLE_KEY,
   ANTHROPIC_API_KEY,
   QA_EMAIL,
-  GMAIL_APP_PASSWORD,
+  RESEND_API_KEY,
 } = process.env
-// Gmail account the agent sends from. Defaults to QA_EMAIL.
-const GMAIL_USER = process.env.GMAIL_USER || QA_EMAIL
 
 for (const [name, val] of Object.entries({
   NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   ANTHROPIC_API_KEY,
   QA_EMAIL,
-  GMAIL_APP_PASSWORD,
+  RESEND_API_KEY,
 })) {
   if (!val) {
     console.error(`[agent] Missing ${name} in .env.local — aborting.`)
@@ -64,13 +61,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 })
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
 
-// Sends through your Gmail via SMTP (App Password) — delivers to anyone, no
-// domain needed. From-address is your Gmail account.
-const FROM = `GoTogether <${GMAIL_USER}>`
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
-})
+const FROM = process.env.MAIL_FROM || 'GoTogether <onboarding@resend.dev>'
 // Public base URL of the deployed app (Vercel). Card links point here.
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
@@ -185,10 +176,17 @@ async function getRecipients(card) {
   return recipients
 }
 
-// ─── Send via Gmail SMTP ─────────────────────────────────────────────────────
+// ─── Resend send (one request per recipient, so one bad address doesn't block
+// the rest — the shared onboarding@resend.dev sender only delivers to your own
+// verified email, so other addresses 403 individually). ─────────────────────
 async function sendEmail(to, subject, html) {
-  const info = await transporter.sendMail({ from: FROM, to, subject, html })
-  return { id: info.messageId, accepted: info.accepted }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+  })
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`)
+  return res.json()
 }
 
 // ─── Tools exposed to the agent ──────────────────────────────────────────────
@@ -233,9 +231,19 @@ async function runTool(name, input) {
     if (recipients.length === 0) return { ok: false, error: 'No recipients.' }
 
     const html = buildEmailHtml(card, input.articleHtml)
-    await sendEmail(recipients, input.subject, html)
-    console.log(`[agent] send_promo_email -> "${input.subject}" to ${recipients.length} recipient(s)`)
-    return { ok: true, sentTo: recipients.length, cardId: input.cardId }
+    const sent = []
+    const failed = []
+    for (const to of recipients) {
+      try {
+        await sendEmail(to, input.subject, html)
+        sent.push(to)
+      } catch (e) {
+        failed.push({ to, error: e instanceof Error ? e.message : String(e) })
+        console.warn(`[agent] send failed for ${to}: ${e instanceof Error ? e.message : e}`)
+      }
+    }
+    console.log(`[agent] send_promo_email -> "${input.subject}" | sent ${sent.length}, failed ${failed.length}`)
+    return { ok: sent.length > 0, sentTo: sent, failed, cardId: input.cardId }
   }
 
   return { ok: false, error: `Unknown tool ${name}` }
