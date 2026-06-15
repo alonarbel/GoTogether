@@ -14,6 +14,7 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
+import nodemailer from 'nodemailer'
 import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -38,16 +39,18 @@ const {
   NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   ANTHROPIC_API_KEY,
-  RESEND_API_KEY,
   QA_EMAIL,
+  GMAIL_APP_PASSWORD,
 } = process.env
+// Gmail account the agent sends from. Defaults to QA_EMAIL.
+const GMAIL_USER = process.env.GMAIL_USER || QA_EMAIL
 
 for (const [name, val] of Object.entries({
   NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   ANTHROPIC_API_KEY,
-  RESEND_API_KEY,
   QA_EMAIL,
+  GMAIL_APP_PASSWORD,
 })) {
   if (!val) {
     console.error(`[agent] Missing ${name} in .env.local — aborting.`)
@@ -61,10 +64,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 })
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
 
-// Sender. Default is Resend's shared sandbox address (only delivers to your own
-// verified email). Once you verify a domain in Resend, set MAIL_FROM to
-// "GoTogether <hello@yourdomain>" so it delivers to everyone.
-const FROM = process.env.MAIL_FROM || 'GoTogether <onboarding@resend.dev>'
+// Sends through your Gmail via SMTP (App Password) — delivers to anyone, no
+// domain needed. From-address is your Gmail account.
+const FROM = `GoTogether <${GMAIL_USER}>`
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+})
 // Public base URL of the deployed app (Vercel). Card links point here.
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
@@ -179,18 +185,10 @@ async function getRecipients(card) {
   return recipients
 }
 
-// ─── Resend send (same shape as scripts/qa-check.mjs) ────────────────────────
+// ─── Send via Gmail SMTP ─────────────────────────────────────────────────────
 async function sendEmail(to, subject, html) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to, subject, html }),
-  })
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Resend ${res.status}: ${body}`)
-  }
-  return res.json()
+  const info = await transporter.sendMail({ from: FROM, to, subject, html })
+  return { id: info.messageId, accepted: info.accepted }
 }
 
 // ─── Tools exposed to the agent ──────────────────────────────────────────────
