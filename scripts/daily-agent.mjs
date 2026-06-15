@@ -14,6 +14,7 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
+import nodemailer from 'nodemailer'
 import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -40,14 +41,19 @@ const {
   ANTHROPIC_API_KEY,
   QA_EMAIL,
   RESEND_API_KEY,
+  GMAIL_APP_PASSWORD,
 } = process.env
+const GMAIL_USER = process.env.GMAIL_USER || QA_EMAIL
+// Use Gmail SMTP when an app password is set (delivers to anyone); else Resend.
+const USE_GMAIL = Boolean(GMAIL_APP_PASSWORD)
 
 for (const [name, val] of Object.entries({
   NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
   ANTHROPIC_API_KEY,
   QA_EMAIL,
-  RESEND_API_KEY,
+  // Need a Gmail app password OR a Resend key to send.
+  EMAIL_TRANSPORT: GMAIL_APP_PASSWORD || RESEND_API_KEY,
 })) {
   if (!val) {
     console.error(`[agent] Missing ${name} in .env.local — aborting.`)
@@ -61,7 +67,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 })
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
 
-const FROM = process.env.MAIL_FROM || 'GoTogether <onboarding@resend.dev>'
+const FROM = USE_GMAIL
+  ? `GoTogether <${GMAIL_USER}>`
+  : process.env.MAIL_FROM || 'GoTogether <onboarding@resend.dev>'
+const gmailTransport = USE_GMAIL
+  ? nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD } })
+  : null
 // Public base URL of the deployed app (Vercel). Card links point here.
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
@@ -176,10 +187,14 @@ async function getRecipients(card) {
   return recipients
 }
 
-// ─── Resend send (one request per recipient, so one bad address doesn't block
-// the rest — the shared onboarding@resend.dev sender only delivers to your own
-// verified email, so other addresses 403 individually). ─────────────────────
+// ─── Send one email. Gmail SMTP (delivers to anyone) when an app password is
+// set, otherwise Resend (sandbox: only your own verified address). One call per
+// recipient so one bad address doesn't block the rest. ───────────────────────
 async function sendEmail(to, subject, html) {
+  if (USE_GMAIL) {
+    const info = await gmailTransport.sendMail({ from: FROM, to, subject, html })
+    return { id: info.messageId }
+  }
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
