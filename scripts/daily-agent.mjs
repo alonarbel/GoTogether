@@ -61,7 +61,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 })
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
 
-const FROM = 'GoTogether <onboarding@resend.dev>'
+// Sender. Default is Resend's shared sandbox address (only delivers to your own
+// verified email). Once you verify a domain in Resend, set MAIL_FROM to
+// "GoTogether <hello@yourdomain>" so it delivers to everyone.
+const FROM = process.env.MAIL_FROM || 'GoTogether <onboarding@resend.dev>'
 // Public base URL of the deployed app (Vercel). Card links point here.
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
