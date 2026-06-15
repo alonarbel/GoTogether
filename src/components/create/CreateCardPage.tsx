@@ -9,6 +9,7 @@ import { CheckCircle2, Upload, ArrowLeft, ArrowRight, Check, Loader2, LogIn } fr
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/Toast'
 import { createCard } from '@/lib/cards'
+import { autoImageForCard } from '@/lib/cardImage'
 import { geocodeAddress } from '@/lib/locationCoords'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -108,6 +109,13 @@ export function CreateCardPage() {
             })
           }
         }))
+      } else {
+        // No photo uploaded — auto-pick an image that relates to the card.
+        await supabase.from('card_images').insert({
+          card_id: result.id,
+          url: autoImageForCard({ type: form.type, title: form.title, tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [] }),
+          position: 0,
+        })
       }
 
       setSubmitted(true)
