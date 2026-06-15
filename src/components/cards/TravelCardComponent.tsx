@@ -59,6 +59,12 @@ export function TravelCardComponent({ card, index = 0 }: TravelCardProps) {
             src={card.images[0]}
             alt={card.title}
             className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.08]"
+            onError={(e) => {
+              const img = e.currentTarget
+              if (img.dataset.fallback) return
+              img.dataset.fallback = '1'
+              img.src = `https://picsum.photos/seed/${card.id}/1200/800`
+            }}
           />
         ) : (
           <div className="w-full h-full grid place-items-center text-7xl select-none

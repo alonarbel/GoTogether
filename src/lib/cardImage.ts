@@ -4,22 +4,25 @@
 // English Flickr tags; otherwise we fall back to a per-type keyword.
 
 // Activity / place keywords → English Flickr tags. First match wins.
+// IMPORTANT: LoremFlickr ANDs multiple tags and returns HTTP 500 when a tag has
+// no photos. So use ONE common, well-populated tag per entry — niche words
+// (e.g. "padel") 500 and must be broadened (→ "tennis").
 const KEYWORDS: { match: RegExp; tag: string }[] = [
-  { match: /padel|פאדל|פדל/i, tag: 'padel' },
+  { match: /padel|פאדל|פדל/i, tag: 'tennis' },
   { match: /tennis|טניס/i, tag: 'tennis' },
   { match: /basketbal|כדורסל/i, tag: 'basketball' },
   { match: /footbal|soccer|כדורגל/i, tag: 'soccer' },
   { match: /surf|גליש/i, tag: 'surfing' },
-  { match: /div(e|ing)|צלילה|snorkel|שנורקל/i, tag: 'scuba,diving' },
+  { match: /div(e|ing)|צלילה|snorkel|שנורקל/i, tag: 'diving' },
   { match: /yoga|יוגה/i, tag: 'yoga' },
   { match: /run|מרתון|ריצה/i, tag: 'running' },
   { match: /bike|cycl|אופני|רכיב/i, tag: 'cycling' },
   { match: /hik|trek|טרק|מסלול|טיול/i, tag: 'hiking' },
   { match: /waterfall|מפל|נחל|river/i, tag: 'waterfall' },
   { match: /desert|מדבר|נגב|מצדה|מכתש|crater/i, tag: 'desert' },
-  { match: /star|כוכב|astro|אסטרו|night sky/i, tag: 'stargazing,night' },
+  { match: /star|כוכב|astro|אסטרו|night sky/i, tag: 'night' },
   { match: /cook|בישול|בשל/i, tag: 'cooking' },
-  { match: /food|אוכל|שוק|market|קולינר|טעימ/i, tag: 'streetfood,market' },
+  { match: /food|אוכל|שוק|market|קולינר|טעימ/i, tag: 'food' },
   { match: /ceramic|pottery|קרמיק|חרס/i, tag: 'pottery' },
   { match: /wine|יין/i, tag: 'wine' },
   { match: /jerusalem|ירושלים/i, tag: 'jerusalem' },
@@ -27,11 +30,11 @@ const KEYWORDS: { match: RegExp; tag: string }[] = [
   { match: /beach|חוף|\bים\b|sea/i, tag: 'beach' },
 ]
 
-// Per-type fallback when no keyword matched.
+// Per-type fallback when no keyword matched — single common tags only.
 const TYPE_TAG: Record<string, string> = {
-  trip: 'travel,landscape',
-  attraction: 'landmark,sightseeing',
-  workshop: 'workshop,craft',
+  trip: 'travel',
+  attraction: 'landmark',
+  workshop: 'workshop',
   sport: 'sport',
   food: 'food',
   other: 'event',
