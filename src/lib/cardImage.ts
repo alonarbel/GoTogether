@@ -1,16 +1,48 @@
 // Auto-image for cards created without an uploaded photo.
-// Builds a text prompt from the card's own fields and generates a matching image
-// via Pollinations (free, no API key). The result truly relates to the event —
-// "padel tournament in Tel Aviv" yields a padel image, not random stock.
+// Uses LoremFlickr (free, no API key) which returns a real photo matching
+// keyword tags. Titles are often Hebrew, so we map activity/place words to
+// English Flickr tags; otherwise we fall back to a per-type keyword.
 
-// English anchor per card type so non-English titles still steer the image.
-const TYPE_HINT: Record<string, string> = {
-  trip: 'travel adventure outdoors',
-  attraction: 'tourist attraction sightseeing',
-  workshop: 'hands-on workshop class',
-  sport: 'sports activity action',
-  food: 'food culinary tasting',
-  other: 'social group event',
+// Activity / place keywords → English Flickr tags. First match wins.
+const KEYWORDS: { match: RegExp; tag: string }[] = [
+  { match: /padel|פאדל|פדל/i, tag: 'padel' },
+  { match: /tennis|טניס/i, tag: 'tennis' },
+  { match: /basketbal|כדורסל/i, tag: 'basketball' },
+  { match: /footbal|soccer|כדורגל/i, tag: 'soccer' },
+  { match: /surf|גליש/i, tag: 'surfing' },
+  { match: /div(e|ing)|צלילה|snorkel|שנורקל/i, tag: 'scuba,diving' },
+  { match: /yoga|יוגה/i, tag: 'yoga' },
+  { match: /run|מרתון|ריצה/i, tag: 'running' },
+  { match: /bike|cycl|אופני|רכיב/i, tag: 'cycling' },
+  { match: /hik|trek|טרק|מסלול|טיול/i, tag: 'hiking' },
+  { match: /waterfall|מפל|נחל|river/i, tag: 'waterfall' },
+  { match: /desert|מדבר|נגב|מצדה|מכתש|crater/i, tag: 'desert' },
+  { match: /star|כוכב|astro|אסטרו|night sky/i, tag: 'stargazing,night' },
+  { match: /cook|בישול|בשל/i, tag: 'cooking' },
+  { match: /food|אוכל|שוק|market|קולינר|טעימ/i, tag: 'streetfood,market' },
+  { match: /ceramic|pottery|קרמיק|חרס/i, tag: 'pottery' },
+  { match: /wine|יין/i, tag: 'wine' },
+  { match: /jerusalem|ירושלים/i, tag: 'jerusalem' },
+  { match: /haifa|חיפה/i, tag: 'haifa' },
+  { match: /beach|חוף|\bים\b|sea/i, tag: 'beach' },
+]
+
+// Per-type fallback when no keyword matched.
+const TYPE_TAG: Record<string, string> = {
+  trip: 'travel,landscape',
+  attraction: 'landmark,sightseeing',
+  workshop: 'workshop,craft',
+  sport: 'sport',
+  food: 'food',
+  other: 'event',
+}
+
+function tagsFor(input: { type?: string; title?: string; tags?: string[] }): string {
+  const hay = [input.title, ...(input.tags || [])].filter(Boolean).join(' ')
+  for (const { match, tag } of KEYWORDS) {
+    if (match.test(hay)) return tag
+  }
+  return TYPE_TAG[input.type || 'other'] || TYPE_TAG.other
 }
 
 export function autoImageForCard(input: {
@@ -20,19 +52,10 @@ export function autoImageForCard(input: {
   city?: string
   country?: string
 }): string {
-  const parts = [
-    input.title?.trim(),
-    TYPE_HINT[input.type || 'other'] || TYPE_HINT.other,
-    ...(input.tags || []),
-    [input.city, input.country].filter(Boolean).join(' '),
-    'realistic photo, high quality',
-  ].filter(Boolean)
-
-  const prompt = parts.join(', ')
-  // Deterministic seed from the prompt so the same card keeps the same image.
-  let seed = 0
-  for (let i = 0; i < prompt.length; i++) seed = (seed * 31 + prompt.charCodeAt(i)) >>> 0
-
-  const encoded = encodeURIComponent(prompt)
-  return `https://image.pollinations.ai/prompt/${encoded}?width=1200&height=800&seed=${seed}&nologo=true`
+  const tags = tagsFor(input)
+  // Deterministic lock so a given card keeps the same photo.
+  const key = `${tags}|${input.title || ''}`
+  let lock = 0
+  for (let i = 0; i < key.length; i++) lock = (lock * 31 + key.charCodeAt(i)) >>> 0
+  return `https://loremflickr.com/1200/800/${tags}?lock=${lock % 100000}`
 }
