@@ -99,40 +99,106 @@ const FALLBACK_IMG = {
 const heroUrl = (card) =>
   card.image || FALLBACK_IMG[card.type] || FALLBACK_IMG.other
 
-// Branded HTML email. `bodyHtml` is the model-written article copy.
+// Branded HTML email — modern, mobile-friendly, email-client-safe (tables +
+// inline styles, no JS, bulletproof CTA). `bodyHtml` is the model-written copy.
 function buildEmailHtml(card, bodyHtml) {
   const url = `${APP_URL}/en/cards/${card.cardId}`
   const dateLabel = new Date(card.eventDate).toLocaleDateString('en-US', {
-    weekday: 'long', day: 'numeric', month: 'long',
+    weekday: 'long', month: 'long', day: 'numeric',
   })
-  const chips = [
-    `📍 ${esc(card.city)}`,
-    `🗓️ ${esc(dateLabel)}${card.eventTime ? ` · ${esc(card.eventTime)}` : ''}`,
-    `🏷️ ${esc(TYPE_LABEL[card.type] || card.type)}`,
-    `🔥 ${card.spotsLeft} spots left`,
-  ].map(
-    (c) =>
-      `<span style="display:inline-block;background:#f1f5f9;color:#0f172a;border-radius:999px;padding:6px 12px;margin:3px 2px;font-size:13px;font-weight:600">${c}</span>`,
-  ).join('')
+  const typeLabel = esc(TYPE_LABEL[card.type] || card.type)
+  const max = card.maxParticipants || (card.joined + card.spotsLeft) || 0
+  const pct = max > 0 ? Math.min(100, Math.round((card.joined / max) * 100)) : 0
+  const almostFull = card.spotsLeft <= 3
+  const urgency = almostFull ? `Only ${card.spotsLeft} spots left` : `${card.spotsLeft} spots left`
 
-  const hero = `<img src="${esc(heroUrl(card))}" alt="${esc(card.title)}" width="600" style="display:block;width:100%;max-width:600px;height:240px;object-fit:cover" />`
+  // One detail row: icon + label + value.
+  const row = (icon, value) => `
+    <tr>
+      <td width="34" style="padding:7px 0;font-size:18px;vertical-align:middle">${icon}</td>
+      <td style="padding:7px 0;font-size:15px;color:#0f172a;font-weight:600;vertical-align:middle">${value}</td>
+    </tr>`
 
-  return `<!doctype html><html dir="ltr" lang="en"><body style="margin:0;background:#0a1620;padding:24px 0;font-family:system-ui,'Segoe UI',Arial,sans-serif">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
-  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)">
-    <tr><td style="background:linear-gradient(120deg,#06b6d4,#8b5cf6);padding:20px 28px">
-      <div style="color:#fff;font-size:13px;font-weight:700;letter-spacing:.5px;opacity:.9">GoTogether · Coming up</div>
-      <div style="color:#fff;font-size:26px;font-weight:800;margin-top:4px">${esc(card.title)}</div>
-    </td></tr>
-    ${hero ? `<tr><td>${hero}</td></tr>` : ''}
-    <tr><td style="padding:20px 28px 8px">${chips}</td></tr>
-    <tr><td style="padding:4px 28px 8px;color:#334155;font-size:16px;line-height:1.7">${bodyHtml}</td></tr>
-    <tr><td align="center" style="padding:16px 28px 28px">
-      <a href="${url}" style="display:inline-block;background:linear-gradient(120deg,#06b6d4,#8b5cf6);color:#fff;text-decoration:none;font-size:17px;font-weight:800;padding:14px 38px;border-radius:999px">Join this event »</a>
-      <div style="margin-top:12px"><a href="${url}" style="color:#06b6d4;font-size:13px;text-decoration:none">${esc(url)}</a></div>
-    </td></tr>
-    <tr><td style="background:#f8fafc;padding:16px 28px;color:#94a3b8;font-size:12px;text-align:center">GoTogether — find people, go together 🌊</td></tr>
-  </table></td></tr></table></body></html>`
+  const detailRows =
+    row('🗓️', `${esc(dateLabel)}${card.eventTime ? ` &middot; ${esc(card.eventTime)}` : ''}`) +
+    row('📍', `${esc(card.city)}${card.country ? `, ${esc(card.country)}` : ''}`) +
+    row('🏷️', typeLabel)
+
+  // Spots progress bar (table-based so Outlook renders it).
+  const progress = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:6px">
+      <tr><td style="font-size:13px;color:#64748b;padding-bottom:6px">
+        <strong style="color:#0f172a">${card.joined}</strong> joined &middot; <strong style="color:${almostFull ? '#e11d48' : '#0891b2'}">${urgency}</strong>
+      </td></tr>
+      <tr><td style="background:#e2e8f0;border-radius:999px;font-size:0;line-height:0">
+        <table role="presentation" width="${pct}%" cellpadding="0" cellspacing="0"><tr>
+          <td height="8" style="background:linear-gradient(90deg,#06b6d4,#8b5cf6);background-color:#06b6d4;border-radius:999px;height:8px;line-height:8px;font-size:0">&nbsp;</td>
+        </tr></table>
+      </td></tr>
+    </table>`
+
+  // Bulletproof CTA button (works in Outlook via VML-free padded link in a table).
+  const cta = `
+    <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
+      <td align="center" bgcolor="#0891b2" style="border-radius:999px;background:linear-gradient(120deg,#06b6d4,#8b5cf6)">
+        <a href="${url}" style="display:inline-block;padding:15px 44px;font-size:17px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:999px">Join this event &rarr;</a>
+      </td>
+    </tr></table>`
+
+  const hero = `<img src="${esc(heroUrl(card))}" alt="${esc(card.title)}" width="600" style="display:block;width:100%;max-width:600px;height:260px;object-fit:cover;border:0" />`
+
+  // Hidden preheader (inbox preview text).
+  const preheader = `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${urgency} — ${esc(card.title)} on ${esc(dateLabel)}.</div>`
+
+  return `<!doctype html><html dir="ltr" lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#0a1620">
+${preheader}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a1620;padding:28px 12px">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+
+      <!-- brand bar -->
+      <tr><td style="padding:0 4px 14px">
+        <span style="color:#7dd3fc;font-size:15px;font-weight:800;letter-spacing:.4px">Go<span style="color:#c4b5fd">Together</span></span>
+        <span style="float:right;color:#64748b;font-size:12px;font-weight:600">COMING UP</span>
+      </td></tr>
+
+      <!-- card -->
+      <tr><td style="background:#ffffff;border-radius:20px;overflow:hidden">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+
+          <tr><td style="position:relative">${hero}</td></tr>
+
+          <tr><td style="padding:24px 30px 4px">
+            <div style="display:inline-block;background:#ecfeff;color:#0891b2;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:5px 12px;border-radius:999px">${typeLabel}</div>
+            <h1 style="margin:12px 0 4px;font-size:25px;line-height:1.25;color:#0f172a;font-weight:800">${esc(card.title)}</h1>
+          </td></tr>
+
+          <tr><td style="padding:8px 30px 0">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${detailRows}</table>
+          </td></tr>
+
+          <tr><td style="padding:10px 30px 0">${progress}</td></tr>
+
+          <tr><td style="padding:14px 30px 4px;color:#475569;font-size:16px;line-height:1.7">${bodyHtml}</td></tr>
+
+          <tr><td style="padding:22px 30px 6px">${cta}</td></tr>
+          <tr><td align="center" style="padding:0 30px 26px">
+            <a href="${url}" style="color:#94a3b8;font-size:12px;text-decoration:none">${esc(url)}</a>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- footer -->
+      <tr><td style="padding:18px 8px;text-align:center;color:#64748b;font-size:12px;line-height:1.6">
+        GoTogether — find people, go together 🌊<br>
+        You're getting this because you joined the GoTogether community.
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body></html>`
 }
 
 // ─── Step 1: gather candidates (plain code, not the model) ───────────────────
@@ -165,6 +231,8 @@ async function getCandidateCards() {
         eventDate: c.event_date,
         eventTime: c.event_time,
         spotsLeft: c.max_participants - joined,
+        maxParticipants: c.max_participants,
+        joined,
         image: firstImage,
         participantUserIds: (c.participants || []).map((p) => p.user_id),
       }
