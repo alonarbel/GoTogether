@@ -85,6 +85,20 @@ function esc(s = '') {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+// Known-good Unsplash photos per card type. Email clients can't run an onError
+// fallback (JS is stripped), so the hero URL must be valid up front. Used when a
+// card has no image of its own.
+const FALLBACK_IMG = {
+  trip: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80',
+  attraction: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',
+  workshop: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&q=80',
+  sport: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1200&q=80',
+  food: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80',
+  other: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80',
+}
+const heroUrl = (card) =>
+  card.image || FALLBACK_IMG[card.type] || FALLBACK_IMG.other
+
 // Branded HTML email. `bodyHtml` is the model-written article copy.
 function buildEmailHtml(card, bodyHtml) {
   const url = `${APP_URL}/he/cards/${card.cardId}`
@@ -101,9 +115,7 @@ function buildEmailHtml(card, bodyHtml) {
       `<span style="display:inline-block;background:#f1f5f9;color:#0f172a;border-radius:999px;padding:6px 12px;margin:3px 2px;font-size:13px;font-weight:600">${c}</span>`,
   ).join('')
 
-  const hero = card.image
-    ? `<img src="${esc(card.image)}" alt="${esc(card.title)}" width="600" style="display:block;width:100%;max-width:600px;height:240px;object-fit:cover" />`
-    : ''
+  const hero = `<img src="${esc(heroUrl(card))}" alt="${esc(card.title)}" width="600" style="display:block;width:100%;max-width:600px;height:240px;object-fit:cover" />`
 
   return `<!doctype html><html dir="rtl" lang="he"><body style="margin:0;background:#0a1620;padding:24px 0;font-family:system-ui,'Segoe UI',Arial,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
