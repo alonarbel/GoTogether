@@ -77,8 +77,8 @@ const gmailTransport = USE_GMAIL
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
 const TYPE_LABEL = {
-  trip: 'טיול', attraction: 'אטרקציה', workshop: 'סדנה',
-  sport: 'ספורט', food: 'אוכל', other: 'אירוע',
+  trip: 'Trip', attraction: 'Attraction', workshop: 'Workshop',
+  sport: 'Sport', food: 'Food', other: 'Event',
 }
 
 function esc(s = '') {
@@ -101,15 +101,15 @@ const heroUrl = (card) =>
 
 // Branded HTML email. `bodyHtml` is the model-written article copy.
 function buildEmailHtml(card, bodyHtml) {
-  const url = `${APP_URL}/he/cards/${card.cardId}`
-  const dateLabel = new Date(card.eventDate).toLocaleDateString('he-IL', {
+  const url = `${APP_URL}/en/cards/${card.cardId}`
+  const dateLabel = new Date(card.eventDate).toLocaleDateString('en-US', {
     weekday: 'long', day: 'numeric', month: 'long',
   })
   const chips = [
     `📍 ${esc(card.city)}`,
     `🗓️ ${esc(dateLabel)}${card.eventTime ? ` · ${esc(card.eventTime)}` : ''}`,
     `🏷️ ${esc(TYPE_LABEL[card.type] || card.type)}`,
-    `🔥 ${card.spotsLeft} מקומות נותרו`,
+    `🔥 ${card.spotsLeft} spots left`,
   ].map(
     (c) =>
       `<span style="display:inline-block;background:#f1f5f9;color:#0f172a;border-radius:999px;padding:6px 12px;margin:3px 2px;font-size:13px;font-weight:600">${c}</span>`,
@@ -117,40 +117,40 @@ function buildEmailHtml(card, bodyHtml) {
 
   const hero = `<img src="${esc(heroUrl(card))}" alt="${esc(card.title)}" width="600" style="display:block;width:100%;max-width:600px;height:240px;object-fit:cover" />`
 
-  return `<!doctype html><html dir="rtl" lang="he"><body style="margin:0;background:#0a1620;padding:24px 0;font-family:system-ui,'Segoe UI',Arial,sans-serif">
+  return `<!doctype html><html dir="ltr" lang="en"><body style="margin:0;background:#0a1620;padding:24px 0;font-family:system-ui,'Segoe UI',Arial,sans-serif">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)">
     <tr><td style="background:linear-gradient(120deg,#06b6d4,#8b5cf6);padding:20px 28px">
-      <div style="color:#fff;font-size:13px;font-weight:700;letter-spacing:.5px;opacity:.9">GoTogether · קורה מחר</div>
+      <div style="color:#fff;font-size:13px;font-weight:700;letter-spacing:.5px;opacity:.9">GoTogether · Coming up</div>
       <div style="color:#fff;font-size:26px;font-weight:800;margin-top:4px">${esc(card.title)}</div>
     </td></tr>
     ${hero ? `<tr><td>${hero}</td></tr>` : ''}
     <tr><td style="padding:20px 28px 8px">${chips}</td></tr>
     <tr><td style="padding:4px 28px 8px;color:#334155;font-size:16px;line-height:1.7">${bodyHtml}</td></tr>
     <tr><td align="center" style="padding:16px 28px 28px">
-      <a href="${url}" style="display:inline-block;background:linear-gradient(120deg,#06b6d4,#8b5cf6);color:#fff;text-decoration:none;font-size:17px;font-weight:800;padding:14px 38px;border-radius:999px">להצטרפות לכרטיסייה »</a>
+      <a href="${url}" style="display:inline-block;background:linear-gradient(120deg,#06b6d4,#8b5cf6);color:#fff;text-decoration:none;font-size:17px;font-weight:800;padding:14px 38px;border-radius:999px">Join this event »</a>
       <div style="margin-top:12px"><a href="${url}" style="color:#06b6d4;font-size:13px;text-decoration:none">${esc(url)}</a></div>
     </td></tr>
-    <tr><td style="background:#f8fafc;padding:16px 28px;color:#94a3b8;font-size:12px;text-align:center">GoTogether — מוצאים אנשים, יוצאים יחד 🌊</td></tr>
+    <tr><td style="background:#f8fafc;padding:16px 28px;color:#94a3b8;font-size:12px;text-align:center">GoTogether — find people, go together 🌊</td></tr>
   </table></td></tr></table></body></html>`
 }
 
 // ─── Step 1: gather candidates (plain code, not the model) ───────────────────
-// Cards happening tomorrow that still have open spots. Spots-remaining mirrors
-// mapCard() in src/lib/cards.ts: currentParticipants = participants.length.
+// Upcoming cards (today onward) with open spots. We then keep only the soonest
+// date that has any — tomorrow if it has cards, otherwise the closest event.
+// Spots-remaining mirrors mapCard() in src/lib/cards.ts (participants.length).
 async function getCandidateCards() {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const iso = tomorrow.toISOString().slice(0, 10) // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
 
   const { data, error } = await supabase
     .from('travel_cards')
     .select('id, title, description, type, city, country, tags, event_date, event_time, max_participants, card_images(url, position), participants(id, user_id)')
-    .eq('event_date', iso)
+    .gte('event_date', today)
+    .order('event_date', { ascending: true })
 
   if (error) throw new Error(`Supabase query failed: ${error.message}`)
 
-  return (data || [])
+  const withSpots = (data || [])
     .map((c) => {
       const joined = (c.participants || []).length
       const firstImage = (c.card_images || []).slice().sort((a, b) => a.position - b.position)[0]?.url || null
@@ -170,6 +170,12 @@ async function getCandidateCards() {
       }
     })
     .filter((c) => c.spotsLeft > 0)
+
+  if (withSpots.length === 0) return []
+
+  // Keep only the soonest date that has cards (tomorrow if present, else closest).
+  const soonest = withSpots[0].eventDate // sorted ascending by event_date
+  return withSpots.filter((c) => c.eventDate === soonest)
 }
 
 // ─── Recipients ──────────────────────────────────────────────────────────────
@@ -221,7 +227,7 @@ const tools = [
   {
     name: 'get_candidate_cards',
     description:
-      'Return the list of GoTogether cards happening tomorrow that still have open spots. Call this first to see what is available.',
+      'Return the list of upcoming GoTogether cards that still have open spots — the soonest date available (tomorrow if there is one, otherwise the closest upcoming event). Call this first.',
     input_schema: { type: 'object', properties: {}, required: [] },
   },
   {
@@ -232,8 +238,8 @@ const tools = [
       type: 'object',
       properties: {
         cardId: { type: 'string', description: 'The id of the card being promoted.' },
-        subject: { type: 'string', description: 'Email subject line (Hebrew), may include one emoji.' },
-        articleHtml: { type: 'string', description: 'The promo article BODY only (Hebrew, RTL) as 1-2 short <p> paragraphs. Do NOT include images, headings, buttons, or links — the template adds those.' },
+        subject: { type: 'string', description: 'Email subject line (English), may include one emoji.' },
+        articleHtml: { type: 'string', description: 'The promo article BODY only (English) as 1-2 short <p> paragraphs. Do NOT include images, headings, buttons, or links — the template adds those.' },
       },
       required: ['cardId', 'subject', 'articleHtml'],
     },
@@ -277,14 +283,14 @@ async function runTool(name, input) {
 }
 
 // ─── The agent loop ──────────────────────────────────────────────────────────
-const SYSTEM = `You are GoTogether's daily promoter agent. GoTogether is a Hebrew, RTL app for joining group trips and activities in Israel.
-Your job: call get_candidate_cards, pick the single most compelling card that still needs people, write a short warm promo article BODY in Hebrew (~80 words) as 1-2 <p> paragraphs only — no heading, image, button, or link (the email template adds the title, photo, details, and a join button). End with a sentence that invites joining. Then call send_promo_email exactly once with that card's id.
-If get_candidate_cards returns an empty list, do not send anything — just say there is nothing to promote today.`
+const SYSTEM = `You are GoTogether's daily promoter agent. GoTogether is an app for joining group trips and activities.
+Your job: call get_candidate_cards (it returns the soonest upcoming events with open spots), pick the single most compelling card that still needs people, write a short warm promo article BODY in English (~80 words) as 1-2 <p> paragraphs only — no heading, image, button, or link (the email template adds the title, photo, details, and a join button). End with a sentence that invites joining. Then call send_promo_email exactly once with that card's id.
+If get_candidate_cards returns an empty list, do not send anything — just say there is nothing to promote.`
 
 async function main() {
   console.log('[agent] starting daily promoter run...')
   const messages = [
-    { role: 'user', content: 'Run today\'s promotion. Find tomorrow\'s best card that needs people and promote it.' },
+    { role: 'user', content: 'Run today\'s promotion. Find the soonest upcoming card that needs people and promote it.' },
   ]
 
   for (let turn = 0; turn < 8; turn++) {
