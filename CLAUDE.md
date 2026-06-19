@@ -77,6 +77,32 @@ ArrowDown/ArrowUp navigates results, Enter selects (or selects index 0 if nothin
 - **Opening the bell marks all as read server-side AND sets local count to 0 immediately** so the badge clears without waiting for the next poll. This is intentional UX; if you want lazy "mark on click" instead, change the `handleToggle` handler.
 - Badge background is a solid inline rose→red gradient (not Tailwind classes — see gotchas).
 
+## Agents (`scripts/*-agent.mjs`)
+
+Standalone Node scripts that use the Claude API (`@anthropic-ai/sdk`) as a **tool-use agent**: the model is given tools + a system prompt and runs a decision loop; our code executes each tool call and feeds the result back until the model ends its turn. These run **outside** Next.js (own process, `pnpm <name>`), use a **service-role** Supabase client (bypasses RLS, reads `auth.users` emails), and load secrets from `.env.local`. Keep service-role/API keys server-only — never import these scripts into the client bundle.
+
+### Daily Promoter — `scripts/daily-agent.mjs` (`pnpm agent`)
+Finds the soonest upcoming card with open spots (tomorrow if any, else the closest future date — `getCandidateCards` queries `event_date >= today`, sorts ascending, keeps only the earliest date group), then Claude picks the most compelling one, writes an English promo article, and emails a branded HTML message with a CTA linking to `${APP_URL}/en/cards/<id>`.
+- **Tools:** `get_candidate_cards` (read) and `send_promo_email` (act). Defined as `{name, description, input_schema}` in the `tools` array.
+- **The loop** (`main()`): `anthropic.messages.create({ model, system, tools, messages })` → if `stop_reason === 'tool_use'`, run each `tool_use` block via `runTool()`, push one `tool_result` per call, repeat. Capped at 8 turns. This loop is identical for every agent — only `tools`, `SYSTEM`, and `runTool` change.
+- **Model:** `claude-haiku-4-5` (cheap; article-writing is easy). No `thinking` param — Haiku doesn't support adaptive thinking.
+- **Email:** built in code (`buildEmailHtml`), not by the model — table-based, inline styles, bulletproof CTA, per-type Unsplash hero fallback (`heroUrl`) since email clients strip the `onError` JS fallback used in the in-app card grid. The model only writes the `<p>` body copy.
+- **Delivery:** Gmail SMTP via `nodemailer` when `GMAIL_APP_PASSWORD` is set (delivers to anyone, no domain); otherwise Resend (sandbox — only delivers to `QA_EMAIL`). Sends **one request per recipient** so one bad address doesn't block the rest.
+- **Recipients:** `getRecipients()` — `DEMO_MODE = true` returns `[QA_EMAIL, ...EXTRA_RECIPIENTS]` (safe demo); flip to `false` to email all registered users who haven't joined the card (via `supabase.auth.admin.listUsers()`).
+- **Env (`.env.local`):** `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_URL`, plus `GMAIL_APP_PASSWORD` (or `RESEND_API_KEY`), `QA_EMAIL`, `EXTRA_RECIPIENTS`. See `.env.example`.
+
+### Adding a new agent
+1. Decide it actually needs an agent: multi-step **and** the model must make a choice. Otherwise write a plain function.
+2. New file `scripts/<name>-agent.mjs` — copy the header from `daily-agent.mjs` (`loadEnv()`, env checks, service-role client, `new Anthropic(...)`).
+3. Add its env keys to `.env.local` **and** `.env.example` (placeholder, no real values/emails).
+4. Write the plain data functions (Supabase queries, side effects) — no AI here.
+5. Define the `tools` array; the `description` tells the model *when* to call each.
+6. Write the `SYSTEM` prompt (role, goal, "call X exactly once", what to do when there's nothing to do).
+7. Copy the agent loop verbatim — it never changes.
+8. Write `runTool(name, input)` (switch → data functions), add guardrails (a `DEMO_MODE`-style flag for risky actions, per-tool `try/catch` returning the error to the model, a max-turns cap), and add `"<name>": "node scripts/<name>-agent.mjs"` to `package.json` scripts.
+
+The intelligence lives in the **tool descriptions** and **system prompt** — that's where to spend design effort.
+
 ## Git & GitHub
 
 **Remote:** `https://github.com/alonarbel/GoTogether.git` (single `master` branch — this is both the default and production branch).
